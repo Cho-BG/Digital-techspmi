@@ -107,10 +107,20 @@
       </div>
       <div class="form-group admin-department-group" id="accountDepartmentGroup">
         <label for="accountDepartment">Кафедра</label>
-        <select id="accountDepartment" data-searchable="true" data-search-placeholder="Найти кафедру...">
-          <option value="">Выберите кафедру</option>
-        </select>
-        <small class="admin-department-hint">Начните вводить название для быстрого поиска</small>
+        <input id="accountDepartment" type="text" list="accountDepartmentList" placeholder="Выберите или введите кафедру" autocomplete="off">
+        <datalist id="accountDepartmentList"></datalist>
+        <small class="admin-department-hint">Выберите из списка или введите свое значение</small>
+      </div>
+      <div class="form-group admin-department-group" id="accountPositionGroup">
+        <label for="accountPosition">Должность</label>
+        <input id="accountPosition" type="text" list="accountPositionList" placeholder="Выберите или введите должность" autocomplete="off">
+        <datalist id="accountPositionList">
+          <option value="Заведующий"></option>
+          <option value="Доцент"></option>
+          <option value="Ассистент"></option>
+          <option value="Главный специалист"></option>
+        </datalist>
+        <small class="admin-department-hint">Выберите из списка или введите свою должность</small>
       </div>
       <div class="form-group" id="accountLoginGroup">
         <label for="accountLogin">Логин</label>
@@ -320,9 +330,7 @@
 
     function accountSubtitle(account) {
       if (!['teacher', 'worker', 'supervisor'].includes(account.role)) return '';
-      const details = [];
-      if (account.developer_access === 1) details.push('Разработчик');
-      if (account.department) details.push(/^(?:кафедра|нц|центр)(?:\s|$)/i.test(account.department.trim()) ? account.department.trim() : `Кафедра ${account.department.trim()}`);
+      const details = account.developer_access === 1 ? ['Разработчик'] : [];
       return details.length ? `<small>${details.map(escapeHtml).join(' · ')}</small>` : '';
     }
 
@@ -339,11 +347,8 @@
       roleSelect.innerHTML = accountSection === 'students' ? '<option value="student">Студент</option>' : '<option value="teacher">Преподаватель</option><option value="worker">Сотрудник</option><option value="supervisor">Руководитель</option>';
       roleSelect.value = account?.role || (accountSection === 'students' ? 'student' : 'teacher');
       document.getElementById('accountName').value = account?.full_name || '';
-      const departmentSelect = document.getElementById('accountDepartment');
-      if (account?.department && !Array.from(departmentSelect.options).some(option => option.value === account.department)) {
-        departmentSelect.add(new Option(account.department, account.department));
-      }
-      departmentSelect.value = account?.department || '';
+      document.getElementById('accountDepartment').value = account?.department || '';
+      document.getElementById('accountPosition').value = account?.position || '';
       document.getElementById('accountLogin').value = account?.login || '';
       document.getElementById('accountPassword').value = '';
       document.getElementById('accountPassword').type = 'password';
@@ -394,7 +399,11 @@
     function updateDepartmentControl() {
       const isStaff = document.getElementById('accountRole').value !== 'student';
       document.getElementById('accountDepartmentGroup').style.display = isStaff && accountEditMode === 'all' ? '' : 'none';
-      if (!isStaff) document.getElementById('accountDepartment').value = '';
+      document.getElementById('accountPositionGroup').style.display = isStaff && accountEditMode === 'all' ? '' : 'none';
+      if (!isStaff) {
+        document.getElementById('accountDepartment').value = '';
+        document.getElementById('accountPosition').value = '';
+      }
     }
 
     function generateAccountPassword() {
@@ -571,7 +580,8 @@
         full_name: document.getElementById('accountName').value.trim(),
         login: document.getElementById('accountLogin').value.trim(),
         password: document.getElementById('accountPassword').value,
-        department: document.getElementById('accountDepartment').value,
+        department: document.getElementById('accountDepartment').value.trim(),
+        position: document.getElementById('accountPosition').value.trim(),
         account_enabled: document.getElementById('accountEnabled').checked,
         developer_access: document.getElementById('accountDeveloper').checked
       };
@@ -721,8 +731,8 @@
     document.getElementById('accountModal').addEventListener('click', e => { if (e.target.id === 'accountModal') closeAccountModal(); });
     document.getElementById('generatedPasswordModal').addEventListener('click', e => { if (e.target.id === 'generatedPasswordModal') closeGeneratedPassword(); });
     document.getElementById('printCredentialsModal').addEventListener('click', e => { if (e.target.id === 'printCredentialsModal') closePrintCredentialsModal(); });
-    const departmentSelect = document.getElementById('accountDepartment');
-    departments.forEach(department => departmentSelect.add(new Option(department, department)));
+    const departmentList = document.getElementById('accountDepartmentList');
+    departments.forEach(department => departmentList.appendChild(new Option('', department)));
     checkAuth().then(ok => { if (ok) { loadSystemStatus(); loadAccounts(); loadPasswordRecoveryRequests(); } });
   </script>
   <script src="/modal-layout.js"></script>
