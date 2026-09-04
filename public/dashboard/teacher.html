@@ -243,7 +243,7 @@
             <option value="1">1 пара (8:50–10:20)</option><option value="2">2 пара (10:35–12:05)</option><option value="3">3 пара (12:35–14:05)</option><option value="4">4 пара (14:15–15:45)</option><option value="5">5 пара (15:55–17:20)</option><option value="6">6 пара (17:30–19:00)</option>
           </select>
         </div>
-        <div class="schedule-manual-time" id="teacherScheduleManualTime" style="display:none"><div class="form-group"><label for="teacherScheduleManualStart">С</label><select id="teacherScheduleManualStart" onchange="syncManualScheduleTime('teacherSchedule')"></select></div><span aria-hidden="true">→</span><div class="form-group"><label for="teacherScheduleManualEnd">До</label><select id="teacherScheduleManualEnd" onchange="syncManualScheduleTime('teacherSchedule')"></select></div></div>
+        <div class="schedule-manual-time" id="teacherScheduleManualTime" style="display:none"><div class="form-group"><label>С</label><div class="schedule-clock-picker"><select id="teacherScheduleStartHour" aria-label="Час начала" onchange="syncManualScheduleTime('teacherSchedule')"></select><b>:</b><select id="teacherScheduleStartMinute" aria-label="Минуты начала" onchange="syncManualScheduleTime('teacherSchedule')"></select><select id="teacherScheduleStartPeriod" aria-label="AM или PM для начала" onchange="syncManualScheduleTime('teacherSchedule')"><option>AM</option><option>PM</option></select></div><input type="hidden" id="teacherScheduleManualStart"></div><span aria-hidden="true">→</span><div class="form-group"><label>До</label><div class="schedule-clock-picker"><select id="teacherScheduleEndHour" aria-label="Час окончания" onchange="syncManualScheduleTime('teacherSchedule')"></select><b>:</b><select id="teacherScheduleEndMinute" aria-label="Минуты окончания" onchange="syncManualScheduleTime('teacherSchedule')"></select><select id="teacherScheduleEndPeriod" aria-label="AM или PM для окончания" onchange="syncManualScheduleTime('teacherSchedule')"><option>AM</option><option>PM</option></select></div><input type="hidden" id="teacherScheduleManualEnd"></div></div>
       </div>
       <div class="schedule-repeat-card" id="teacherScheduleRepeatBlock">
         <div class="schedule-repeat-heading"><span aria-hidden="true"></span><div><strong>Повтор занятия</strong><small>Создайте серию занятий одним действием</small></div></div>
@@ -1245,28 +1245,39 @@
     ];
     const SCHEDULE_ROOMS = ['3303','3306','3307','3308','3309','3313','3317','3321','3518','3520','4414','4501'];
 
-    function formatScheduleTime(value) {
-      const [hours, minutes] = String(value).split(':').map(Number);
-      return `${hours % 12 || 12}:${String(minutes).padStart(2,'0')} ${hours < 12 ? 'AM' : 'PM'}`;
+    function fillScheduleClockOptions(prefixes) {
+      prefixes.forEach(prefix => ['Start','End'].forEach(side => {
+        const hour = document.getElementById(`${prefix}${side}Hour`);
+        const minute = document.getElementById(`${prefix}${side}Minute`);
+        for (let value = 1; value <= 12; value++) hour.add(new Option(String(value), String(value)));
+        for (let value = 0; value < 60; value += 5) minute.add(new Option(String(value).padStart(2,'0'), String(value).padStart(2,'0')));
+      }));
     }
 
-    function fillScheduleTimeOptions(ids) {
-      ids.forEach(id => {
-        const select = document.getElementById(id);
-        for (let minutes = 0; minutes < 24 * 60; minutes += 5) {
-          const value = `${String(Math.floor(minutes / 60)).padStart(2,'0')}:${String(minutes % 60).padStart(2,'0')}`;
-          select.add(new Option(formatScheduleTime(value), value));
-        }
-      });
+    function readScheduleClock(prefix, side) {
+      const hour = Number(document.getElementById(`${prefix}${side}Hour`).value);
+      const minute = document.getElementById(`${prefix}${side}Minute`).value;
+      const period = document.getElementById(`${prefix}${side}Period`).value;
+      const hour24 = hour % 12 + (period === 'PM' ? 12 : 0);
+      return `${String(hour24).padStart(2,'0')}:${minute}`;
     }
 
     function setScheduleTimeValue(id, value) {
-      const select = document.getElementById(id);
-      if (value && !Array.from(select.options).some(option => option.value === value)) select.add(new Option(formatScheduleTime(value), value));
-      select.value = value;
+      const match = /^(.*)Manual(Start|End)$/.exec(id);
+      if (!match || !value) return;
+      const [, prefix, side] = match;
+      const [hour24, minuteValue] = value.split(':').map(Number);
+      const values = {
+        [`${prefix}${side}Hour`]: String(hour24 % 12 || 12),
+        [`${prefix}${side}Minute`]: String(minuteValue).padStart(2,'0'),
+        [`${prefix}${side}Period`]: hour24 < 12 ? 'AM' : 'PM'
+      };
+      const minute = document.getElementById(`${prefix}${side}Minute`);
+      if (!Array.from(minute.options).some(option => option.value === values[`${prefix}${side}Minute`])) minute.add(new Option(values[`${prefix}${side}Minute`], values[`${prefix}${side}Minute`]));
+      Object.entries(values).forEach(([selectId, selected]) => { const select = document.getElementById(selectId); select.value = selected; select.dispatchEvent(new Event('change')); });
     }
 
-    fillScheduleTimeOptions(['teacherScheduleManualStart','teacherScheduleManualEnd']);
+    fillScheduleClockOptions(['teacherSchedule']);
 
     let scheduleWeekOffset = 0;
 
@@ -1295,8 +1306,11 @@
     }
 
     function syncManualScheduleTime(prefix) {
-      document.getElementById(`${prefix}TimeStart`).value = document.getElementById(`${prefix}ManualStart`).value;
-      document.getElementById(`${prefix}TimeEnd`).value = document.getElementById(`${prefix}ManualEnd`).value;
+      ['Start','End'].forEach(side => {
+        const value = readScheduleClock(prefix, side);
+        document.getElementById(`${prefix}Manual${side}`).value = value;
+        document.getElementById(`${prefix}Time${side}`).value = value;
+      });
     }
 
     function setScheduleTimeMode(prefix, mode) {

@@ -822,7 +822,7 @@
         <div class="schedule-time-heading"><span aria-hidden="true"></span><div><strong>Время занятия</strong><small>Выберите пару или задайте точное время</small></div></div>
         <div class="schedule-time-switch" role="group" aria-label="Способ выбора времени"><button type="button" data-time-mode="pair" onclick="setScheduleTimeMode('schedule','pair')">По номеру пары</button><button type="button" data-time-mode="manual" onclick="setScheduleTimeMode('schedule','manual')">Указать время</button></div>
         <div class="form-group schedule-pair-field" id="schedulePairGroup"><label for="schedulePairSelect">Пара</label><select id="schedulePairSelect"><option value="1">1 пара (8:50–10:20)</option><option value="2">2 пара (10:35–12:05)</option><option value="3">3 пара (12:35–14:05)</option><option value="4">4 пара (14:15–15:45)</option><option value="5">5 пара (15:55–17:20)</option><option value="6">6 пара (17:30–19:00)</option></select></div>
-        <div class="schedule-manual-time" id="scheduleManualTime" style="display:none"><div class="form-group"><label for="scheduleManualStart">С</label><select id="scheduleManualStart" onchange="syncManualScheduleTime('schedule')"></select></div><span aria-hidden="true">→</span><div class="form-group"><label for="scheduleManualEnd">До</label><select id="scheduleManualEnd" onchange="syncManualScheduleTime('schedule')"></select></div></div>
+        <div class="schedule-manual-time" id="scheduleManualTime" style="display:none"><div class="form-group"><label>С</label><div class="schedule-clock-picker"><select id="scheduleStartHour" aria-label="Час начала" onchange="syncManualScheduleTime('schedule')"></select><b>:</b><select id="scheduleStartMinute" aria-label="Минуты начала" onchange="syncManualScheduleTime('schedule')"></select><select id="scheduleStartPeriod" aria-label="AM или PM для начала" onchange="syncManualScheduleTime('schedule')"><option>AM</option><option>PM</option></select></div><input type="hidden" id="scheduleManualStart"></div><span aria-hidden="true">→</span><div class="form-group"><label>До</label><div class="schedule-clock-picker"><select id="scheduleEndHour" aria-label="Час окончания" onchange="syncManualScheduleTime('schedule')"></select><b>:</b><select id="scheduleEndMinute" aria-label="Минуты окончания" onchange="syncManualScheduleTime('schedule')"></select><select id="scheduleEndPeriod" aria-label="AM или PM для окончания" onchange="syncManualScheduleTime('schedule')"><option>AM</option><option>PM</option></select></div><input type="hidden" id="scheduleManualEnd"></div></div>
       </div>
       <div class="schedule-repeat-card" id="scheduleRepeatBlock">
         <div class="schedule-repeat-heading"><span aria-hidden="true"></span><div><strong>Повтор занятия</strong><small>Создайте серию занятий одним действием</small></div></div>
@@ -873,7 +873,7 @@
         <div class="schedule-time-heading"><span aria-hidden="true"></span><div><strong>Время занятия</strong><small>Выберите пару или задайте точное время</small></div></div>
         <div class="schedule-time-switch" role="group" aria-label="Способ выбора времени"><button type="button" data-time-mode="pair" onclick="setScheduleTimeMode('personalSchedule','pair')">По номеру пары</button><button type="button" data-time-mode="manual" onclick="setScheduleTimeMode('personalSchedule','manual')">Указать время</button></div>
         <div class="form-group schedule-pair-field" id="personalSchedulePairGroup"><label for="personalSchedulePairSelect">Пара</label><select id="personalSchedulePairSelect"><option value="1">1 пара (8:50–10:20)</option><option value="2">2 пара (10:35–12:05)</option><option value="3">3 пара (12:35–14:05)</option><option value="4">4 пара (14:15–15:45)</option><option value="5">5 пара (15:55–17:20)</option><option value="6">6 пара (17:30–19:00)</option></select></div>
-        <div class="schedule-manual-time" id="personalScheduleManualTime" style="display:none"><div class="form-group"><label for="personalScheduleManualStart">С</label><select id="personalScheduleManualStart" onchange="syncManualScheduleTime('personalSchedule')"></select></div><span aria-hidden="true">→</span><div class="form-group"><label for="personalScheduleManualEnd">До</label><select id="personalScheduleManualEnd" onchange="syncManualScheduleTime('personalSchedule')"></select></div></div>
+        <div class="schedule-manual-time" id="personalScheduleManualTime" style="display:none"><div class="form-group"><label>С</label><div class="schedule-clock-picker"><select id="personalScheduleStartHour" aria-label="Час начала" onchange="syncManualScheduleTime('personalSchedule')"></select><b>:</b><select id="personalScheduleStartMinute" aria-label="Минуты начала" onchange="syncManualScheduleTime('personalSchedule')"></select><select id="personalScheduleStartPeriod" aria-label="AM или PM для начала" onchange="syncManualScheduleTime('personalSchedule')"><option>AM</option><option>PM</option></select></div><input type="hidden" id="personalScheduleManualStart"></div><span aria-hidden="true">→</span><div class="form-group"><label>До</label><div class="schedule-clock-picker"><select id="personalScheduleEndHour" aria-label="Час окончания" onchange="syncManualScheduleTime('personalSchedule')"></select><b>:</b><select id="personalScheduleEndMinute" aria-label="Минуты окончания" onchange="syncManualScheduleTime('personalSchedule')"></select><select id="personalScheduleEndPeriod" aria-label="AM или PM для окончания" onchange="syncManualScheduleTime('personalSchedule')"><option>AM</option><option>PM</option></select></div><input type="hidden" id="personalScheduleManualEnd"></div></div>
       </div>
       <div class="schedule-repeat-card" id="personalScheduleRepeatBlock">
         <div class="schedule-repeat-heading"><span aria-hidden="true"></span><div><strong>Повтор занятия</strong><small>Создайте серию занятий одним действием</small></div></div>
@@ -2832,19 +2832,10 @@
     const SCHEDULE_ROOMS = ['3303','3306','3307','3308','3309','3313','3317','3321','3518','3520','4414','4501'];
     let scheduleTeacherOptions = [];
 
-    function formatScheduleTime(value) { const [hours, minutes] = String(value).split(':').map(Number); return `${hours % 12 || 12}:${String(minutes).padStart(2,'0')} ${hours < 12 ? 'AM' : 'PM'}`; }
-
-    function fillScheduleTimeOptions(ids) {
-      ids.forEach(id => {
-        const select = document.getElementById(id);
-        for (let minutes = 0; minutes < 24 * 60; minutes += 5) {
-          const value = `${String(Math.floor(minutes / 60)).padStart(2,'0')}:${String(minutes % 60).padStart(2,'0')}`;
-          select.add(new Option(formatScheduleTime(value), value));
-        }
-      });
-    }
-    function setScheduleTimeValue(id, value) { const select = document.getElementById(id); if (value && !Array.from(select.options).some(option => option.value === value)) select.add(new Option(formatScheduleTime(value),value)); select.value = value; }
-    fillScheduleTimeOptions(['scheduleManualStart','scheduleManualEnd','personalScheduleManualStart','personalScheduleManualEnd']);
+    function fillScheduleClockOptions(prefixes) { prefixes.forEach(prefix => ['Start','End'].forEach(side => { const hour = document.getElementById(`${prefix}${side}Hour`); const minute = document.getElementById(`${prefix}${side}Minute`); for (let value=1;value<=12;value++) hour.add(new Option(String(value),String(value))); for(let value=0;value<60;value+=5){const label=String(value).padStart(2,'0');minute.add(new Option(label,label));} })); }
+    function readScheduleClock(prefix, side) { const hour=Number(document.getElementById(`${prefix}${side}Hour`).value);const minute=document.getElementById(`${prefix}${side}Minute`).value;const period=document.getElementById(`${prefix}${side}Period`).value;return `${String(hour%12+(period==='PM'?12:0)).padStart(2,'0')}:${minute}`; }
+    function setScheduleTimeValue(id,value){const match=/^(.*)Manual(Start|End)$/.exec(id);if(!match||!value)return;const[,prefix,side]=match;const[hour24,minuteValue]=value.split(':').map(Number);const minute=document.getElementById(`${prefix}${side}Minute`);const minuteLabel=String(minuteValue).padStart(2,'0');if(!Array.from(minute.options).some(option=>option.value===minuteLabel))minute.add(new Option(minuteLabel,minuteLabel));const values={Hour:String(hour24%12||12),Minute:minuteLabel,Period:hour24<12?'AM':'PM'};Object.entries(values).forEach(([part,selected])=>{const select=document.getElementById(`${prefix}${side}${part}`);select.value=selected;select.dispatchEvent(new Event('change'));});}
+    fillScheduleClockOptions(['schedule','personalSchedule']);
 
     function timeToMinutes(t) {
       const p = t.split(':');
@@ -2878,8 +2869,7 @@
     function updatePairTimes() { updateSchedulePairTimes('schedule'); }
 
     function syncManualScheduleTime(prefix) {
-      document.getElementById(`${prefix}TimeStart`).value = document.getElementById(`${prefix}ManualStart`).value;
-      document.getElementById(`${prefix}TimeEnd`).value = document.getElementById(`${prefix}ManualEnd`).value;
+      ['Start','End'].forEach(side=>{const value=readScheduleClock(prefix,side);document.getElementById(`${prefix}Manual${side}`).value=value;document.getElementById(`${prefix}Time${side}`).value=value;});
     }
 
     function setScheduleTimeMode(prefix, mode) {

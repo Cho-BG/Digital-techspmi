@@ -2705,13 +2705,18 @@ tbody tr:hover { background: #f7faff; }
 .schedule-time-card .schedule-pair-field { margin: 0; }
 .schedule-time-card .select-ui-trigger { min-height: 42px !important; background-color: rgba(255,255,255,.96) !important; border-color: #e2d5ba !important; }
 .schedule-time-card .select-ui.is-open .select-ui-trigger { border-color: #b98a38 !important; box-shadow: 0 0 0 3px rgba(169,120,36,.12) !important; }
-.schedule-manual-time { display: grid; grid-template-columns: minmax(0,1fr) 20px minmax(0,1fr); align-items: end; gap: 8px; animation: repeatFieldIn 170ms ease-out both; }
+.schedule-manual-time { display: grid; grid-template-columns: 1fr; gap: 5px; animation: repeatFieldIn 170ms ease-out both; }
 .schedule-manual-time .form-group { margin: 0; }
-.schedule-manual-time > span { display: grid; place-items: center; min-height: 42px; color: #9a8155; font-size: 15px; font-weight: 700; }
+.schedule-manual-time > span { display: grid; place-items: center; height: 14px; color: #9a8155; font-size: 15px; font-weight: 700; transform: rotate(90deg); }
+.schedule-clock-picker { display: grid; grid-template-columns: minmax(60px,.8fr) 8px minmax(64px,.8fr) minmax(76px,1fr); align-items: center; gap: 6px; }
+.schedule-clock-picker > b { color: #8d754e; font-size: 16px; text-align: center; }
+.schedule-clock-picker .select-ui-trigger { padding-inline: 10px; font-variant-numeric: tabular-nums; }
 .schedule-suggestion-field input { padding-right: 42px !important; }
 .schedule-suggestion-menu { width: min(430px,calc(100vw - 24px)); }
-:is(.select-ui-menu--teacherScheduleManualStart,.select-ui-menu--teacherScheduleManualEnd,.select-ui-menu--scheduleManualStart,.select-ui-menu--scheduleManualEnd,.select-ui-menu--personalScheduleManualStart,.select-ui-menu--personalScheduleManualEnd) { grid-template-columns: repeat(2,minmax(0,1fr)); padding: 8px; }
-:is(.select-ui-menu--teacherScheduleManualStart,.select-ui-menu--teacherScheduleManualEnd,.select-ui-menu--scheduleManualStart,.select-ui-menu--scheduleManualEnd,.select-ui-menu--personalScheduleManualStart,.select-ui-menu--personalScheduleManualEnd) .select-ui-option { min-height: 35px; justify-content: center; padding: 7px 8px; font-variant-numeric: tabular-nums; text-align: center; }
+.select-ui-menu[class*="Hour"] { width: 110px !important; }
+.select-ui-menu[class*="Minute"] { width: 115px !important; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.select-ui-menu[class*="Period"] { width: 105px !important; }
+:is(.select-ui-menu[class*="Hour"],.select-ui-menu[class*="Minute"],.select-ui-menu[class*="Period"]) .select-ui-option { min-height: 35px; justify-content: center; padding: 7px 8px; font-variant-numeric: tabular-nums; text-align: center; }
 .schedule-repeat-card { margin: 4px 0 16px; padding: 14px; background: linear-gradient(145deg,#f7faff,#eef5fc); border: 1px solid #d8e5f2; border-radius: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
 .schedule-repeat-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .schedule-repeat-heading > span { position: relative; width: 32px; height: 32px; flex: 0 0 32px; background: #fff; border: 1px solid #d8e5f2; border-radius: 10px; box-shadow: 0 3px 9px rgba(25,71,125,.08); }
