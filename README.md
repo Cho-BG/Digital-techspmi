@@ -15,7 +15,7 @@ Express application deployed as one Vercel Function, backed by Supabase PostgreS
 Apply the schema first, set `DATABASE_URL`, back up both databases, then run from this directory:
 
 ```bash
-npm run migrate:supabase -- ../Supabase/data.db --replace
+npm run migrate:supabase -- /path/to/private/data.db --replace
 ```
 
 The utility truncates application tables, copies matching SQLite columns while preserving IDs, reports and skips orphaned dependent rows, clears invalid nullable references, and resets PostgreSQL identity sequences. Run it once before accepting writes in production.

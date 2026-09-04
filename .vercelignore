@@ -1,0 +1,8 @@
+node_modules
+.env*
+!.env.example
+*.db
+data
+uploads
+.session-secret
+.teacher-password-vault.key
