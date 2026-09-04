@@ -523,6 +523,18 @@ async function start() {
     return dates;
   }
 
+  function scheduleOccurrenceDates(entryDate, recurrence = 'once', recurrenceEnd = null) {
+    const recurrences = ['once', 'daily', 'weekly', 'every2weeks', 'monthly'];
+    if (!recurrences.includes(recurrence)) return null;
+    if (recurrence === 'once') return entryDate ? (parseBookingDate(entryDate) ? [entryDate] : null) : [null];
+    const startDate = parseBookingDate(entryDate);
+    const endDate = parseBookingDate(recurrenceEnd);
+    if (!startDate || !endDate || endDate < startDate) return null;
+    const maxEnd = new Date(startDate.getFullYear() + 1, startDate.getMonth(), startDate.getDate());
+    if (endDate > maxEnd) return null;
+    return bookingOccurrenceDates({ event_date: entryDate, recurrence, recurrence_end: recurrenceEnd });
+  }
+
   app.get('/api/booking/public-data', async (req, res) => {
     const rooms = (await db.all(`SELECT DISTINCT room FROM schedule_entries WHERE room IS NOT NULL AND room != '' ORDER BY room`)).map(row => row.room);
     const bookingEvents = await db.all(`SELECT id, room, title, description, event_date, time_start, time_end, recurrence, recurrence_end, event_url, status FROM booking_requests WHERE status IN ('requested', 'approved') ORDER BY event_date, time_start`);
@@ -800,17 +812,22 @@ async function start() {
   });
 
   app.post('/api/teacher/schedule', requireRole('teacher', 'supervisor'), async (req, res) => {
-    const { program_name, group_name, room, day_of_week, time_start, time_end, date, lesson_type } = req.body;
+    const { program_name, group_name, room, day_of_week, time_start, time_end, date, lesson_type, recurrence = 'once', recurrence_end } = req.body;
     const teacher_id = req.session.user.id;
     if (day_of_week === undefined || !time_start || !time_end) {
       return res.status(400).json({ success: false, message: 'Заполните обязательные поля' });
     }
-    const entryDate = date || null;
-    const scheduleDay = entryDate ? dayOfWeekFromDateOnly(entryDate) : Number(day_of_week);
-    if (scheduleDay === null) return res.status(400).json({ success: false, message: 'Некорректная дата' });
-    await db.run(`INSERT INTO schedule_entries (program_name, teacher_id, group_name, room, day_of_week, time_start, time_end, date, lesson_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [program_name || null, teacher_id, group_name || null, room || null, scheduleDay, time_start, time_end, entryDate, lesson_type || null]);
-    res.json({ success: true });
+    const dates = scheduleOccurrenceDates(date || null, recurrence, recurrence_end);
+    if (!dates) return res.status(400).json({ success: false, message: 'Проверьте период повторения; он не может превышать один год' });
+    await transaction(async tx => {
+      for (const entryDate of dates) {
+        const scheduleDay = entryDate ? dayOfWeekFromDateOnly(entryDate) : Number(day_of_week);
+        if (scheduleDay === null) throw new Error('Некорректная дата');
+        await tx.run(`INSERT INTO schedule_entries (program_name, teacher_id, group_name, room, day_of_week, time_start, time_end, date, lesson_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [program_name || null, teacher_id, group_name || null, room || null, scheduleDay, time_start, time_end, entryDate, lesson_type || null]);
+      }
+    });
+    res.json({ success: true, created_count: dates.length });
   });
 
   app.put('/api/teacher/schedule/:id', requireRole('teacher', 'supervisor'), async (req, res) => {
@@ -2130,17 +2147,22 @@ async function start() {
   });
 
   app.post('/api/schedule', requireRole('worker', 'supervisor'), async (req, res) => {
-    const { program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date } = req.body;
+    const { program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date, recurrence = 'once', recurrence_end } = req.body;
     if (!teacher_id || day_of_week === undefined || !time_start || !time_end) {
       return res.status(400).json({ success: false, message: 'Заполните обязательные поля' });
     }
-    const entryDate = date || null;
-    const scheduleDay = entryDate ? dayOfWeekFromDateOnly(entryDate) : Number(day_of_week);
-    if (scheduleDay === null) return res.status(400).json({ success: false, message: 'Некорректная дата' });
-    await db.run(`INSERT INTO schedule_entries (program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [program_id || null, teacher_id, group_name || null, room || null, scheduleDay, time_start, time_end, entryDate]);
+    const dates = scheduleOccurrenceDates(date || null, recurrence, recurrence_end);
+    if (!dates) return res.status(400).json({ success: false, message: 'Проверьте период повторения; он не может превышать один год' });
+    await transaction(async tx => {
+      for (const entryDate of dates) {
+        const scheduleDay = entryDate ? dayOfWeekFromDateOnly(entryDate) : Number(day_of_week);
+        if (scheduleDay === null) throw new Error('Некорректная дата');
+        await tx.run(`INSERT INTO schedule_entries (program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [program_id || null, teacher_id, group_name || null, room || null, scheduleDay, time_start, time_end, entryDate]);
+      }
+    });
     if (program_id) await recalcProgramTeacherHours(program_id, teacher_id);
-    res.json({ success: true });
+    res.json({ success: true, created_count: dates.length });
   });
 
   app.put('/api/schedule/:id', requireRole('worker', 'supervisor'), async (req, res) => {

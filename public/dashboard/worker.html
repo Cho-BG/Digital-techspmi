@@ -540,7 +540,7 @@
       </div>
       <div class="form-group">
         <label for="scheduleDateField">Дата</label>
-        <input type="date" id="scheduleDateField">
+        <input type="date" id="scheduleDateField" onchange="updateScheduleRepeat()">
       </div>
       <div class="form-group">
         <label for="schedulePairSelect">Пара</label>
@@ -553,6 +553,13 @@
           <option value="6">6 пара (17:30–19:00)</option>
           <option value="7">7 пара (19:10–20:40)</option>
         </select>
+      </div>
+      <div class="schedule-repeat-card" id="scheduleRepeatBlock">
+        <div class="schedule-repeat-heading"><span aria-hidden="true"></span><div><strong>Повтор занятия</strong><small>Создайте серию занятий одним действием</small></div></div>
+        <div class="schedule-repeat-fields">
+          <div class="form-group"><label for="scheduleRepeat">Периодичность</label><select id="scheduleRepeat" onchange="updateScheduleRepeat()"><option value="once">Не повторять</option><option value="daily">Каждый день</option><option value="weekly">Каждую неделю</option><option value="every2weeks">Раз в две недели</option><option value="monthly">Каждый месяц</option></select></div>
+          <div class="form-group schedule-repeat-end" id="scheduleRepeatEndGroup" style="display:none"><label for="scheduleRepeatEnd">Повторять до</label><input type="date" id="scheduleRepeatEnd"></div>
+        </div>
       </div>
       <input type="hidden" id="scheduleDaySelect">
       <input type="hidden" id="scheduleTimeStart">
@@ -2117,6 +2124,20 @@
       openScheduleModal(null, undefined, undefined, room);
     }
 
+    function updateScheduleRepeat() {
+      const recurrence = document.getElementById('scheduleRepeat').value;
+      const start = document.getElementById('scheduleDateField').value;
+      const end = document.getElementById('scheduleRepeatEnd');
+      document.getElementById('scheduleRepeatEndGroup').style.display = recurrence === 'once' ? 'none' : '';
+      end.min = start;
+      const maxEnd = new Date(`${start}T12:00:00`);
+      if (!Number.isNaN(maxEnd.getTime())) { maxEnd.setFullYear(maxEnd.getFullYear() + 1); end.max = fmtLocalDate(maxEnd); }
+      if (recurrence !== 'once' && (!end.value || end.value < start)) {
+        const defaultEnd = new Date(`${start}T12:00:00`);
+        if (!Number.isNaN(defaultEnd.getTime())) { defaultEnd.setMonth(defaultEnd.getMonth() + 3); end.value = fmtLocalDate(defaultEnd); }
+      }
+    }
+
     function openScheduleModal(entry, presetDay, presetPeriod, presetRoom) {
       const title = entry ? 'Редактировать занятие' : 'Добавить занятие';
       document.getElementById('scheduleModalTitle').textContent = title;
@@ -2158,6 +2179,10 @@
         pairVal = 1;
       }
       document.getElementById('schedulePairSelect').value = pairVal;
+      document.getElementById('scheduleRepeatBlock').style.display = entry ? 'none' : '';
+      document.getElementById('scheduleRepeat').value = 'once';
+      document.getElementById('scheduleRepeatEnd').value = '';
+      updateScheduleRepeat();
       updatePairTimes();
 
       // Also update day_of_week when date changes
@@ -2200,7 +2225,10 @@
       if (!date) { alert('Укажите дату'); return; }
       if (!time_start || !time_end) { alert('Укажите пару'); return; }
 
-      const body = { program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date };
+      const recurrence = document.getElementById('scheduleRepeat').value;
+      const recurrence_end = document.getElementById('scheduleRepeatEnd').value || null;
+      if (!id && recurrence !== 'once' && !recurrence_end) { alert('Укажите дату окончания повторения'); return; }
+      const body = { program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date, recurrence, recurrence_end };
       if (id) {
         await api(`/api/schedule/${id}`, { method: 'PUT', body: JSON.stringify(body) });
       } else {
