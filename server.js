@@ -819,7 +819,7 @@ async function start() {
   });
 
   app.post('/api/teacher/schedule', requireRole('teacher', 'supervisor'), async (req, res) => {
-    const { program_name, group_name, room, day_of_week, time_start, time_end, date, lesson_type, recurrence = 'once', recurrence_end } = req.body;
+    const { program_name, group_name, room, instructor_name, day_of_week, time_start, time_end, date, lesson_type, recurrence = 'once', recurrence_end } = req.body;
     const teacher_id = req.session.user.id;
     if (day_of_week === undefined || !validScheduleTimeRange(time_start, time_end)) {
       return res.status(400).json({ success: false, message: 'Заполните обязательные поля' });
@@ -830,23 +830,23 @@ async function start() {
       for (const entryDate of dates) {
         const scheduleDay = entryDate ? dayOfWeekFromDateOnly(entryDate) : Number(day_of_week);
         if (scheduleDay === null) throw new Error('Некорректная дата');
-        await tx.run(`INSERT INTO schedule_entries (program_name, teacher_id, group_name, room, day_of_week, time_start, time_end, date, lesson_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [program_name || null, teacher_id, group_name || null, room || null, scheduleDay, time_start, time_end, entryDate, lesson_type || null]);
+        await tx.run(`INSERT INTO schedule_entries (program_name, teacher_id, instructor_name, group_name, room, day_of_week, time_start, time_end, date, lesson_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [program_name || null, teacher_id, String(instructor_name || '').trim() || null, group_name || null, room || null, scheduleDay, time_start, time_end, entryDate, lesson_type || null]);
       }
     });
     res.json({ success: true, created_count: dates.length });
   });
 
   app.put('/api/teacher/schedule/:id', requireRole('teacher', 'supervisor'), async (req, res) => {
-    const { program_name, group_name, room, day_of_week, time_start, time_end, date, lesson_type } = req.body;
+    const { program_name, group_name, room, instructor_name, day_of_week, time_start, time_end, date, lesson_type } = req.body;
     const entry = await db.one(`SELECT id FROM schedule_entries WHERE id = ? AND teacher_id = ?`, [req.params.id, req.session.user.id]);
     if (!entry) return res.status(404).json({ success: false, message: 'Занятие не найдено' });
     if (!validScheduleTimeRange(time_start, time_end)) return res.status(400).json({ success: false, message: 'Проверьте время занятия' });
     const entryDate = date || null;
     const scheduleDay = entryDate ? dayOfWeekFromDateOnly(entryDate) : Number(day_of_week);
     if (scheduleDay === null) return res.status(400).json({ success: false, message: 'Некорректная дата' });
-    await db.run(`UPDATE schedule_entries SET program_name = ?, group_name = ?, room = ?, day_of_week = ?, time_start = ?, time_end = ?, date = ?, lesson_type = ? WHERE id = ?`,
-      [program_name || null, group_name || null, room || null, scheduleDay, time_start, time_end, entryDate, lesson_type || null, req.params.id]);
+    await db.run(`UPDATE schedule_entries SET program_name = ?, instructor_name = ?, group_name = ?, room = ?, day_of_week = ?, time_start = ?, time_end = ?, date = ?, lesson_type = ? WHERE id = ?`,
+      [program_name || null, String(instructor_name || '').trim() || null, group_name || null, room || null, scheduleDay, time_start, time_end, entryDate, lesson_type || null, req.params.id]);
     res.json({ success: true });
   });
 
@@ -2155,8 +2155,8 @@ async function start() {
   });
 
   app.post('/api/schedule', requireRole('worker', 'supervisor'), async (req, res) => {
-    const { program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date, recurrence = 'once', recurrence_end } = req.body;
-    if (!teacher_id || day_of_week === undefined || !validScheduleTimeRange(time_start, time_end)) {
+    const { program_id, teacher_id, instructor_name, group_name, room, day_of_week, time_start, time_end, date, recurrence = 'once', recurrence_end } = req.body;
+    if ((!teacher_id && !String(instructor_name || '').trim()) || day_of_week === undefined || !validScheduleTimeRange(time_start, time_end)) {
       return res.status(400).json({ success: false, message: 'Заполните обязательные поля' });
     }
     const dates = scheduleOccurrenceDates(date || null, recurrence, recurrence_end);
@@ -2165,24 +2165,24 @@ async function start() {
       for (const entryDate of dates) {
         const scheduleDay = entryDate ? dayOfWeekFromDateOnly(entryDate) : Number(day_of_week);
         if (scheduleDay === null) throw new Error('Некорректная дата');
-        await tx.run(`INSERT INTO schedule_entries (program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          [program_id || null, teacher_id, group_name || null, room || null, scheduleDay, time_start, time_end, entryDate]);
+        await tx.run(`INSERT INTO schedule_entries (program_id, teacher_id, instructor_name, group_name, room, day_of_week, time_start, time_end, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [program_id || null, teacher_id || null, teacher_id ? null : String(instructor_name).trim(), group_name || null, room || null, scheduleDay, time_start, time_end, entryDate]);
       }
     });
-    if (program_id) await recalcProgramTeacherHours(program_id, teacher_id);
+    if (program_id && teacher_id) await recalcProgramTeacherHours(program_id, teacher_id);
     res.json({ success: true, created_count: dates.length });
   });
 
   app.put('/api/schedule/:id', requireRole('worker', 'supervisor'), async (req, res) => {
-    const { program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date } = req.body;
+    const { program_id, teacher_id, instructor_name, group_name, room, day_of_week, time_start, time_end, date } = req.body;
     // Get old values to recalc previous pair
     const old = await db.one(`SELECT program_id, teacher_id, lesson_type, date, group_name FROM schedule_entries WHERE id = ?`, [req.params.id]);
-    if (!teacher_id || !validScheduleTimeRange(time_start, time_end)) return res.status(400).json({ success: false, message: 'Проверьте время занятия' });
+    if ((!teacher_id && !String(instructor_name || '').trim()) || !validScheduleTimeRange(time_start, time_end)) return res.status(400).json({ success: false, message: 'Проверьте преподавателя и время занятия' });
     const entryDate = date || null;
     const scheduleDay = entryDate ? dayOfWeekFromDateOnly(entryDate) : Number(day_of_week);
     if (scheduleDay === null) return res.status(400).json({ success: false, message: 'Некорректная дата' });
-    await db.run(`UPDATE schedule_entries SET program_id = ?, teacher_id = ?, group_name = ?, room = ?, day_of_week = ?, time_start = ?, time_end = ?, date = ? WHERE id = ?`,
-      [program_id || null, teacher_id, group_name || null, room || null, scheduleDay, time_start, time_end, entryDate, req.params.id]);
+    await db.run(`UPDATE schedule_entries SET program_id = ?, teacher_id = ?, instructor_name = ?, group_name = ?, room = ?, day_of_week = ?, time_start = ?, time_end = ?, date = ? WHERE id = ?`,
+      [program_id || null, teacher_id || null, teacher_id ? null : String(instructor_name).trim(), group_name || null, room || null, scheduleDay, time_start, time_end, entryDate, req.params.id]);
     // Sync back to DPK lesson if this entry has a lesson_type link
     if (old && old.lesson_type && old.program_id) {
       const lt = old.lesson_type.split('_');
@@ -2194,8 +2194,8 @@ async function start() {
       }
     }
     // Recalc old and new pairs
-    if (old && old.program_id) await recalcProgramTeacherHours(old.program_id, old.teacher_id);
-    if (program_id) await recalcProgramTeacherHours(program_id, teacher_id);
+    if (old && old.program_id && old.teacher_id) await recalcProgramTeacherHours(old.program_id, old.teacher_id);
+    if (program_id && teacher_id) await recalcProgramTeacherHours(program_id, teacher_id);
     res.json({ success: true });
   });
 
@@ -2210,7 +2210,7 @@ async function start() {
       await db.run(`UPDATE dpk_teacher_lesson_dates SET date = NULL, time_start = '09:00', time_end = '10:30' WHERE program_id = ? AND teacher_id = ? AND group_name = ? AND class_type = ? AND class_number = ?`,
         [old.program_id, old.teacher_id, old.group_name, classType, classNumber]);
     }
-    if (old && old.program_id) await recalcProgramTeacherHours(old.program_id, old.teacher_id);
+    if (old && old.program_id && old.teacher_id) await recalcProgramTeacherHours(old.program_id, old.teacher_id);
     res.json({ success: true });
   });
 

@@ -26,6 +26,7 @@
 
   let openSelect = null;
   let openDate = null;
+  let openSuggestion = null;
   let selectUiCounter = 0;
   let dateUiCounter = 0;
   const selectUiSelector = '.modal select, #scheduleTeacherSelect, #scheduleRoomSelect, #bookingStatusFilter, #roleFilter, #statusFilter, #staffRoleFilter, #sFacultyFilter, #gFlow, #gGroup, #evalCourse, #evalSpecialty, #evalGroup, #attCourse, #attSpecialty, #attGroup, .teacher-lesson-list .lesson-para-input, #tab-students #sCourse, #tab-students #sSpecialty, #tab-students #sGroup';
@@ -38,6 +39,114 @@
     openSelect.wrapper.classList.remove('is-open');
     openSelect = null;
   }
+
+  function closeSuggestionUi() {
+    if (!openSuggestion) return;
+    openSuggestion.menu.hidden = true;
+    openSuggestion.input.setAttribute('aria-expanded', 'false');
+    openSuggestion.wrapper.classList.remove('is-open');
+    openSuggestion = null;
+  }
+
+  window.setEditableSuggestions = function (target, values, label = 'Варианты') {
+    const input = typeof target === 'string' ? document.getElementById(target) : target;
+    if (!input) return;
+    input._suggestionValues = [...new Set((values || []).map(value => String(value).trim()).filter(Boolean))];
+    input._suggestionLabel = label;
+    if (input.dataset.suggestionUi === 'ready') {
+      if (openSuggestion?.input === input) input.dispatchEvent(new Event('input'));
+      return;
+    }
+    input.dataset.suggestionUi = 'ready';
+    input.setAttribute('role', 'combobox');
+    input.setAttribute('aria-autocomplete', 'list');
+    input.setAttribute('aria-expanded', 'false');
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'admin-suggestion-field schedule-suggestion-field';
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.tabIndex = -1;
+    toggle.className = 'admin-suggestion-toggle';
+    toggle.innerHTML = '<i aria-hidden="true"></i>';
+    toggle.setAttribute('aria-label', 'Показать варианты');
+    wrapper.appendChild(toggle);
+    const menu = document.createElement('div');
+    menu.className = 'admin-suggestion-menu schedule-suggestion-menu';
+    menu.hidden = true;
+    menu.id = `${input.id}SuggestionMenu`;
+    menu.setAttribute('role', 'listbox');
+    input.setAttribute('aria-controls', menu.id);
+    document.body.appendChild(menu);
+
+    function render() {
+      const query = input.value.trim().toLocaleLowerCase('ru');
+      const matches = input._suggestionValues.filter(value => !query || value.toLocaleLowerCase('ru').includes(query));
+      menu.innerHTML = `<div class="admin-suggestion-heading"><strong>${input._suggestionLabel}</strong><small>${matches.length} вариантов</small></div><div class="admin-suggestion-options"></div>`;
+      const options = menu.querySelector('.admin-suggestion-options');
+      matches.forEach(value => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = `admin-suggestion-option${input.value === value ? ' is-selected' : ''}`;
+        option.setAttribute('role', 'option');
+        option.setAttribute('aria-selected', String(input.value === value));
+        const text = document.createElement('span');
+        text.textContent = value;
+        option.appendChild(text);
+        const check = document.createElement('i');
+        check.setAttribute('aria-hidden', 'true');
+        option.appendChild(check);
+        option.addEventListener('click', () => {
+          input.value = value;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+          input.focus();
+          closeSuggestionUi();
+        });
+        options.appendChild(option);
+      });
+      if (!matches.length) {
+        const custom = document.createElement('div');
+        custom.className = 'admin-suggestion-custom';
+        const title = document.createElement('strong');
+        title.textContent = 'Использовать свое значение';
+        const value = document.createElement('span');
+        value.textContent = `«${input.value.trim()}» будет сохранено`;
+        custom.append(title, value);
+        options.appendChild(custom);
+      }
+    }
+
+    function open() {
+      closeSelectUi();
+      closeSuggestionUi();
+      render();
+      menu.hidden = false;
+      wrapper.classList.add('is-open');
+      input.setAttribute('aria-expanded', 'true');
+      const rect = wrapper.getBoundingClientRect();
+      const width = Math.min(Math.max(rect.width, 300), window.innerWidth - 24);
+      menu.style.width = `${width}px`;
+      const height = Math.min(menu.offsetHeight, 300);
+      const opensUp = window.innerHeight - rect.bottom < height + 12 && rect.top > height;
+      menu.style.left = `${Math.max(12, Math.min(rect.left, window.innerWidth - width - 12))}px`;
+      menu.style.top = `${opensUp ? rect.top - height - 7 : rect.bottom + 7}px`;
+      openSuggestion = { input, wrapper, menu };
+    }
+
+    input.addEventListener('focus', open);
+    input.addEventListener('input', open);
+    input.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeSuggestionUi();
+      if (event.key === 'ArrowDown') { event.preventDefault(); if (openSuggestion?.input !== input) open(); menu.querySelector('.admin-suggestion-option')?.focus(); }
+    });
+    toggle.addEventListener('click', () => {
+      if (openSuggestion?.input === input) closeSuggestionUi();
+      else if (document.activeElement === input) open();
+      else input.focus();
+    });
+  };
 
   function enhanceSelect(select) {
     if (select.multiple || select.dataset.selectUi === 'ready') return;
@@ -290,12 +399,14 @@
   document.querySelectorAll(dateUiSelector).forEach(enhanceDate);
   document.addEventListener('click', (event) => {
     if (openSelect && !openSelect.wrapper.contains(event.target) && !openSelect.menu.contains(event.target)) closeSelectUi();
+    if (openSuggestion && !openSuggestion.wrapper.contains(event.target) && !openSuggestion.menu.contains(event.target)) closeSuggestionUi();
     if (openDate && !openDate.wrapper.contains(event.target) && !openDate.menu.contains(event.target)) closeDateUi();
   });
-  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') { closeSelectUi(); closeDateUi(); } });
-  window.addEventListener('resize', () => { closeSelectUi(); closeDateUi(); });
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') { closeSelectUi(); closeSuggestionUi(); closeDateUi(); } });
+  window.addEventListener('resize', () => { closeSelectUi(); closeSuggestionUi(); closeDateUi(); });
   document.addEventListener('scroll', (event) => {
     if (!openSelect?.menu.contains(event.target)) closeSelectUi();
+    if (!openSuggestion?.menu.contains(event.target)) closeSuggestionUi();
     if (!openDate?.menu.contains(event.target)) closeDateUi();
   }, true);
 

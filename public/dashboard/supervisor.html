@@ -804,11 +804,11 @@
       </div>
       <div class="form-group">
         <label for="scheduleTeacherSelectModal">Преподаватель</label>
-        <select id="scheduleTeacherSelectModal"><option value="">Выберите преподавателя</option></select>
+        <input type="text" id="scheduleTeacherSelectModal" placeholder="Выберите или введите преподавателя" autocomplete="off">
       </div>
       <div class="form-group">
         <label for="scheduleGroupSelect">Группа</label>
-        <select id="scheduleGroupSelect"><option value="">Выберите группу</option></select>
+        <input type="text" id="scheduleGroupSelect" placeholder="Выберите или введите группу" autocomplete="off">
       </div>
       <div class="form-group">
         <label for="scheduleRoomField">Аудитория</label>
@@ -822,7 +822,7 @@
         <div class="schedule-time-heading"><span aria-hidden="true"></span><div><strong>Время занятия</strong><small>Выберите пару или задайте точное время</small></div></div>
         <div class="schedule-time-switch" role="group" aria-label="Способ выбора времени"><button type="button" data-time-mode="pair" onclick="setScheduleTimeMode('schedule','pair')">По номеру пары</button><button type="button" data-time-mode="manual" onclick="setScheduleTimeMode('schedule','manual')">Указать время</button></div>
         <div class="form-group schedule-pair-field" id="schedulePairGroup"><label for="schedulePairSelect">Пара</label><select id="schedulePairSelect"><option value="1">1 пара (8:50–10:20)</option><option value="2">2 пара (10:35–12:05)</option><option value="3">3 пара (12:35–14:05)</option><option value="4">4 пара (14:15–15:45)</option><option value="5">5 пара (15:55–17:20)</option><option value="6">6 пара (17:30–19:00)</option></select></div>
-        <div class="schedule-manual-time" id="scheduleManualTime" style="display:none"><div class="form-group"><label for="scheduleManualStart">С</label><input type="time" id="scheduleManualStart" step="300" onchange="syncManualScheduleTime('schedule')"></div><span aria-hidden="true">→</span><div class="form-group"><label for="scheduleManualEnd">До</label><input type="time" id="scheduleManualEnd" step="300" onchange="syncManualScheduleTime('schedule')"></div></div>
+        <div class="schedule-manual-time" id="scheduleManualTime" style="display:none"><div class="form-group"><label for="scheduleManualStart">С</label><select id="scheduleManualStart" onchange="syncManualScheduleTime('schedule')"></select></div><span aria-hidden="true">→</span><div class="form-group"><label for="scheduleManualEnd">До</label><select id="scheduleManualEnd" onchange="syncManualScheduleTime('schedule')"></select></div></div>
       </div>
       <div class="schedule-repeat-card" id="scheduleRepeatBlock">
         <div class="schedule-repeat-heading"><span aria-hidden="true"></span><div><strong>Повтор занятия</strong><small>Создайте серию занятий одним действием</small></div></div>
@@ -847,6 +847,7 @@
         <label for="personalScheduleProgramInput">Программа</label>
         <input type="text" id="personalScheduleProgramInput" placeholder="Название программы">
       </div>
+      <div class="form-group"><label for="personalScheduleTeacherInput">Преподаватель</label><input type="text" id="personalScheduleTeacherInput" placeholder="Выберите или введите преподавателя" autocomplete="off"></div>
       <div class="form-group">
         <label for="personalScheduleLessonType">Вид учебных занятий</label>
         <select id="personalScheduleLessonType">
@@ -872,7 +873,7 @@
         <div class="schedule-time-heading"><span aria-hidden="true"></span><div><strong>Время занятия</strong><small>Выберите пару или задайте точное время</small></div></div>
         <div class="schedule-time-switch" role="group" aria-label="Способ выбора времени"><button type="button" data-time-mode="pair" onclick="setScheduleTimeMode('personalSchedule','pair')">По номеру пары</button><button type="button" data-time-mode="manual" onclick="setScheduleTimeMode('personalSchedule','manual')">Указать время</button></div>
         <div class="form-group schedule-pair-field" id="personalSchedulePairGroup"><label for="personalSchedulePairSelect">Пара</label><select id="personalSchedulePairSelect"><option value="1">1 пара (8:50–10:20)</option><option value="2">2 пара (10:35–12:05)</option><option value="3">3 пара (12:35–14:05)</option><option value="4">4 пара (14:15–15:45)</option><option value="5">5 пара (15:55–17:20)</option><option value="6">6 пара (17:30–19:00)</option></select></div>
-        <div class="schedule-manual-time" id="personalScheduleManualTime" style="display:none"><div class="form-group"><label for="personalScheduleManualStart">С</label><input type="time" id="personalScheduleManualStart" step="300" onchange="syncManualScheduleTime('personalSchedule')"></div><span aria-hidden="true">→</span><div class="form-group"><label for="personalScheduleManualEnd">До</label><input type="time" id="personalScheduleManualEnd" step="300" onchange="syncManualScheduleTime('personalSchedule')"></div></div>
+        <div class="schedule-manual-time" id="personalScheduleManualTime" style="display:none"><div class="form-group"><label for="personalScheduleManualStart">С</label><select id="personalScheduleManualStart" onchange="syncManualScheduleTime('personalSchedule')"></select></div><span aria-hidden="true">→</span><div class="form-group"><label for="personalScheduleManualEnd">До</label><select id="personalScheduleManualEnd" onchange="syncManualScheduleTime('personalSchedule')"></select></div></div>
       </div>
       <div class="schedule-repeat-card" id="personalScheduleRepeatBlock">
         <div class="schedule-repeat-heading"><span aria-hidden="true"></span><div><strong>Повтор занятия</strong><small>Создайте серию занятий одним действием</small></div></div>
@@ -2828,6 +2829,20 @@
       { start: '15:55', end: '17:20' },
       { start: '17:30', end: '19:00' }
     ];
+    const SCHEDULE_ROOMS = ['3303','3306','3307','3308','3309','3313','3317','3321','3518','3520','4414','4501'];
+    let scheduleTeacherOptions = [];
+
+    function fillScheduleTimeOptions(ids) {
+      ids.forEach(id => {
+        const select = document.getElementById(id);
+        for (let minutes = 7 * 60; minutes <= 22 * 60; minutes += 5) {
+          const value = `${String(Math.floor(minutes / 60)).padStart(2,'0')}:${String(minutes % 60).padStart(2,'0')}`;
+          select.add(new Option(value, value));
+        }
+      });
+    }
+    function setScheduleTimeValue(id, value) { const select = document.getElementById(id); if (value && !Array.from(select.options).some(option => option.value === value)) select.add(new Option(value,value)); select.value = value; }
+    fillScheduleTimeOptions(['scheduleManualStart','scheduleManualEnd','personalScheduleManualStart','personalScheduleManualEnd']);
 
     function timeToMinutes(t) {
       const p = t.split(':');
@@ -2877,8 +2892,8 @@
       document.getElementById(`${prefix}ManualTime`).style.display = mode === 'manual' ? '' : 'none';
       if (mode === 'pair') updateSchedulePairTimes(prefix);
       else {
-        document.getElementById(`${prefix}ManualStart`).value = document.getElementById(`${prefix}TimeStart`).value;
-        document.getElementById(`${prefix}ManualEnd`).value = document.getElementById(`${prefix}TimeEnd`).value;
+        setScheduleTimeValue(`${prefix}ManualStart`, document.getElementById(`${prefix}TimeStart`).value);
+        setScheduleTimeValue(`${prefix}ManualEnd`, document.getElementById(`${prefix}TimeEnd`).value);
       }
     }
 
@@ -3259,9 +3274,10 @@
       document.getElementById('scheduleModalTitle').textContent = title;
       document.getElementById('editScheduleId').value = entry ? entry.id : '';
       document.getElementById('scheduleProgramSelect').value = entry ? entry.program_id || '' : '';
-      document.getElementById('scheduleTeacherSelectModal').value = entry ? entry.teacher_id : '';
+      document.getElementById('scheduleTeacherSelectModal').value = entry ? (entry.instructor_name || entry.teacher_name || '') : '';
       document.getElementById('scheduleGroupSelect').value = entry ? entry.group_name || '' : '';
       document.getElementById('scheduleRoomField').value = entry ? entry.room || '' : '';
+      setEditableSuggestions('scheduleRoomField', SCHEDULE_ROOMS, 'Аудитории');
 
       let dayOfWeek, dateVal;
       if (entry) {
@@ -3318,16 +3334,11 @@
         programs.forEach(p => { sel.innerHTML += `<option value="${p.id}" ${p.id == cur ? 'selected' : ''}>${p.name}</option>`; });
       });
       api('/api/supervisor/teachers').then(teachers => {
-        const sel = document.getElementById('scheduleTeacherSelectModal');
-        const cur = sel.value;
-        sel.innerHTML = '<option value="">Выберите преподавателя</option>';
-        teachers.forEach(t => { sel.innerHTML += `<option value="${t.id}" ${t.id == cur ? 'selected' : ''}>${t.full_name}</option>`; });
+        scheduleTeacherOptions = teachers;
+        setEditableSuggestions('scheduleTeacherSelectModal', teachers.map(teacher => teacher.full_name), 'Преподаватели');
       });
       api('/api/teacher/groups').then(groups => {
-        const sel = document.getElementById('scheduleGroupSelect');
-        const cur = sel.value;
-        sel.innerHTML = '<option value="">Без группы</option>';
-        groups.forEach(g => { sel.innerHTML += `<option value="${g}" ${g == cur ? 'selected' : ''}>${g}</option>`; });
+        setEditableSuggestions('scheduleGroupSelect', groups, 'Группы');
       });
 
       document.getElementById('scheduleModal').classList.add('open');
@@ -3336,15 +3347,18 @@
     async function saveSchedule() {
       const id = document.getElementById('editScheduleId').value;
       const program_id = document.getElementById('scheduleProgramSelect').value || null;
-      const teacher_id = document.getElementById('scheduleTeacherSelectModal').value;
-      const group_name = document.getElementById('scheduleGroupSelect').value || null;
+      const teacherName = document.getElementById('scheduleTeacherSelectModal').value.trim();
+      const selectedTeacher = scheduleTeacherOptions.find(teacher => teacher.full_name === teacherName);
+      const teacher_id = selectedTeacher?.id || null;
+      const instructor_name = selectedTeacher ? null : teacherName;
+      const group_name = document.getElementById('scheduleGroupSelect').value.trim() || null;
       const room = document.getElementById('scheduleRoomField').value.trim() || null;
       const date = document.getElementById('scheduleDateField').value;
       const day_of_week = parseInt(document.getElementById('scheduleDaySelect').value);
       const manualTime = document.getElementById('scheduleTimeCard').dataset.mode === 'manual';
       const time_start = document.getElementById(manualTime ? 'scheduleManualStart' : 'scheduleTimeStart').value;
       const time_end = document.getElementById(manualTime ? 'scheduleManualEnd' : 'scheduleTimeEnd').value;
-      if (!teacher_id) { alert('Выберите преподавателя'); return; }
+      if (!teacherName) { alert('Выберите или введите преподавателя'); return; }
       if (!date) { alert('Укажите дату'); return; }
       if (!time_start || !time_end) { alert('Укажите время занятия'); return; }
       if (time_start >= time_end) { alert('Время окончания должно быть позже времени начала'); return; }
@@ -3352,7 +3366,7 @@
       const recurrence = document.getElementById('scheduleRepeat').value;
       const recurrence_end = document.getElementById('scheduleRepeatEnd').value || null;
       if (!id && recurrence !== 'once' && !recurrence_end) { alert('Укажите дату окончания повторения'); return; }
-      const body = { program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date, recurrence, recurrence_end };
+      const body = { program_id, teacher_id, instructor_name, group_name, room, day_of_week, time_start, time_end, date, recurrence, recurrence_end };
       if (id) {
         await api(`/api/schedule/${id}`, { method: 'PUT', body: JSON.stringify(body) });
       } else {
@@ -3572,9 +3586,13 @@
       document.getElementById('personalScheduleModalTitle').textContent = isEdit ? 'Редактировать занятие' : 'Добавить занятие';
       document.getElementById('editPersonalScheduleId').value = entry ? entry.id : '';
       document.getElementById('personalScheduleProgramInput').value = entry ? (entry.program_name || '') : '';
+      document.getElementById('personalScheduleTeacherInput').value = entry ? (entry.instructor_name || entry.teacher_name || currentUser.full_name) : currentUser.full_name;
+      setEditableSuggestions('personalScheduleTeacherInput', [currentUser.full_name], 'Преподаватели');
       document.getElementById('personalScheduleLessonType').value = entry ? (entry.lesson_type || '') : '';
       document.getElementById('personalScheduleGroupInput').value = entry ? (entry.group_name || '') : '';
       document.getElementById('personalScheduleRoomField').value = entry ? (entry.room || '') : '';
+      setEditableSuggestions('personalScheduleRoomField', SCHEDULE_ROOMS, 'Аудитории');
+      api('/api/teacher/groups').then(groups => setEditableSuggestions('personalScheduleGroupInput', groups, 'Группы'));
 
       let dayOfWeek, dateVal, pairVal;
       if (entry) {
@@ -3613,6 +3631,7 @@
       const lesson_type = document.getElementById('personalScheduleLessonType').value || null;
       const group_name = document.getElementById('personalScheduleGroupInput').value.trim() || null;
       const room = document.getElementById('personalScheduleRoomField').value.trim() || null;
+      const instructor_name = document.getElementById('personalScheduleTeacherInput').value.trim() || null;
       const date = document.getElementById('personalScheduleDateField').value;
       const day_of_week = parseInt(document.getElementById('personalScheduleDaySelect').value);
       const manualTime = document.getElementById('personalScheduleTimeCard').dataset.mode === 'manual';
@@ -3625,7 +3644,7 @@
       const recurrence = document.getElementById('personalScheduleRepeat').value;
       const recurrence_end = document.getElementById('personalScheduleRepeatEnd').value || null;
       if (!id && recurrence !== 'once' && !recurrence_end) { alert('Укажите дату окончания повторения'); return; }
-      const body = { program_name, lesson_type, group_name, room, day_of_week, time_start, time_end, date, recurrence, recurrence_end };
+      const body = { program_name, lesson_type, group_name, room, instructor_name, day_of_week, time_start, time_end, date, recurrence, recurrence_end };
       if (id) {
         await api(`/api/teacher/schedule/${id}`, { method: 'PUT', body: JSON.stringify(body) });
       } else {
