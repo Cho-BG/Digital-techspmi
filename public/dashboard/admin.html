@@ -107,19 +107,12 @@
       </div>
       <div class="form-group admin-department-group" id="accountDepartmentGroup">
         <label for="accountDepartment">Кафедра</label>
-        <input id="accountDepartment" type="text" list="accountDepartmentList" placeholder="Выберите или введите кафедру" autocomplete="off">
-        <datalist id="accountDepartmentList"></datalist>
+        <input id="accountDepartment" type="text" placeholder="Выберите или введите кафедру" autocomplete="off">
         <small class="admin-department-hint">Выберите из списка или введите свое значение</small>
       </div>
       <div class="form-group admin-department-group" id="accountPositionGroup">
         <label for="accountPosition">Должность</label>
-        <input id="accountPosition" type="text" list="accountPositionList" placeholder="Выберите или введите должность" autocomplete="off">
-        <datalist id="accountPositionList">
-          <option value="Заведующий"></option>
-          <option value="Доцент"></option>
-          <option value="Ассистент"></option>
-          <option value="Главный специалист"></option>
-        </datalist>
+        <input id="accountPosition" type="text" placeholder="Выберите или введите должность" autocomplete="off">
         <small class="admin-department-hint">Выберите из списка или введите свою должность</small>
       </div>
       <div class="form-group" id="accountLoginGroup">
@@ -221,6 +214,7 @@
       'НЦ геомеханики и проблем горного производства',
       'Центр языковых компетенций'
     ];
+    const positions = ['Заведующий', 'Доцент', 'Ассистент', 'Главный специалист'];
     let accounts = [];
     let systemEnabled = true;
     let accountEditMode = 'all';
@@ -229,6 +223,7 @@
     let printSelectedAccountIds = new Set();
     let passwordRecoveryRequests = [];
     let activeRecoveryDelivery = null;
+    let activeSuggestionMenu = null;
 
     async function api(url, options = {}) {
       const res = await fetch(url, { headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, ...options });
@@ -236,6 +231,104 @@
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Ошибка запроса');
       return data;
+    }
+
+    function closeSuggestionMenu() {
+      if (!activeSuggestionMenu) return;
+      activeSuggestionMenu.menu.hidden = true;
+      activeSuggestionMenu.input.setAttribute('aria-expanded', 'false');
+      activeSuggestionMenu.wrapper.classList.remove('is-open');
+      activeSuggestionMenu = null;
+    }
+
+    function enhanceSuggestionInput(input, values, label, wide = false) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'admin-suggestion-field';
+      input.parentNode.insertBefore(wrapper, input);
+      wrapper.appendChild(input);
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'admin-suggestion-toggle';
+      toggle.setAttribute('aria-label', `Показать список: ${label.toLowerCase()}`);
+      toggle.setAttribute('tabindex', '-1');
+      toggle.innerHTML = '<i aria-hidden="true"></i>';
+      wrapper.appendChild(toggle);
+
+      const menu = document.createElement('div');
+      menu.className = `admin-suggestion-menu${wide ? ' is-wide' : ''}`;
+      menu.hidden = true;
+      menu.setAttribute('role', 'listbox');
+      menu.id = `${input.id}Suggestions`;
+      document.body.appendChild(menu);
+      input.setAttribute('role', 'combobox');
+      input.setAttribute('aria-autocomplete', 'list');
+      input.setAttribute('aria-controls', menu.id);
+      input.setAttribute('aria-expanded', 'false');
+
+      function render() {
+        const query = input.value.trim().toLocaleLowerCase('ru');
+        const filtered = values.filter(value => !query || value.toLocaleLowerCase('ru').includes(query));
+        menu.innerHTML = `<div class="admin-suggestion-heading"><strong>${escapeHtml(label)}</strong><small>${query ? 'Подходящие варианты' : `${values.length} вариантов`}</small></div><div class="admin-suggestion-options"></div>`;
+        const options = menu.querySelector('.admin-suggestion-options');
+        filtered.forEach(value => {
+          const option = document.createElement('button');
+          option.type = 'button';
+          option.className = `admin-suggestion-option${input.value === value ? ' is-selected' : ''}`;
+          option.setAttribute('role', 'option');
+          option.setAttribute('aria-selected', String(input.value === value));
+          option.innerHTML = `<span>${escapeHtml(value)}</span><i aria-hidden="true"></i>`;
+          option.addEventListener('click', () => {
+            input.value = value;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            input.focus();
+            closeSuggestionMenu();
+          });
+          options.appendChild(option);
+        });
+        if (!filtered.length) {
+          options.innerHTML = `<div class="admin-suggestion-custom"><strong>Использовать свое значение</strong><span>«${escapeHtml(input.value.trim())}» будет сохранено</span></div>`;
+        }
+      }
+
+      function open() {
+        closeSuggestionMenu();
+        render();
+        menu.hidden = false;
+        wrapper.classList.add('is-open');
+        input.setAttribute('aria-expanded', 'true');
+        const rect = wrapper.getBoundingClientRect();
+        const width = wide ? Math.min(500, window.innerWidth - 24) : Math.max(rect.width, 260);
+        menu.style.width = `${width}px`;
+        const menuHeight = Math.min(menu.offsetHeight, 320);
+        const opensUp = window.innerHeight - rect.bottom < menuHeight + 12 && rect.top > menuHeight;
+        menu.classList.toggle('opens-up', opensUp);
+        menu.style.left = `${Math.max(12, Math.min(rect.left, window.innerWidth - width - 12))}px`;
+        menu.style.top = `${opensUp ? rect.top - menuHeight - 7 : rect.bottom + 7}px`;
+        activeSuggestionMenu = { input, wrapper, menu };
+      }
+
+      input.addEventListener('focus', open);
+      input.addEventListener('click', open);
+      input.addEventListener('input', open);
+      input.addEventListener('keydown', event => {
+        if (event.key === 'Escape') { closeSuggestionMenu(); return; }
+        if (event.key !== 'ArrowDown') return;
+        event.preventDefault();
+        if (activeSuggestionMenu?.input !== input) open();
+        menu.querySelector('.admin-suggestion-option')?.focus();
+      });
+      menu.addEventListener('keydown', event => {
+        const options = [...menu.querySelectorAll('.admin-suggestion-option')];
+        const index = options.indexOf(document.activeElement);
+        if (event.key === 'ArrowDown') { event.preventDefault(); options[Math.min(index + 1, options.length - 1)]?.focus(); }
+        if (event.key === 'ArrowUp') { event.preventDefault(); index <= 0 ? input.focus() : options[index - 1]?.focus(); }
+        if (event.key === 'Escape') { closeSuggestionMenu(); input.focus(); }
+      });
+      toggle.addEventListener('click', () => {
+        if (activeSuggestionMenu?.input === input) closeSuggestionMenu();
+        else { input.focus(); open(); }
+      });
     }
 
     async function checkAuth() {
@@ -379,7 +472,7 @@
         if (control && control.offsetParent !== null) { control.focus(); control.select(); }
       });
     }
-    function closeAccountModal() { document.getElementById('accountModal').classList.remove('open'); }
+    function closeAccountModal() { closeSuggestionMenu(); document.getElementById('accountModal').classList.remove('open'); }
 
     function updatePasswordControl() {
       const isTeacher = document.getElementById('accountRole').value === 'teacher';
@@ -401,6 +494,7 @@
       document.getElementById('accountDepartmentGroup').style.display = isStaff && accountEditMode === 'all' ? '' : 'none';
       document.getElementById('accountPositionGroup').style.display = isStaff && accountEditMode === 'all' ? '' : 'none';
       if (!isStaff) {
+        closeSuggestionMenu();
         document.getElementById('accountDepartment').value = '';
         document.getElementById('accountPosition').value = '';
       }
@@ -731,8 +825,15 @@
     document.getElementById('accountModal').addEventListener('click', e => { if (e.target.id === 'accountModal') closeAccountModal(); });
     document.getElementById('generatedPasswordModal').addEventListener('click', e => { if (e.target.id === 'generatedPasswordModal') closeGeneratedPassword(); });
     document.getElementById('printCredentialsModal').addEventListener('click', e => { if (e.target.id === 'printCredentialsModal') closePrintCredentialsModal(); });
-    const departmentList = document.getElementById('accountDepartmentList');
-    departments.forEach(department => departmentList.appendChild(new Option('', department)));
+    document.addEventListener('click', event => {
+      if (activeSuggestionMenu && !activeSuggestionMenu.wrapper.contains(event.target) && !activeSuggestionMenu.menu.contains(event.target)) closeSuggestionMenu();
+    });
+    document.addEventListener('scroll', event => {
+      if (activeSuggestionMenu && !activeSuggestionMenu.menu.contains(event.target)) closeSuggestionMenu();
+    }, true);
+    window.addEventListener('resize', closeSuggestionMenu);
+    enhanceSuggestionInput(document.getElementById('accountDepartment'), departments, 'Кафедры', true);
+    enhanceSuggestionInput(document.getElementById('accountPosition'), positions, 'Должности');
     checkAuth().then(ok => { if (ok) { loadSystemStatus(); loadAccounts(); loadPasswordRecoveryRequests(); } });
   </script>
   <script src="/modal-layout.js"></script>
