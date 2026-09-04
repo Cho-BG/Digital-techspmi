@@ -337,7 +337,7 @@ async function start() {
   });
 
   app.post('/api/admin/accounts', requireRole('admin'), async (req, res) => {
-    let { login, password, role, full_name, account_enabled = 1, developer_access = 0 } = req.body;
+    let { login, password, role, full_name, department, account_enabled = 1, developer_access = 0 } = req.body;
     const roles = ['student', 'teacher', 'worker', 'supervisor'];
     if ((!login && !['teacher', 'worker'].includes(role)) || (!password && role !== 'teacher') || !full_name || !roles.includes(role)) {
       return res.status(400).json({ success: false, message: 'Заполните обязательные поля' });
@@ -348,8 +348,8 @@ async function start() {
       const generatedPassword = role === 'teacher' ? generatePassword() : null;
       const accountPassword = generatedPassword || password;
       const hasDeveloperAccess = ['teacher', 'worker'].includes(role) && (developer_access === true || developer_access === 1) ? 1 : 0;
-      await db.run(`INSERT INTO users (login, password, password_vault, role, full_name, account_enabled, developer_access) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [login.trim(), hashPassword(accountPassword), encryptPassword(accountPassword, passwordVaultKey), role, full_name.trim(), account_enabled ? 1 : 0, hasDeveloperAccess]);
+      await db.run(`INSERT INTO users (login, password, password_vault, role, full_name, department, account_enabled, developer_access) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [login.trim(), hashPassword(accountPassword), encryptPassword(accountPassword, passwordVaultKey), role, full_name.trim(), role === 'student' ? null : department?.trim() || null, account_enabled ? 1 : 0, hasDeveloperAccess]);
       res.json({ success: true, generated_password: generatedPassword });
     } catch (e) {
       res.status(400).json({ success: false, message: 'Логин уже используется' });
@@ -357,15 +357,15 @@ async function start() {
   });
 
   app.put('/api/admin/accounts/:id', requireRole('admin'), async (req, res) => {
-    const { login, password, role, full_name, account_enabled, developer_access = 0 } = req.body;
+    const { login, password, role, full_name, department, account_enabled, developer_access = 0 } = req.body;
     const roles = ['student', 'teacher', 'worker', 'supervisor'];
     if (!login || !full_name || !roles.includes(role)) {
       return res.status(400).json({ success: false, message: 'Заполните обязательные поля' });
     }
     if (password && !/^[A-Za-z0-9]{8,9}$/.test(password)) return res.status(400).json({ success: false, message: 'Пароль должен содержать 8–9 латинских букв или цифр' });
     try {
-      const fields = ['login = ?', 'role = ?', 'full_name = ?', 'account_enabled = ?', 'developer_access = ?'];
-      const params = [login.trim(), role, full_name.trim(), account_enabled ? 1 : 0, ['teacher', 'worker'].includes(role) && (developer_access === true || developer_access === 1) ? 1 : 0];
+      const fields = ['login = ?', 'role = ?', 'full_name = ?', 'department = ?', 'account_enabled = ?', 'developer_access = ?'];
+      const params = [login.trim(), role, full_name.trim(), role === 'student' ? null : department?.trim() || null, account_enabled ? 1 : 0, ['teacher', 'worker'].includes(role) && (developer_access === true || developer_access === 1) ? 1 : 0];
       if (password) {
         fields.push('password = ?', 'password_vault = ?');
         params.push(hashPassword(password), encryptPassword(password, passwordVaultKey));

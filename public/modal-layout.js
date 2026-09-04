@@ -76,6 +76,33 @@
       button.disabled = select.disabled;
       button.classList.toggle('is-placeholder', !selected?.value);
       menu.innerHTML = '';
+      if (select.dataset.searchable === 'true') {
+        const search = document.createElement('input');
+        search.type = 'search';
+        search.className = 'select-ui-search';
+        search.placeholder = select.dataset.searchPlaceholder || 'Найти...';
+        search.setAttribute('aria-label', search.placeholder);
+        search.addEventListener('input', () => {
+          const query = search.value.trim().toLocaleLowerCase();
+          menu.querySelectorAll('.select-ui-option').forEach(item => {
+            item.hidden = !!query && !item.textContent.toLocaleLowerCase().includes(query);
+          });
+          const hasResults = menu.querySelector('.select-ui-option:not([hidden])');
+          menu.querySelector('.select-ui-empty').hidden = !!hasResults;
+        });
+        search.addEventListener('keydown', event => {
+          if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            menu.querySelector('.select-ui-option:not([hidden]):not(:disabled)')?.focus();
+          }
+        });
+        menu.appendChild(search);
+        const empty = document.createElement('div');
+        empty.className = 'select-ui-empty';
+        empty.textContent = 'Кафедра не найдена';
+        empty.hidden = true;
+        menu.appendChild(empty);
+      }
       options.forEach((option, optionIndex) => {
         const item = document.createElement('button');
         item.type = 'button';
@@ -121,7 +148,9 @@
       menu.style.left = `${Math.max(12, Math.min(rect.left, window.innerWidth - menu.offsetWidth - 12))}px`;
       menu.style.top = `${opensUp ? rect.top - menuHeight - 7 : rect.bottom + 7}px`;
       openSelect = { select, wrapper, button, menu };
-      menu.querySelector('.is-selected:not(:disabled), .select-ui-option:not(:disabled)')?.scrollIntoView({ block: 'nearest' });
+      const search = menu.querySelector('.select-ui-search');
+      if (search) search.focus();
+      else menu.querySelector('.is-selected:not(:disabled), .select-ui-option:not(:disabled)')?.scrollIntoView({ block: 'nearest' });
     }
 
     button.addEventListener('click', () => openSelect?.select === select ? closeSelectUi() : open());

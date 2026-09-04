@@ -105,6 +105,13 @@
         <label for="accountName">ФИО</label>
         <input id="accountName" type="text" placeholder="Иванов Иван Иванович">
       </div>
+      <div class="form-group admin-department-group" id="accountDepartmentGroup">
+        <label for="accountDepartment">Кафедра</label>
+        <select id="accountDepartment" data-searchable="true" data-search-placeholder="Найти кафедру...">
+          <option value="">Выберите кафедру</option>
+        </select>
+        <small class="admin-department-hint">Начните вводить название для быстрого поиска</small>
+      </div>
       <div class="form-group" id="accountLoginGroup">
         <label for="accountLogin">Логин</label>
         <input id="accountLogin" type="text" autocomplete="off" placeholder="personal.login">
@@ -146,6 +153,64 @@
 
   <script>
     const roleLabels = { student: 'Студент', teacher: 'Преподаватель', worker: 'Сотрудник', supervisor: 'Руководитель' };
+    const departments = [
+      'Кафедра автоматизации технологических процессов и производств',
+      'Кафедра архитектуры',
+      'Кафедра безопасности производств',
+      'Кафедра бурения скважин',
+      'Кафедра взрывного дела',
+      'Кафедра высшей математики',
+      'Кафедра геологии и разведки месторождений полезных ископаемых',
+      'Кафедра геологии нефти и газа',
+      'Кафедра геофизики',
+      'Кафедра геоэкологии',
+      'Кафедра гидрогеологии и инженерной геологии',
+      'Кафедра горных машин и комплексов',
+      'Кафедра землеустройства и кадастров',
+      'Кафедра инженерной геодезии',
+      'Кафедра иностранных языков',
+      'Кафедра информатики и цифрового моделирования',
+      'Кафедра информационных систем и вычислительной техники',
+      'Кафедра истории',
+      'Кафедра исторической и динамической геологии',
+      'Кафедра маркшейдерского дела',
+      'Кафедра материаловедения и технологии художественных изделий',
+      'Кафедра машиностроения',
+      'Кафедра металлургии',
+      'Кафедра метрологии, приборостроения и управления качеством',
+      'Кафедра механики',
+      'Кафедра минералогии, кристаллографии и петрографии',
+      'Кафедра обогащения полезных ископаемых',
+      'Кафедра общей и технической физики',
+      'Кафедра общей и физической химии',
+      'Кафедра общей электротехники',
+      'Кафедра организации и управления',
+      'Кафедра "Основы научной компетенции"',
+      'Кафедра отраслевой экономики',
+      'Кафедра педагогических компетенций',
+      'Кафедра практических навыков и опыта',
+      'Кафедра промышленного и гражданского строительства',
+      'Кафедра прикладных компетенций в области цифровых технологий',
+      'Кафедра разработки и эксплуатации нефтяных и газовых месторождений',
+      'Кафедра разработки месторождений открытым способом',
+      'Кафедра разработки месторождений подземным способом',
+      'Кафедра русского языка и литературы',
+      'Кафедра системного анализа и управления',
+      'Кафедра социологии и психологии',
+      'Кафедра строительства горных предприятий и подземных сооружений',
+      'Кафедра теплотехники и теплоэнергетики',
+      'Кафедра технического черчения и начертательной геометрии',
+      'Кафедра транспорта и хранения нефти и газа',
+      'Кафедра транспортно-технологических процессов и машин',
+      'Кафедра физического воспитания',
+      'Кафедра философии',
+      'Кафедра химических технологий и переработки энергоносителей',
+      'Кафедра экономической теории',
+      'Кафедра электронных систем',
+      'Кафедра электроэнергетики и электромеханики',
+      'НЦ геомеханики и проблем горного производства',
+      'Центр языковых компетенций'
+    ];
     let accounts = [];
     let systemEnabled = true;
     let accountEditMode = 'all';
@@ -254,10 +319,10 @@
     }
 
     function accountSubtitle(account) {
-      if (!['teacher', 'worker'].includes(account.role)) return '';
+      if (!['teacher', 'worker', 'supervisor'].includes(account.role)) return '';
       const details = [];
       if (account.developer_access === 1) details.push('Разработчик');
-      if (account.department) details.push(/^кафедра(?:\s|$)/i.test(account.department.trim()) ? account.department.trim() : `Кафедра ${account.department.trim()}`);
+      if (account.department) details.push(/^(?:кафедра|нц|центр)(?:\s|$)/i.test(account.department.trim()) ? account.department.trim() : `Кафедра ${account.department.trim()}`);
       return details.length ? `<small>${details.map(escapeHtml).join(' · ')}</small>` : '';
     }
 
@@ -274,6 +339,11 @@
       roleSelect.innerHTML = accountSection === 'students' ? '<option value="student">Студент</option>' : '<option value="teacher">Преподаватель</option><option value="worker">Сотрудник</option><option value="supervisor">Руководитель</option>';
       roleSelect.value = account?.role || (accountSection === 'students' ? 'student' : 'teacher');
       document.getElementById('accountName').value = account?.full_name || '';
+      const departmentSelect = document.getElementById('accountDepartment');
+      if (account?.department && !Array.from(departmentSelect.options).some(option => option.value === account.department)) {
+        departmentSelect.add(new Option(account.department, account.department));
+      }
+      departmentSelect.value = account?.department || '';
       document.getElementById('accountLogin').value = account?.login || '';
       document.getElementById('accountPassword').value = '';
       document.getElementById('accountPassword').type = 'password';
@@ -289,6 +359,7 @@
       document.getElementById('accountEnabledControl').style.display = mode === 'all' ? '' : 'none';
       updatePasswordControl();
       updateDeveloperControl();
+      updateDepartmentControl();
       suggestStaffLogin();
       document.getElementById('accountModal').classList.add('open');
     }
@@ -318,6 +389,12 @@
       const supported = ['teacher', 'worker'].includes(role);
       document.getElementById('accountDeveloperControl').style.display = supported && (accountEditMode === 'all' || accountEditMode === 'role') ? '' : 'none';
       if (!supported) document.getElementById('accountDeveloper').checked = false;
+    }
+
+    function updateDepartmentControl() {
+      const isStaff = document.getElementById('accountRole').value !== 'student';
+      document.getElementById('accountDepartmentGroup').style.display = isStaff && accountEditMode === 'all' ? '' : 'none';
+      if (!isStaff) document.getElementById('accountDepartment').value = '';
     }
 
     function generateAccountPassword() {
@@ -494,6 +571,7 @@
         full_name: document.getElementById('accountName').value.trim(),
         login: document.getElementById('accountLogin').value.trim(),
         password: document.getElementById('accountPassword').value,
+        department: document.getElementById('accountDepartment').value,
         account_enabled: document.getElementById('accountEnabled').checked,
         developer_access: document.getElementById('accountDeveloper').checked
       };
@@ -635,6 +713,7 @@
     document.getElementById('statusFilter').addEventListener('change', renderAccounts);
     document.getElementById('accountSearch').addEventListener('input', renderAccounts);
     document.getElementById('accountName').addEventListener('input', suggestStaffLogin);
+    document.getElementById('accountRole').addEventListener('change', updateDepartmentControl);
     document.querySelectorAll('[data-account-section]').forEach(button => button.addEventListener('click', () => switchAccountSection(button.dataset.accountSection)));
     document.getElementById('passwordRecoveryNav').addEventListener('click', showPasswordRecoverySection);
     document.getElementById('menuToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
@@ -642,6 +721,8 @@
     document.getElementById('accountModal').addEventListener('click', e => { if (e.target.id === 'accountModal') closeAccountModal(); });
     document.getElementById('generatedPasswordModal').addEventListener('click', e => { if (e.target.id === 'generatedPasswordModal') closeGeneratedPassword(); });
     document.getElementById('printCredentialsModal').addEventListener('click', e => { if (e.target.id === 'printCredentialsModal') closePrintCredentialsModal(); });
+    const departmentSelect = document.getElementById('accountDepartment');
+    departments.forEach(department => departmentSelect.add(new Option(department, department)));
     checkAuth().then(ok => { if (ok) { loadSystemStatus(); loadAccounts(); loadPasswordRecoveryRequests(); } });
   </script>
   <script src="/modal-layout.js"></script>
