@@ -1,0 +1,26 @@
+{
+  "name": "spmi-modern",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check database.js && node --check api/index.js && node --check import-room-schedules.js && node --check scripts/migrate-sqlite-to-supabase.js && node --check scripts/create-admin.js",
+    "import:room-schedules": "node import-room-schedules.js",
+    "migrate:supabase": "node scripts/migrate-sqlite-to-supabase.js",
+    "admin:create": "node scripts/create-admin.js"
+  },
+  "dependencies": {
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-session": "^1.18.0",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.16.3",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "sql.js": "^1.13.0"
+  }
+}

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход в систему — Горный университет</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/logdesign_1.css">
+  <style>html.skip-intro .booking-intro { display: none; }</style>
+  <script>if (new URLSearchParams(location.search).get('intro') === '0') document.documentElement.classList.add('skip-intro');</script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #1a4b8c;
+      --primary-light: #2d6fc4;
+      --primary-dark: #0f2d5a;
+      --bg: #f0f4f8;
+      --card-bg: rgba(255,255,255,0.85);
+      --text: #1a2332;
+      --text-secondary: #5a6a7a;
+      --border: rgba(26, 75, 140, 0.12);
+      --shadow: 0 8px 40px rgba(26, 75, 140, 0.10);
+      --radius: 16px;
+      --transition: 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 80% 60% at 0% 10%, rgba(26,75,140,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 100% 90%, rgba(232,184,75,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(45,111,196,0.04) 0%, transparent 50%);
+    }
+
+    .bg-orbs {
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.3;
+      animation: float 20s ease-in-out infinite;
+    }
+    .bg-orbs--1 { background: rgba(26,75,140,0.12); top: -200px; left: -100px; animation-delay: 0s; }
+    .bg-orbs--2 { background: rgba(232,184,75,0.10); bottom: -200px; right: -100px; animation-delay: -7s; }
+    .bg-orbs--3 { background: rgba(45,111,196,0.08); top: 40%; left: 60%; animation-delay: -14s; width: 400px; height: 400px; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(40px, -30px) scale(1.05); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+    }
+
+    .header {
+      position: relative;
+      z-index: 1;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: var(--primary);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .logo-text small {
+      display: block;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .main {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px 60px;
+    }
+
+    .login-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 420px;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .login-card:hover {
+      box-shadow: 0 12px 48px rgba(26,75,140,0.14);
+    }
+
+    .login-card__title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .login-card__subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+      background: rgba(255,255,255,0.6);
+      transition: all var(--transition);
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(26,75,140,0.10);
+      background: white;
+    }
+    .form-group input::placeholder { color: #aab5c5; }
+
+    .form-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .checkbox input {
+      width: 16px; height: 16px;
+      accent-color: var(--primary);
+      border-radius: 4px;
+    }
+
+    .forgot-link {
+      font-size: 13px;
+      color: var(--primary-light);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color var(--transition);
+    }
+    .forgot-link:hover { color: var(--primary); text-decoration: underline; }
+
+    .recovery-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      overflow-y: auto;
+      background: rgba(10, 28, 52, .55);
+      backdrop-filter: blur(8px);
+    }
+    .recovery-overlay[hidden] { display: none; }
+    .recovery-dialog {
+      width: min(470px, 100%);
+      padding: 26px;
+      background: rgba(255,255,255,.98);
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: 20px;
+      box-shadow: 0 28px 80px rgba(8, 31, 63, .3);
+    }
+    .recovery-dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+    .recovery-dialog-header h2 { margin: 0 0 5px; color: var(--primary-dark); font-size: 21px; }
+    .recovery-dialog-header p { color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
+    .recovery-close { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; color: #64748b; background: #f2f5f9; border: 0; border-radius: 10px; font-size: 21px; cursor: pointer; }
+    .recovery-form { display: grid; gap: 14px; }
+    .recovery-form .form-group { margin: 0; }
+    .recovery-form input,
+    .recovery-form select { width: 100%; min-height: 44px; padding: 10px 12px; color: var(--text); background: #f9fbfd; border: 1px solid #d7e1ec; border-radius: 10px; font: inherit; font-size: 13px; outline: none; }
+    .recovery-form input:focus,
+    .recovery-form select:focus { background: #fff; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(26,75,140,.1); }
+    .recovery-form select { appearance: none; padding-right: 38px; background-image: linear-gradient(45deg,transparent 50%,#66809e 50%),linear-gradient(135deg,#66809e 50%,transparent 50%); background-position: calc(100% - 17px) 19px,calc(100% - 12px) 19px; background-repeat: no-repeat; background-size: 5px 5px; cursor: pointer; }
+    .recovery-role-picker { position: relative; }
+    .recovery-role-picker select { position: absolute; width: 1px; height: 1px; min-height: 0; padding: 0; opacity: 0; border: 0; pointer-events: none; }
+    .recovery-role-trigger { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 44px; padding: 10px 13px; color: #8090a4; background: linear-gradient(180deg,#fff,#f8fbfe); border: 1px solid #d7e1ec; border-radius: 11px; font: inherit; font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; transition: border-color var(--transition),box-shadow var(--transition),background var(--transition); }
+    .recovery-role-trigger:hover { color: #465b73; background: #fff; border-color: #afc4da; }
+    .recovery-role-trigger i { width: 8px; height: 8px; flex: 0 0 8px; border-right: 2px solid #6c8199; border-bottom: 2px solid #6c8199; transform: rotate(45deg) translateY(-2px); transition: transform var(--transition); }
+    .recovery-role-picker.is-open .recovery-role-trigger { color: var(--text); background: #fff; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(26,75,140,.1); }
+    .recovery-role-picker.has-value .recovery-role-trigger { color: var(--text); }
+    .recovery-role-picker.is-open .recovery-role-trigger i { transform: rotate(225deg) translate(-1px,-1px); }
+    .recovery-role-menu { position: absolute; z-index: 5; top: calc(100% + 7px); left: 0; display: grid; width: 100%; gap: 4px; padding: 7px; background: rgba(255,255,255,.99); border: 1px solid #d7e3ef; border-radius: 13px; box-shadow: 0 18px 45px rgba(17,48,85,.2),0 4px 12px rgba(17,48,85,.08); animation: recoveryMenuIn 150ms cubic-bezier(.2,.8,.2,1); }
+    .recovery-role-menu[hidden] { display: none; }
+    .recovery-role-option { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 40px; padding: 9px 11px; color: #405168; background: transparent; border: 0; border-radius: 9px; font: inherit; font-size: 12px; font-weight: 650; text-align: left; cursor: pointer; }
+    .recovery-role-option:hover,
+    .recovery-role-option:focus { color: var(--primary-dark); background: #eef4fc; outline: none; }
+    .recovery-role-option.is-selected { color: var(--primary-dark); background: #e5effb; font-weight: 800; }
+    .recovery-role-option i { color: var(--primary); font-size: 13px; font-style: normal; opacity: 0; }
+    .recovery-role-option.is-selected i { opacity: 1; }
+    @keyframes recoveryMenuIn { from { opacity: 0; transform: translateY(-5px) scale(.985); } to { opacity: 1; transform: none; } }
+    .recovery-note { padding: 10px 12px; color: #59697d; background: #f1f5fa; border-radius: 10px; font-size: 11px; line-height: 1.5; }
+    .recovery-feedback { display: none; padding: 12px; border-radius: 10px; font-size: 12px; line-height: 1.5; }
+    .recovery-feedback.is-error { display: block; color: #a92938; background: #fff0f1; border: 1px solid #f4cbd0; }
+    .recovery-feedback.is-success { display: block; color: #176c54; background: #eaf8f3; border: 1px solid #bfe6d8; }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn--primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn--primary:hover {
+      background: var(--primary-light);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(26,75,140,0.25);
+    }
+    .btn--primary:active { transform: translateY(0); }
+    .btn--primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
+    .btn.loading .spinner { display: block; }
+    .btn.loading .btn-text { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .error-msg.visible { display: block; }
+
+    .footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 20px 32px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border);
+    }
+
+    .quick-login {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .quick-login summary {
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-align: center;
+    }
+    .quick-login-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .quick-btn {
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all var(--transition);
+      text-align: left;
+      line-height: 1.3;
+    }
+    .quick-btn:hover {
+      border-color: var(--primary-light);
+      background: rgba(26,75,140,0.04);
+    }
+    .quick-btn strong { display: block; font-size: 10px; color: var(--primary); }
+
+    @media (max-width: 520px) {
+      .login-card { padding: 24px; }
+      .header { padding: 16px 20px; }
+      .main { padding: 24px 16px 40px; }
+    }
+  </style>
+  <link rel="stylesheet" href="/css/redesign.css">
+  <link rel="stylesheet" href="/css/login-v2.css">
+</head>
+<body class="login-v2">
+  <div class="booking-intro" id="systemIntro" role="status" aria-label="Загрузка информационной системы">
+    <div class="intro-stage">
+      <div class="intro-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="intro-logo-wrap">
+        <div class="intro-pulse"></div>
+        <img src="/images/system-logo.png" alt="" class="intro-logo">
+      </div>
+    </div>
+    <div class="intro-copy">
+      <span>Санкт-Петербургский горный университет императрицы Екатерины II</span>
+      <p>Кафедра прикладных компетенций в области цифровых технологий</p>
+      <div class="intro-loading"><i></i></div>
+    </div>
+    <button class="intro-skip" type="button" onclick="finishSystemIntro()">Пропустить</button>
+  </div>
+  <div class="bg-canvas">
+    <div class="bg-orbs bg-orbs--1"></div>
+    <div class="bg-orbs bg-orbs--2"></div>
+    <div class="bg-orbs bg-orbs--3"></div>
+  </div>
+
+  <header class="header login-header">
+    <a href="/" class="logo" aria-label="Санкт-Петербургский горный университет">
+      <img class="university-brand-logo" src="/images/university-logo.svg" alt="Санкт-Петербургский горный университет императрицы Екатерины II">
+    </a>
+  </header>
+
+  <main class="main">
+    <section class="login-panel" aria-label="Авторизация">
+      <div class="login-card">
+        <div class="login-card-heading">
+          <span class="login-security-mark"><i aria-hidden="true"></i>Защищенный доступ</span>
+          <h2 class="login-card__title">Добро пожаловать</h2>
+          <p class="login-card__subtitle">Войдите, используя данные учетной записи</p>
+        </div>
+
+        <div class="error-msg" id="errorMsg" role="alert"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="username">Логин</label>
+            <span class="login-input-shell login-input-shell--user">
+              <i aria-hidden="true"></i>
+              <input type="text" id="username" placeholder="Введите логин" required autocomplete="username">
+            </span>
+          </div>
+          <div class="form-group">
+            <label for="password">Пароль</label>
+            <span class="login-input-shell login-input-shell--password">
+              <i aria-hidden="true"></i>
+              <input type="password" id="password" placeholder="Введите пароль" required autocomplete="current-password">
+              <button type="button" class="password-toggle" id="passwordToggle" aria-label="Показать пароль">Показать</button>
+            </span>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox">
+              <input type="checkbox" checked> <span>Запомнить меня</span>
+            </label>
+            <a href="#" class="forgot-link" id="forgotPasswordLink">Забыли пароль?</a>
+          </div>
+
+          <button type="submit" class="btn btn--primary" id="submitBtn">
+            <span class="btn-text">Войти в систему</span>
+            <span class="login-button-arrow" aria-hidden="true"></span>
+            <span class="spinner"></span>
+          </button>
+        </form>
+
+        <div class="maintenance-state" id="maintenanceState" aria-live="polite">
+          <div class="maintenance-icon" aria-hidden="true"></div>
+          <h2>Сайт временно недоступен</h2>
+          <p>Сейчас проводятся технические работы. Пожалуйста, попробуйте войти позже.</p>
+          <button class="btn btn--primary" type="button" id="retryStatusBtn">Проверить снова</button>
+          <button class="maintenance-admin-link" type="button" id="adminLoginBtn">Вход для администратора</button>
+        </div>
+
+        <p class="login-support"><span aria-hidden="true">?</span>Доступ выдается администратором системы</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="recovery-overlay" id="recoveryOverlay" hidden>
+    <section class="recovery-dialog" role="dialog" aria-modal="true" aria-labelledby="recoveryTitle">
+      <div class="recovery-dialog-header">
+        <div><h2 id="recoveryTitle">Восстановление пароля</h2><p>Заполните заявку. Администратор проверит учетную запись и подготовит новый пароль.</p></div>
+        <button class="recovery-close" id="recoveryClose" type="button" aria-label="Закрыть">×</button>
+      </div>
+      <form class="recovery-form" id="recoveryForm">
+        <div class="form-group"><label for="recoveryRoleTrigger">Роль</label><div class="recovery-role-picker" id="recoveryRolePicker"><select id="recoveryRole" tabindex="-1" aria-hidden="true"><option value="">Выберите роль</option><option value="student">Студент</option><option value="teacher">Преподаватель</option><option value="worker">Сотрудник</option></select><button class="recovery-role-trigger" id="recoveryRoleTrigger" type="button" aria-haspopup="listbox" aria-expanded="false"><span>Выберите роль</span><i aria-hidden="true"></i></button><div class="recovery-role-menu" id="recoveryRoleMenu" role="listbox" hidden><button class="recovery-role-option" type="button" data-value="student" role="option"><span>Студент</span><i aria-hidden="true">✓</i></button><button class="recovery-role-option" type="button" data-value="teacher" role="option"><span>Преподаватель</span><i aria-hidden="true">✓</i></button><button class="recovery-role-option" type="button" data-value="worker" role="option"><span>Сотрудник</span><i aria-hidden="true">✓</i></button></div></div></div>
+        <div class="form-group"><label for="recoveryName">ФИО</label><input id="recoveryName" type="text" maxlength="160" autocomplete="name" placeholder="Иванов Иван Иванович" required></div>
+        <div class="form-group"><label for="recoveryLogin">Логин</label><input id="recoveryLogin" type="text" maxlength="100" autocomplete="username" placeholder="Введите логин" required></div>
+        <div class="form-group"><label for="recoveryEmail">Email</label><input id="recoveryEmail" type="email" maxlength="254" autocomplete="email" placeholder="name@example.ru" required></div>
+        <p class="recovery-note">Новый пароль будет подготовлен администратором и отправлен на указанный email.</p>
+        <div class="recovery-feedback" id="recoveryFeedback" role="status"></div>
+        <button class="btn btn--primary" id="recoverySubmit" type="submit">Отправить заявку</button>
+      </form>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <p>
+      © 2026 Санкт-Петербургский горный университет императрицы Екатерины II
+    </p>
+  </footer>
+
+  <script>
+    let systemIntroFinished = false;
+    function finishSystemIntro() {
+      if (systemIntroFinished) return;
+      systemIntroFinished = true;
+      document.getElementById('systemIntro').classList.add('is-finished');
+    }
+    window.addEventListener('load', () => {
+      if (document.documentElement.classList.contains('skip-intro')) return;
+      setTimeout(finishSystemIntro, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 700 : 3100);
+    });
+
+    const form = document.getElementById('loginForm');
+    const btn = document.getElementById('submitBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const maintenanceState = document.getElementById('maintenanceState');
+    const loginCard = document.querySelector('.login-card');
+    const passwordInput = document.getElementById('password');
+    const passwordToggle = document.getElementById('passwordToggle');
+    const recoveryOverlay = document.getElementById('recoveryOverlay');
+    const recoveryForm = document.getElementById('recoveryForm');
+    const recoveryFeedback = document.getElementById('recoveryFeedback');
+    const recoveryRole = document.getElementById('recoveryRole');
+    const recoveryRolePicker = document.getElementById('recoveryRolePicker');
+    const recoveryRoleTrigger = document.getElementById('recoveryRoleTrigger');
+    const recoveryRoleMenu = document.getElementById('recoveryRoleMenu');
+    let maintenanceMode = false;
+
+    function closeRecoveryRoleMenu() {
+      recoveryRoleMenu.hidden = true;
+      recoveryRolePicker.classList.remove('is-open');
+      recoveryRoleTrigger.setAttribute('aria-expanded', 'false');
+    }
+
+    function openRecoveryRoleMenu() {
+      recoveryRoleMenu.hidden = false;
+      recoveryRolePicker.classList.add('is-open');
+      recoveryRoleTrigger.setAttribute('aria-expanded', 'true');
+      recoveryRoleMenu.querySelector('.is-selected, .recovery-role-option')?.focus();
+    }
+
+    function setRecoveryRole(value) {
+      recoveryRole.value = value;
+      const selected = recoveryRole.querySelector(`option[value="${value}"]`);
+      recoveryRoleTrigger.querySelector('span').textContent = selected?.textContent || 'Выберите роль';
+      recoveryRolePicker.classList.toggle('has-value', Boolean(value));
+      recoveryRoleMenu.querySelectorAll('.recovery-role-option').forEach(option => {
+        const isSelected = option.dataset.value === value;
+        option.classList.toggle('is-selected', isSelected);
+        option.setAttribute('aria-selected', String(isSelected));
+      });
+      closeRecoveryRoleMenu();
+    }
+
+    recoveryRoleTrigger.addEventListener('click', () => recoveryRoleMenu.hidden ? openRecoveryRoleMenu() : closeRecoveryRoleMenu());
+    recoveryRoleTrigger.addEventListener('keydown', event => {
+      if (!['ArrowDown', 'Enter', ' ', 'Escape'].includes(event.key)) return;
+      event.preventDefault();
+      if (event.key === 'Escape') closeRecoveryRoleMenu();
+      else openRecoveryRoleMenu();
+    });
+    recoveryRoleMenu.querySelectorAll('.recovery-role-option').forEach(option => option.addEventListener('click', () => {
+      setRecoveryRole(option.dataset.value);
+      recoveryRoleTrigger.focus();
+    }));
+    setRecoveryRole(recoveryRole.value);
+    document.addEventListener('click', event => { if (!recoveryRolePicker.contains(event.target)) closeRecoveryRoleMenu(); });
+
+    passwordToggle.addEventListener('click', () => {
+      const showPassword = passwordInput.type === 'password';
+      passwordInput.type = showPassword ? 'text' : 'password';
+      passwordToggle.textContent = showPassword ? 'Скрыть' : 'Показать';
+      passwordToggle.setAttribute('aria-label', showPassword ? 'Скрыть пароль' : 'Показать пароль');
+      passwordInput.focus();
+    });
+
+    function closeRecovery() {
+      closeRecoveryRoleMenu();
+      recoveryOverlay.hidden = true;
+      document.getElementById('forgotPasswordLink').focus();
+    }
+
+    document.getElementById('forgotPasswordLink').addEventListener('click', event => {
+      event.preventDefault();
+      recoveryFeedback.className = 'recovery-feedback';
+      recoveryFeedback.textContent = '';
+      document.getElementById('recoveryLogin').value = document.getElementById('username').value.trim();
+      recoveryOverlay.hidden = false;
+      requestAnimationFrame(() => recoveryRoleTrigger.focus());
+    });
+    document.getElementById('recoveryClose').addEventListener('click', closeRecovery);
+    recoveryOverlay.addEventListener('click', event => { if (event.target === recoveryOverlay) closeRecovery(); });
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape' || recoveryOverlay.hidden) return;
+      if (!recoveryRoleMenu.hidden) closeRecoveryRoleMenu();
+      else closeRecovery();
+    });
+    recoveryForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!recoveryRole.value) {
+        recoveryFeedback.textContent = 'Выберите роль';
+        recoveryFeedback.className = 'recovery-feedback is-error';
+        recoveryRoleTrigger.focus();
+        return;
+      }
+      const submit = document.getElementById('recoverySubmit');
+      submit.disabled = true;
+      recoveryFeedback.className = 'recovery-feedback';
+      try {
+        const response = await fetch('/api/password-recovery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            role: recoveryRole.value,
+            full_name: document.getElementById('recoveryName').value.trim(),
+            login: document.getElementById('recoveryLogin').value.trim(),
+            email: document.getElementById('recoveryEmail').value.trim()
+          })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Не удалось отправить заявку');
+        recoveryFeedback.textContent = result.message;
+        recoveryFeedback.className = 'recovery-feedback is-success';
+        recoveryForm.reset();
+        setRecoveryRole('');
+      } catch (error) {
+        recoveryFeedback.textContent = error.message;
+        recoveryFeedback.className = 'recovery-feedback is-error';
+      } finally {
+        submit.disabled = false;
+      }
+    });
+
+    async function doLogin(login, password) {
+      btn.classList.add('loading');
+      errorMsg.classList.remove('visible');
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ login, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          window.location.href = data.redirect;
+        } else {
+          errorMsg.textContent = data.message || 'Ошибка входа';
+          errorMsg.classList.add('visible');
+        }
+      } catch {
+        errorMsg.textContent = 'Ошибка соединения с сервером';
+        errorMsg.classList.add('visible');
+      } finally {
+        btn.classList.remove('loading');
+      }
+    }
+
+    async function checkSystemStatus() {
+      try {
+        const res = await fetch('/api/system-status');
+        const data = await res.json();
+        maintenanceMode = !data.system_enabled;
+        loginCard.classList.toggle('is-maintenance', maintenanceMode);
+        document.querySelector('.login-card__title').style.display = maintenanceMode ? 'none' : '';
+        document.querySelector('.login-card__subtitle').style.display = maintenanceMode ? 'none' : '';
+        form.style.display = maintenanceMode ? 'none' : '';
+        errorMsg.classList.remove('visible');
+        maintenanceState.classList.toggle('visible', maintenanceMode);
+      } catch {
+        maintenanceMode = true;
+        loginCard.classList.add('is-maintenance');
+        form.style.display = 'none';
+        maintenanceState.classList.add('visible');
+      }
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const login = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      doLogin(login, password);
+    });
+
+    document.getElementById('retryStatusBtn').addEventListener('click', checkSystemStatus);
+    document.getElementById('adminLoginBtn').addEventListener('click', () => {
+      loginCard.classList.remove('is-maintenance');
+      maintenanceState.classList.remove('visible');
+      document.querySelector('.login-card__title').style.display = '';
+      document.querySelector('.login-card__subtitle').style.display = '';
+      document.querySelector('.login-card__title').textContent = 'Вход администратора';
+      document.querySelector('.login-card__subtitle').textContent = 'Управление системой';
+      form.style.display = '';
+      document.getElementById('username').value = 'admin/dpk';
+      document.getElementById('password').focus();
+    });
+
+    document.querySelectorAll('.quick-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        document.getElementById('username').value = b.dataset.login;
+        document.getElementById('password').value = b.dataset.password;
+        doLogin(b.dataset.login, b.dataset.password);
+      });
+    });
+    checkSystemStatus();
+  </script>
+</body>
+</html>

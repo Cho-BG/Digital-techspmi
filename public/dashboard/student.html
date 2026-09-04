@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Студент — Личный кабинет</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/redesign.css">
+</head>
+<body class="student-dashboard">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img class="sidebar-brand-logo" src="/images/university-logo.svg" alt="Санкт-Петербургский горный университет императрицы Екатерины II">
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="userName"></div>
+        <div class="sidebar-user-role" id="userRole"></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Меню</div>
+        <button class="nav-item active" data-tab="lessons">
+          <span class="icon" aria-hidden="true"></span> ДПК уроки
+        </button>
+        <button class="nav-item" data-tab="grades">
+          <span class="icon" aria-hidden="true"></span> Успеваемость
+        </button>
+        <button class="nav-item" data-tab="group">
+          <span class="icon" aria-hidden="true"></span> Информация о группе
+        </button>
+        <button class="nav-item" data-tab="schedule">
+          <span class="icon" aria-hidden="true"></span> Расписание
+        </button>
+        <button class="nav-item" data-tab="results">
+          <span class="icon" aria-hidden="true"></span> Результаты
+        </button>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" id="logoutBtn"><span class="logout-icon" aria-hidden="true"></span><span>Выйти</span></button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar topbar--menu-only">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <div id="tab-lessons" class="tab-content">
+        <div class="card student-panel student-panel--lessons">
+          <div class="student-section-heading"><span class="student-section-icon" aria-hidden="true"></span><span><small>Учебная нагрузка</small><strong>Мои программы ДПК</strong><em>Назначенные программы и количество часов вашей группы</em></span></div>
+          <div id="lessonsList" class="student-program-grid"><div class="empty-state">Загрузка...</div></div>
+        </div>
+      </div>
+
+      <div id="tab-grades" class="tab-content" style="display:none">
+        <div class="card student-panel student-panel--grades">
+          <div class="student-section-heading"><span class="student-section-icon" aria-hidden="true"></span><span><small>Учебный прогресс</small><strong>Мои оценки</strong><em>Текущая успеваемость, комментарии и даты выставления</em></span></div>
+          <div id="gradesList" class="table-wrap student-table-wrap"><div class="empty-state">Загрузка...</div></div>
+          <section class="student-attendance-section" aria-labelledby="studentAttendanceTitle">
+            <div class="student-attendance-heading"><span><small>Данные преподавателя</small><strong id="studentAttendanceTitle">Посещаемость и задания</strong></span><div class="student-attendance-legend"><span><i class="is-present"></i>Присутствовал</span><span><i class="is-absent"></i>Отсутствовал</span><span><i></i>Не отмечено</span></div></div>
+            <div id="studentAttendanceList"><div class="empty-state">Загрузка...</div></div>
+          </section>
+        </div>
+      </div>
+
+      <div id="tab-group" class="tab-content" style="display:none">
+        <div class="card student-panel student-panel--group">
+          <div class="student-section-heading"><span class="student-section-icon" aria-hidden="true"></span><span><small>Учебная группа</small><strong>Моя группа</strong><em>Поток, номер группы и список одногруппников</em></span></div>
+          <div id="groupInfo"><div class="empty-state">Загрузка...</div></div>
+        </div>
+      </div>
+
+      <div id="tab-schedule" class="tab-content" style="display:none">
+        <div class="card schedule-workspace">
+          <div class="schedule-heading schedule-heading--student"><span class="schedule-heading-icon" aria-hidden="true"></span><span class="schedule-heading-copy"><small>Учебная неделя</small><strong>Мое расписание</strong><em>Занятия вашей группы по дням и учебным парам</em></span><span class="schedule-heading-status"><i></i>Расписание группы</span></div>
+          <div class="schedule-nav">
+            <button class="schedule-nav-btn" type="button" aria-label="Предыдущая неделя" onclick="navigateWeek(-1)">◀</button>
+            <button class="schedule-today-btn" onclick="navigateWeek(0, true)">Сегодня</button>
+            <button class="schedule-nav-btn" type="button" aria-label="Следующая неделя" onclick="navigateWeek(1)">▶</button>
+            <span class="schedule-nav-month" onclick="toggleMonthPicker(event)">
+              <span id="scheduleMonthLabelText"></span>
+              <div class="schedule-month-picker" id="scheduleMonthPicker"></div>
+            </span>
+          </div>
+          <div id="studentScheduleGrid"><div class="empty-state">Загрузка...</div></div>
+        </div>
+      </div>
+
+      <div id="tab-results" class="tab-content" style="display:none">
+        <div class="card student-panel student-panel--results">
+          <div class="student-section-heading"><span class="student-section-icon" aria-hidden="true"></span><span><small>Итоговая аттестация</small><strong>Результаты оценивания</strong><em>Опубликованные результаты по завершенным программам</em></span></div>
+          <div id="studentResults"><div class="empty-state">Загрузка...</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function checkAuth() {
+      const res = await fetch('/api/me');
+      const data = await res.json();
+      if (!data.user || data.user.role !== 'student') {
+        window.location.href = '/'; return;
+      }
+      document.getElementById('userName').textContent = data.user.full_name;
+      const roleMap = { supervisor: 'Руководитель', teacher: 'Преподаватель', worker: 'Сотрудник', student: 'Студент' };
+      const userRole = document.getElementById('userRole');
+      userRole.classList.add('is-student-meta');
+      userRole.textContent = `${data.user.group_name ? `${data.user.group_name}\n` : ''}${data.user.position || roleMap[data.user.role] || ''}`;
+      return data.user;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+    }
+
+    function gradeTone(value) {
+      const grade = String(value || '').trim().toLowerCase();
+      if (grade === '5' || grade === 'отлично') return 'is-excellent';
+      if (grade === '4' || grade === 'хорошо') return 'is-good';
+      if (grade === '3' || grade === 'удовлетворительно') return 'is-satisfactory';
+      if (grade === '2' || grade === 'неудовлетворительно') return 'is-poor';
+      return 'is-neutral';
+    }
+
+    // --- Schedule ---
+    let scheduleWeekOffset = 0;
+    let studentGroupName = '';
+
+    function getWeekDates(offset) {
+      const now = new Date();
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1) + offset * 7;
+      const monday = new Date(now.getFullYear(), now.getMonth(), diff);
+      const dates = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        dates.push(d);
+      }
+      return dates;
+    }
+    const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    function formatMonthYear(dates) {
+      const s = dates[0], e = dates[6];
+      if (s.getMonth() === e.getMonth()) return `${MONTHS[s.getMonth()]} ${s.getFullYear()}`;
+      return `${MONTHS[s.getMonth()].slice(0,3)} – ${MONTHS[e.getMonth()].slice(0,3)} ${e.getFullYear()}`;
+    }
+    function isToday(d) {
+      const t = new Date();
+      return d.getFullYear() === t.getFullYear() && d.getMonth() === t.getMonth() && d.getDate() === t.getDate();
+    }
+    function navigateWeek(delta, resetToToday) {
+      if (resetToToday) scheduleWeekOffset = 0;
+      else scheduleWeekOffset += delta;
+      loadStudentSchedule();
+    }
+    function toggleMonthPicker(event) {
+      event.stopPropagation();
+      const container = event.currentTarget;
+      const picker = container.querySelector('.schedule-month-picker');
+      if (!picker) return;
+      const isOpen = picker.classList.contains('open');
+      document.querySelectorAll('.schedule-month-picker.open').forEach(p => p.classList.remove('open'));
+      if (!isOpen) picker.classList.add('open');
+    }
+    function buildMonthPicker(pickerEl, referenceDate) {
+      const year = referenceDate.getFullYear();
+      const month = referenceDate.getMonth();
+      const now = new Date();
+      let html = `<div class="schedule-mp-year">
+        <button onclick="event.stopPropagation();changePickerYear(this, -1)" data-year="${year}">◀</button>
+        <span class="mp-year-label">${year}</span>
+        <button onclick="event.stopPropagation();changePickerYear(this, 1)" data-year="${year}">▶</button>
+      </div><div class="schedule-mp-months">`;
+      const months = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+      months.forEach((m, i) => {
+        const isActive = i === month ? ' active' : '';
+        const isToday = i === now.getMonth() && year === now.getFullYear() ? ' today' : '';
+        html += `<button class="schedule-mp-month${isActive}${isToday}" onclick="event.stopPropagation();goToMonth(this, ${i}, ${year})">${m}</button>`;
+      });
+      html += '</div>';
+      pickerEl.dataset.year = year;
+      pickerEl.innerHTML = html;
+    }
+    function changePickerYear(btn, delta) {
+      const picker = btn.closest('.schedule-month-picker');
+      if (!picker) return;
+      const year = parseInt(btn.dataset.year) + delta;
+      btn.dataset.year = year;
+      const refDate = new Date(year, 0);
+      buildMonthPicker(picker, refDate);
+    }
+    function goToMonth(btn, month, year) {
+      const picker = btn.closest('.schedule-month-picker');
+      if (picker) picker.classList.remove('open');
+      const targetDate = new Date(year, month, 1);
+      const firstDay = targetDate.getDay();
+      const diff = firstDay === 0 ? -6 : 1 - firstDay;
+      const monday = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1 + diff);
+      const now = new Date();
+      const nowDay = now.getDay();
+      const nowDiff = nowDay === 0 ? -6 : 1 - nowDay;
+      const currentMonday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + nowDiff);
+      const weekDiff = Math.round((monday - currentMonday) / (7 * 86400000));
+      scheduleWeekOffset = weekDiff;
+      loadStudentSchedule();
+    }
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.schedule-month-picker.open').forEach(p => p.classList.remove('open'));
+    });
+
+    async function loadStudentSchedule() {
+      const el = document.getElementById('studentScheduleGrid');
+      if (!studentGroupName) {
+        const meRes = await fetch('/api/me');
+        const me = await meRes.json();
+        if (!me.user || !me.user.group_name) { el.innerHTML = '<div class="empty-state">Группа не определена</div>'; return; }
+        studentGroupName = me.user.group_name;
+      }
+      const dates = getWeekDates(scheduleWeekOffset);
+      const labelEl = document.getElementById('scheduleMonthLabelText');
+      if (labelEl) labelEl.textContent = formatMonthYear(dates);
+      const picker = document.getElementById('scheduleMonthPicker');
+      if (picker) buildMonthPicker(picker, dates[0]);
+      const res = await fetch(`/api/schedule?group_name=${encodeURIComponent(studentGroupName)}`);
+      const entries = await res.json();
+      const DAY_NAMES = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+      const periods = [
+        { start: '08:50', end: '10:20' }, { start: '10:35', end: '12:05' },
+        { start: '12:35', end: '14:05' }, { start: '14:15', end: '15:45' },
+        { start: '15:55', end: '17:20' }, { start: '17:30', end: '19:00' }
+      ];
+      const minutes = value => { const [h, m] = value.split(':').map(Number); return h * 60 + m; };
+      const periodStarts = periods.map(p => minutes(p.start));
+      const periodIndexFor = value => periodStarts.reduce((best, start, index) => Math.abs(start - minutes(value)) < Math.abs(periodStarts[best] - minutes(value)) ? index : best, 0);
+      const periodTop = index => [0, 90, 210, 300, 390, 480][index];
+      let html = '<div class="schedule-calendar-wrap"><div class="schedule-calendar schedule-calendar--periods">';
+      html += '<div class="schedule-cal-header" style="border-right:1px solid var(--border)"></div>';
+      DAY_NAMES.forEach((name, i) => {
+        const d = dates[i];
+        const today = isToday(d);
+        html += `<div class="schedule-cal-header${today ? ' today' : ''}" style="border-right:${i < 6 ? '1px solid var(--border)' : 'none'}">
+          ${name}
+          <span class="cal-day-num">${d.getDate()}</span>
+        </div>`;
+      });
+      periods.forEach((period, index) => {
+        const even = index % 2 === 0 ? ' is-even' : '';
+        html += `<div class="schedule-cal-time schedule-period-label${even}"><strong>${index + 1} пара</strong><span>${period.start}–${period.end}</span></div>`;
+        for (let d = 0; d < 7; d++) {
+          const borderRight = d < 6 ? 'border-right:1px solid rgba(0,0,0,0.06)' : '';
+          html += `<div class="schedule-cal-cell schedule-period-cell${even}" style="${borderRight}"></div>`;
+        }
+        if (index === 1) { html += '<div class="schedule-cal-time schedule-break-label">Перерыв<br>12:05–12:35</div>'; for (let d = 0; d < 7; d++) html += '<div class="schedule-cal-cell schedule-break-cell"></div>'; }
+      });
+      html += '</div>';
+      html += '<div class="schedule-entries-overlay">';
+      if (entries.length) {
+        const ENT_COLORS = ['rgba(26,75,140,0.12)','rgba(22,163,74,0.12)','rgba(220,38,38,0.10)','rgba(245,158,11,0.15)','rgba(139,92,246,0.12)','rgba(236,72,153,0.12)'];
+        entries.forEach((e, idx) => {
+          const periodIndex = periodIndexFor(e.time_start);
+          const topPct = periodTop(periodIndex) / 570 * 100;
+          const heightPct = 90 / 570 * 100;
+          const leftPct = parseInt(e.day_of_week) / 7 * 100;
+          const widthPct = 100 / 7;
+          const color = ENT_COLORS[Math.abs(parseInt(e.teacher_id || idx, 10)) % ENT_COLORS.length];
+          html += `<div class="schedule-entry" data-id="${e.id}" style="left:${leftPct}%;top:${topPct}%;width:${widthPct}%;height:${heightPct}%;--entry-color:${color}">
+            <div class="entry-title">${e.program_name || '—'}</div>
+            <div class="entry-detail">${e.teacher_name || ''}</div>
+            <div class="entry-class">${e.room ? '· '+e.room : ''} ${e.group_name ? '· '+e.group_name : ''}</div>
+          </div>`;
+        });
+      }
+      html += '</div></div>';
+      el.innerHTML = html;
+      // Close month picker on outside click
+      document.addEventListener('click', function closePicker(e) {
+        if (!e.target.closest('.schedule-nav-month')) {
+          document.querySelectorAll('.schedule-month-picker').forEach(p => p.classList.remove('open'));
+        }
+      });
+    }
+
+    async function loadStudentAttendance() {
+      const container = document.getElementById('studentAttendanceList');
+      container.innerHTML = '<div class="empty-state">Загрузка...</div>';
+      try {
+        const response = await fetch('/api/student/attendance');
+        const programs = await response.json();
+        if (!response.ok) throw new Error(programs.message || 'Не удалось загрузить посещаемость');
+        if (!programs.length) {
+          container.innerHTML = '<div class="empty-state">Нет программ с журналом посещаемости</div>';
+          return;
+        }
+        const typeLabels = { lecture: 'Лекции', practice: 'Практики', lab: 'Лабораторные' };
+        const lessonLabels = { lecture: 'Лекция', practice: 'Практика', lab: 'Лабораторная' };
+        container.innerHTML = `<div class="student-attendance-programs">${programs.map(program => {
+          const statuses = Object.values(program.records);
+          const present = statuses.filter(status => status === 'present').length;
+          const absent = statuses.filter(status => status === 'absent').length;
+          const lessonTotal = Object.values(program.lesson_counts).reduce((sum, count) => sum + Number(count || 0), 0);
+          const types = Object.entries(program.lesson_counts).filter(([, count]) => Number(count) > 0).map(([type, count]) => `<div class="student-attendance-type"><strong>${typeLabels[type]}</strong><div>${Array.from({ length: Number(count) }, (_, index) => {
+            const number = index + 1;
+            const status = program.records[`${type}_${number}`] || 'unmarked';
+            const statusText = status === 'present' ? 'Присутствовал' : status === 'absent' ? 'Отсутствовал' : 'Не отмечено';
+            return `<span class="student-attendance-mark is-${status}" title="${lessonLabels[type]} ${number}: ${statusText}"><small>${lessonLabels[type]}</small><b>${number}</b><i>${status === 'present' ? 'Был' : status === 'absent' ? 'Не был' : '—'}</i></span>`;
+          }).join('')}</div></div>`).join('');
+          const assignments = (program.assignments || []).map((assignment, index) => {
+            const status = assignment.status || 'unmarked';
+            const label = status === 'completed' ? 'Выполнено' : status === 'plus' ? '+1' : status === 'minus' ? '-1' : 'Не отмечено';
+            return `<span class="student-assignment-mark is-${status}" title="Задание ${index + 1}: ${label}"><small>Задание</small><b>${index + 1}</b><i>${label}</i></span>`;
+          }).join('');
+          const assignmentSection = assignments ? `<div class="student-attendance-type student-assignment-type"><strong>Задания</strong><div>${assignments}</div></div>` : '';
+          const content = types || assignmentSection ? `${types}${assignmentSection}` : '<div class="empty-state">Занятия и задания еще не настроены</div>';
+          return `<article class="student-attendance-program"><header><span><small>Учебная программа</small><strong>${escapeHtml(program.program_name)}</strong></span><div><em class="is-present">${present} был</em><em class="is-absent">${absent} не был</em><em>${Math.max(0, lessonTotal - present - absent)} без отметки</em></div></header>${content}</article>`;
+        }).join('')}</div>`;
+      } catch (error) {
+        container.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    async function loadTab(tab) {
+      const containers = {
+        lessons: 'lessonsList',
+        grades: 'gradesList',
+        group: 'groupInfo',
+        schedule: 'studentScheduleGrid',
+        results: 'studentResults'
+      };
+
+      const el = document.getElementById(containers[tab]);
+      el.innerHTML = '<div class="empty-state">Загрузка...</div>';
+
+      if (tab === 'lessons') {
+        const res = await fetch('/api/student/dpk-programs');
+        const programs = await res.json();
+        if (!programs.length) { el.innerHTML = '<div class="empty-state">Нет программ</div>'; return; }
+        let html = '';
+        for (const p of programs) {
+          html += `<article class="student-program-card"><div class="student-program-top"><span>ДПК</span><i aria-hidden="true"></i></div><h3>${escapeHtml(p.name)}</h3><div class="student-program-footer"><span><strong>${Number(p.group_hours) || 0}</strong><small>часов для группы</small></span><em>Назначено</em></div></article>`;
+        }
+        el.innerHTML = html;
+      }
+
+      if (tab === 'grades') {
+        loadStudentAttendance();
+        const res = await fetch('/api/student/grades');
+        const grades = await res.json();
+        if (!grades.length) { el.innerHTML = ''; el.style.display = 'none'; return; }
+        el.style.display = '';
+        let html = `<table class="student-grades-table"><thead><tr><th>Урок</th><th>Оценка</th><th>Комментарий</th><th>Дата</th></tr></thead><tbody>`;
+        for (const g of grades) {
+          html += `<tr><td><strong>${escapeHtml(g.lesson_title)}</strong></td><td><span class="student-grade-badge ${gradeTone(g.grade)}">${escapeHtml(g.grade)}</span></td><td>${escapeHtml(g.comment || 'Без комментария')}</td><td><time>${escapeHtml(g.date)}</time></td></tr>`;
+        }
+        html += '</tbody></table>';
+        el.innerHTML = html;
+      }
+
+      if (tab === 'group') {
+        const res = await fetch('/api/student/group-info');
+        const data = await res.json();
+        let html = `<div class="student-group-summary"><span><small>Поток</small><strong>${escapeHtml(data.flow || '—')}</strong></span><i></i><span><small>Группа</small><strong>${escapeHtml(data.group || '—')}</strong></span><em>${data.students.length} студентов</em></div>`;
+        if (!data.students.length) { html += '<div class="empty-state">Нет студентов</div>'; el.innerHTML = html; return; }
+        html += `<div class="table-wrap student-table-wrap"><table class="student-group-table"><thead><tr><th>#</th><th>Студент</th></tr></thead><tbody>`;
+        data.students.forEach((s, i) => {
+          const initials = s.full_name.trim().split(/\s+/).slice(0, 2).map(part => part.charAt(0)).join('').toUpperCase();
+          html += `<tr><td><span class="student-row-number">${i + 1}</span></td><td><span class="student-group-person"><i>${escapeHtml(initials)}</i><span><strong>${escapeHtml(s.full_name)}</strong><small>Группа ${escapeHtml(data.group || '—')}</small></span></span></td></tr>`;
+        });
+        html += '</tbody></table></div>';
+        el.innerHTML = html;
+      }
+
+      if (tab === 'schedule') {
+        loadStudentSchedule();
+      }
+
+      if (tab === 'results') {
+        const res = await fetch('/api/student/results');
+        const results = await res.json();
+        if (!results.length) { el.innerHTML = '<div class="empty-state">Нет опубликованных результатов</div>'; return; }
+        let html = '<div class="student-results-list">';
+        for (const r of results) {
+          const grade = r.grade || '—';
+          html += `<article class="student-result-card"><span class="student-result-icon" aria-hidden="true"></span><span class="student-result-copy"><small>Учебная программа</small><strong>${escapeHtml(r.program_name)}</strong><em>Итоговая оценка</em></span><span class="student-result-grade ${gradeTone(grade)}">${escapeHtml(grade)}</span></article>`;
+        }
+        html += '</div>';
+        el.innerHTML = html;
+      }
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+        const tab = item.dataset.tab;
+        document.getElementById(`tab-${tab}`).style.display = 'block';
+        loadTab(tab);
+        document.getElementById('sidebar').classList.remove('open');
+      });
+    });
+
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/?intro=0';
+    });
+
+    checkAuth().then(user => { if (user) loadTab('lessons'); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Администратор — Управление учетными записями</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/redesign.css">
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img class="sidebar-brand-logo" src="/images/university-logo.svg" alt="Санкт-Петербургский горный университет императрицы Екатерины II">
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="userName"></div>
+        <div class="sidebar-user-role">Администратор системы</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Администрирование</div>
+        <button class="nav-item active" data-tab="workers" data-account-section="staff"><span class="icon"></span> Учетные записи сотрудников</button>
+        <button class="nav-item" data-tab="students" data-account-section="students"><span class="icon"></span> Учетные записи студентов</button>
+        <button class="nav-item admin-recovery-nav" id="passwordRecoveryNav" data-tab="password-recovery"><span class="icon" aria-hidden="true"></span> Заявки на пароль <b id="passwordRecoveryNavCount">0</b></button>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" id="logoutBtn"><span class="logout-icon" aria-hidden="true"></span><span>Выйти</span></button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar topbar--menu-only">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+      </div>
+    </div>
+    <main class="content-area">
+      <section class="system-control-card is-enabled" id="systemControlCard">
+        <div class="system-control-status"><span class="system-status-dot"></span><span id="systemStatusLabel">Система работает</span></div>
+        <div class="system-control-copy">
+          <strong id="systemControlTitle">Доступ к системе включен</strong>
+          <span id="systemControlDescription">Все активные персональные аккаунты могут войти и продолжить работу.</span>
+        </div>
+        <button class="btn system-control-button" id="systemControlButton" onclick="toggleSystem()">Отключить систему</button>
+      </section>
+      <div class="stats-grid admin-stats" id="adminAccountStats">
+        <div class="stat-card"><div class="stat-value" id="totalAccounts">—</div><div class="stat-label" id="totalAccountsLabel">Аккаунтов сотрудников</div></div>
+        <div class="stat-card"><div class="stat-value" id="activeAccounts">—</div><div class="stat-label">Активны</div></div>
+        <div class="stat-card"><div class="stat-value" id="disabledAccounts">—</div><div class="stat-label">Отключены</div></div>
+      </div>
+      <div class="card admin-accounts-card" id="adminAccountsCard">
+        <div class="card-title">
+          <span id="accountsCardTitle">Учетные записи сотрудников</span>
+          <div class="admin-account-actions"><button class="btn btn--outline" onclick="openPrintCredentialsModal()"><span class="admin-print-icon" aria-hidden="true"></span>Печать логинов и паролей</button><button class="btn btn--primary" id="createAccountButton" onclick="openAccountModal()">+ Создать аккаунт сотрудника</button></div>
+        </div>
+        <div class="filter-bar admin-account-filters">
+          <select id="roleFilter">
+            <option value="">Все роли</option>
+            <option value="teacher">Преподаватели</option>
+            <option value="worker">Сотрудники</option>
+            <option value="supervisor">Руководители</option>
+            <option value="developer">Разработчики</option>
+          </select>
+          <select id="statusFilter">
+            <option value="">Все статусы</option>
+            <option value="1">Активные</option>
+            <option value="0">Отключенные</option>
+          </select>
+          <input type="search" id="accountSearch" placeholder="Поиск по ФИО или логину...">
+        </div>
+        <div id="accountsList"><div class="empty-state">Загрузка...</div></div>
+      </div>
+      <div class="card admin-recovery-card" id="passwordRecoveryCard" style="display:none">
+        <div class="card-title">
+          <span>Заявки на восстановление пароля</span>
+          <button class="btn btn--outline btn--sm" type="button" onclick="loadPasswordRecoveryRequests()">Обновить</button>
+        </div>
+        <p class="admin-recovery-intro">Заявки студентов, преподавателей и сотрудников. Проверьте данные перед созданием нового пароля.</p>
+        <div id="passwordRecoveryList"><div class="empty-state">Загрузка...</div></div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="accountModal">
+    <div class="modal">
+      <div class="modal-title" id="accountModalTitle">Создать аккаунт</div>
+      <input type="hidden" id="accountId">
+      <div class="form-group" id="accountRoleGroup">
+        <label for="accountRole">Роль</label>
+        <select id="accountRole" onchange="updatePasswordControl(); updateDeveloperControl(); suggestStaffLogin()">
+          <option value="student">Студент</option>
+          <option value="teacher">Преподаватель</option>
+          <option value="worker">Сотрудник</option>
+          <option value="supervisor">Руководитель</option>
+        </select>
+      </div>
+      <label class="admin-enabled-control admin-developer-control" id="accountDeveloperControl">
+        <input id="accountDeveloper" type="checkbox">
+        <span><strong>Разработчик</strong><small>Предоставить права и кабинет руководителя</small></span>
+      </label>
+      <div class="form-group" id="accountNameGroup">
+        <label for="accountName">ФИО</label>
+        <input id="accountName" type="text" placeholder="Иванов Иван Иванович">
+      </div>
+      <div class="form-group" id="accountLoginGroup">
+        <label for="accountLogin">Логин</label>
+        <input id="accountLogin" type="text" autocomplete="off" placeholder="personal.login">
+      </div>
+      <div class="form-group" id="accountPasswordGroup">
+        <label for="accountPassword">Пароль <span id="passwordHint"></span></label>
+        <div class="admin-password-input-row"><span class="admin-password-editor"><input id="accountPassword" type="password" autocomplete="new-password" minlength="8" maxlength="9" pattern="[A-Za-z0-9]{8,9}" placeholder="8–9 латинских букв или цифр"><button class="admin-password-visibility" id="adminPasswordVisibility" type="button" onclick="toggleAdminPasswordVisibility()" aria-label="Показать пароль" title="Показать пароль"><span aria-hidden="true"></span></button></span><button class="btn btn--outline btn--sm" type="button" onclick="generateAccountPassword()">Сгенерировать</button></div>
+      </div>
+      <label class="admin-enabled-control" id="accountEnabledControl">
+        <input id="accountEnabled" type="checkbox" checked>
+        <span>Разрешить вход в личный кабинет</span>
+      </label>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeAccountModal()">Отмена</button>
+        <button class="btn btn--primary" onclick="saveAccount()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="generatedPasswordModal">
+    <div class="modal">
+      <div class="modal-title">Пароль учетной записи</div>
+      <p class="admin-password-warning" id="generatedPasswordMessage">Пароль доступен только администратору. Передавайте его пользователю по защищенному каналу.</p>
+      <div class="admin-generated-password" id="generatedPasswordDisplay"><code id="generatedPasswordValue"></code><button class="btn btn--outline btn--sm" onclick="copyGeneratedPassword()">Копировать</button></div>
+      <div class="modal-actions"><button class="btn btn--secondary" id="createMissingPasswordButton" style="display:none" onclick="createMissingPassword()">Создать новый</button><button class="btn btn--outline" id="emailRecoveryPasswordButton" style="display:none" onclick="emailRecoveryPassword()">Отправить на email</button><button class="btn btn--primary" id="completeRecoveryButton" style="display:none" onclick="completePasswordRecovery()">Отметить отправленным</button><button class="btn btn--primary" id="closeGeneratedPasswordButton" onclick="closeGeneratedPassword()">Закрыть</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="printCredentialsModal">
+    <div class="modal modal--wide admin-print-modal">
+      <div class="modal-title">Печать логинов и паролей</div>
+      <div class="admin-print-intro"><span class="admin-print-intro-icon" aria-hidden="true"></span><span><strong id="printCredentialsTitle">Выберите сотрудников</strong><small>В печать попадут только отмеченные учетные записи с доступным паролем.</small></span></div>
+      <div class="admin-print-filters" id="printAccountFilters"><input type="search" id="printAccountSearch" placeholder="Найти по имени..." oninput="renderPrintAccountList()"><select id="printGroupFilter" onchange="renderPrintAccountList()"><option value="">Все группы</option></select></div>
+      <label class="admin-print-select-all"><input type="checkbox" id="printSelectAll" onchange="toggleAllPrintAccounts(this.checked)"><span>Выбрать все доступные</span><b id="printSelectionCount">0 выбрано</b></label>
+      <div class="admin-print-account-list" id="printAccountList"></div>
+      <div class="modal-actions"><button class="btn btn--secondary" onclick="closePrintCredentialsModal()">Отмена</button><button class="btn btn--primary" id="printCredentialsButton" onclick="printSelectedCredentials()" disabled>Печать выбранных</button></div>
+    </div>
+  </div>
+
+  <script>
+    const roleLabels = { student: 'Студент', teacher: 'Преподаватель', worker: 'Сотрудник', supervisor: 'Руководитель' };
+    let accounts = [];
+    let systemEnabled = true;
+    let accountEditMode = 'all';
+    let accountSection = 'staff';
+    let missingPasswordAccountId = null;
+    let printSelectedAccountIds = new Set();
+    let passwordRecoveryRequests = [];
+    let activeRecoveryDelivery = null;
+
+    async function api(url, options = {}) {
+      const res = await fetch(url, { headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, ...options });
+      if (res.redirected) { window.location.href = '/'; throw new Error('Unauthorized'); }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Ошибка запроса');
+      return data;
+    }
+
+    async function checkAuth() {
+      const data = await api('/api/me');
+      if (!data.user || data.user.role !== 'admin') { window.location.href = '/'; return false; }
+      document.getElementById('userName').textContent = data.user.full_name;
+      return true;
+    }
+
+    async function loadAccounts() {
+      accounts = await api('/api/admin/accounts');
+      renderAccountStats();
+      renderAccounts();
+    }
+
+    function getSectionAccounts() {
+      return accounts.filter(a => accountSection === 'students' ? a.role === 'student' : ['teacher', 'worker', 'supervisor'].includes(a.role));
+    }
+
+    function renderAccountStats() {
+      const rows = getSectionAccounts();
+      document.getElementById('totalAccounts').textContent = rows.length;
+      document.getElementById('activeAccounts').textContent = rows.filter(a => a.account_enabled === 1).length;
+      document.getElementById('disabledAccounts').textContent = rows.filter(a => a.account_enabled !== 1).length;
+    }
+
+    function switchAccountSection(section) {
+      accountSection = section;
+      const isStudents = section === 'students';
+      document.querySelectorAll('.sidebar-nav .nav-item').forEach(button => button.classList.toggle('active', button.dataset.accountSection === section));
+      document.getElementById('systemControlCard').style.display = '';
+      document.getElementById('adminAccountStats').style.display = '';
+      document.getElementById('adminAccountsCard').style.display = '';
+      document.getElementById('accountsCardTitle').textContent = isStudents ? 'Учетные записи студентов' : 'Учетные записи сотрудников';
+      document.getElementById('createAccountButton').textContent = isStudents ? '+ Создать аккаунт студента' : '+ Создать аккаунт сотрудника';
+      document.getElementById('totalAccountsLabel').textContent = isStudents ? 'Аккаунтов студентов' : 'Аккаунтов сотрудников';
+      const roleFilter = document.getElementById('roleFilter');
+      roleFilter.innerHTML = isStudents ? '<option value="student">Студенты</option>' : '<option value="">Все роли</option><option value="teacher">Преподаватели</option><option value="worker">Сотрудники</option><option value="supervisor">Руководители</option><option value="developer">Разработчики</option>';
+      (roleFilter.closest('.select-ui') || roleFilter).style.display = isStudents ? 'none' : '';
+      document.getElementById('statusFilter').value = '';
+      document.getElementById('accountSearch').value = '';
+      document.getElementById('passwordRecoveryCard').style.display = 'none';
+      renderAccountStats();
+      renderAccounts();
+      document.getElementById('sidebar').classList.remove('open');
+    }
+
+    function showPasswordRecoverySection() {
+      document.querySelectorAll('.sidebar-nav .nav-item').forEach(button => button.classList.toggle('active', button.id === 'passwordRecoveryNav'));
+      document.getElementById('systemControlCard').style.display = 'none';
+      document.getElementById('adminAccountStats').style.display = 'none';
+      document.getElementById('adminAccountsCard').style.display = 'none';
+      document.getElementById('passwordRecoveryCard').style.display = '';
+      loadPasswordRecoveryRequests();
+      document.getElementById('sidebar').classList.remove('open');
+    }
+
+    async function loadSystemStatus() {
+      const status = await api('/api/admin/system-status');
+      systemEnabled = status.system_enabled;
+      renderSystemStatus();
+    }
+
+    function renderSystemStatus() {
+      const card = document.getElementById('systemControlCard');
+      card.classList.toggle('is-enabled', systemEnabled);
+      card.classList.toggle('is-disabled', !systemEnabled);
+      document.getElementById('systemStatusLabel').textContent = systemEnabled ? 'Система работает' : 'Система отключена';
+      document.getElementById('systemControlTitle').textContent = systemEnabled ? 'Доступ к системе включен' : 'Доступ к системе закрыт';
+      document.getElementById('systemControlDescription').textContent = systemEnabled ? 'Все активные персональные аккаунты могут войти и продолжить работу.' : 'Войти и работать может только администратор admin/dpk.';
+      document.getElementById('systemControlButton').textContent = systemEnabled ? 'Отключить систему' : 'Включить систему';
+    }
+
+    async function toggleSystem() {
+      const next = !systemEnabled;
+      const message = next ? 'Включить систему для всех активных аккаунтов?' : 'Отключить систему? Все пользователи, кроме администратора, потеряют доступ.';
+      if (!confirm(message)) return;
+      await api('/api/admin/system-status', { method: 'PUT', body: JSON.stringify({ system_enabled: next }) });
+      systemEnabled = next;
+      renderSystemStatus();
+    }
+
+    function renderAccounts() {
+      const role = document.getElementById('roleFilter').value;
+      const status = document.getElementById('statusFilter').value;
+      const search = document.getElementById('accountSearch').value.toLowerCase().trim();
+      const rows = getSectionAccounts().filter(a => (!role || (role === 'developer' ? a.developer_access === 1 : a.role === role)) && (status === '' || String(a.account_enabled) === status) && (!search || a.full_name.toLowerCase().includes(search) || a.login.toLowerCase().includes(search)));
+      const el = document.getElementById('accountsList');
+      if (!rows.length) { el.innerHTML = '<div class="empty-state">Учетные записи не найдены</div>'; return; }
+      el.innerHTML = `<div class="table-wrap"><table class="admin-accounts-table"><thead><tr><th>Пользователь</th><th>Логин</th><th>Пароль</th><th>Роль</th><th>Доступ</th><th></th></tr></thead><tbody>${rows.map(a => `<tr class="${a.account_enabled === 1 ? '' : 'account-disabled-row'}"><td><button class="admin-editable-value admin-editable-name" onclick="editAccountField(${a.id}, 'name')" title="Изменить имя"><span>${escapeHtml(a.full_name)}</span>${accountSubtitle(a)}</button></td><td><button class="admin-editable-value admin-editable-login" onclick="editAccountField(${a.id}, 'login')" title="Изменить логин"><code>${escapeHtml(a.login)}</code></button></td><td><div class="admin-password-cell"><button class="admin-password-edit" onclick="editAccountField(${a.id}, 'password')" title="Изменить пароль">Изменить</button><button class="admin-password-reveal" onclick="revealAccountPassword(${a.id})">Показать</button></div></td><td><button class="admin-role-edit" onclick="editAccountField(${a.id}, 'role')" title="Изменить роль"><span class="account-role-badge account-role--${a.role}">${roleLabels[a.role]}</span>${a.developer_access === 1 ? '<span class="account-role-badge account-role--developer">Разработчик</span>' : ''}</button></td><td><button class="account-status-switch ${a.account_enabled === 1 ? 'is-active' : ''}" onclick="toggleAccount(${a.id}, ${a.account_enabled === 1 ? 0 : 1})" aria-label="${a.account_enabled === 1 ? 'Отключить' : 'Включить'} аккаунт"><span></span>${a.account_enabled === 1 ? 'Работает' : 'Отключен'}</button></td><td class="admin-delete-cell"><button class="account-delete-switch" onclick="deleteAccount(${a.id})">Удалить</button></td></tr>`).join('')}</tbody></table></div>`;
+    }
+
+    function accountSubtitle(account) {
+      if (!['teacher', 'worker'].includes(account.role)) return '';
+      const details = [];
+      if (account.developer_access === 1) details.push('Разработчик');
+      if (account.department) details.push(/^кафедра(?:\s|$)/i.test(account.department.trim()) ? account.department.trim() : `Кафедра ${account.department.trim()}`);
+      return details.length ? `<small>${details.map(escapeHtml).join(' · ')}</small>` : '';
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
+    }
+
+    function openAccountModal(account = null, mode = 'all') {
+      accountEditMode = mode;
+      const titles = { name: 'Изменить имя', login: 'Изменить логин', password: 'Изменить пароль', role: 'Изменить роль' };
+      document.getElementById('accountModalTitle').textContent = account ? (titles[mode] || 'Редактировать аккаунт') : (accountSection === 'students' ? 'Создать аккаунт студента' : 'Создать аккаунт сотрудника');
+      document.getElementById('accountId').value = account?.id || '';
+      const roleSelect = document.getElementById('accountRole');
+      roleSelect.innerHTML = accountSection === 'students' ? '<option value="student">Студент</option>' : '<option value="teacher">Преподаватель</option><option value="worker">Сотрудник</option><option value="supervisor">Руководитель</option>';
+      roleSelect.value = account?.role || (accountSection === 'students' ? 'student' : 'teacher');
+      document.getElementById('accountName').value = account?.full_name || '';
+      document.getElementById('accountLogin').value = account?.login || '';
+      document.getElementById('accountPassword').value = '';
+      document.getElementById('accountPassword').type = 'password';
+      document.getElementById('adminPasswordVisibility').classList.remove('is-visible');
+      document.getElementById('adminPasswordVisibility').setAttribute('aria-label', 'Показать пароль');
+      document.getElementById('adminPasswordVisibility').title = 'Показать пароль';
+      document.getElementById('accountEnabled').checked = account ? account.account_enabled === 1 : true;
+      document.getElementById('accountDeveloper').checked = account?.developer_access === 1;
+      document.getElementById('passwordHint').textContent = account ? '(оставьте пустым, чтобы не менять)' : '';
+      document.getElementById('accountRoleGroup').style.display = mode === 'all' || mode === 'role' ? '' : 'none';
+      document.getElementById('accountNameGroup').style.display = mode === 'all' || mode === 'name' ? '' : 'none';
+      document.getElementById('accountLoginGroup').style.display = mode === 'all' || mode === 'login' ? '' : 'none';
+      document.getElementById('accountEnabledControl').style.display = mode === 'all' ? '' : 'none';
+      updatePasswordControl();
+      updateDeveloperControl();
+      suggestStaffLogin();
+      document.getElementById('accountModal').classList.add('open');
+    }
+
+    function editAccountField(id, field) {
+      const account = accounts.find(a => a.id === id);
+      if (!account) return;
+      openAccountModal(account, field);
+      const controls = { name: 'accountName', login: 'accountLogin', password: 'accountPassword', role: 'accountRole' };
+      requestAnimationFrame(() => {
+        const control = document.getElementById(controls[field]);
+        if (control && control.offsetParent !== null) { control.focus(); control.select(); }
+      });
+    }
+    function closeAccountModal() { document.getElementById('accountModal').classList.remove('open'); }
+
+    function updatePasswordControl() {
+      const isTeacher = document.getElementById('accountRole').value === 'teacher';
+      const isEditing = !!document.getElementById('accountId').value;
+      const showPassword = accountEditMode === 'password' || (accountEditMode === 'all' && (!isTeacher || isEditing));
+      document.getElementById('accountPasswordGroup').style.display = showPassword ? '' : 'none';
+      if (isTeacher && !isEditing) document.getElementById('accountPassword').value = '';
+    }
+
+    function updateDeveloperControl() {
+      const role = document.getElementById('accountRole').value;
+      const supported = ['teacher', 'worker'].includes(role);
+      document.getElementById('accountDeveloperControl').style.display = supported && (accountEditMode === 'all' || accountEditMode === 'role') ? '' : 'none';
+      if (!supported) document.getElementById('accountDeveloper').checked = false;
+    }
+
+    function generateAccountPassword() {
+      const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+      const lengthSeed = crypto.getRandomValues(new Uint8Array(1))[0];
+      const length = 8 + (lengthSeed % 2);
+      const bytes = crypto.getRandomValues(new Uint8Array(length));
+      document.getElementById('accountPassword').value = Array.from(bytes, byte => alphabet[byte % alphabet.length]).join('');
+      document.getElementById('accountPassword').focus();
+    }
+
+    function toggleAdminPasswordVisibility() {
+      const input = document.getElementById('accountPassword');
+      const button = document.getElementById('adminPasswordVisibility');
+      const showPassword = input.type === 'password';
+      input.type = showPassword ? 'text' : 'password';
+      button.classList.toggle('is-visible', showPassword);
+      button.setAttribute('aria-label', showPassword ? 'Скрыть пароль' : 'Показать пароль');
+      button.title = showPassword ? 'Скрыть пароль' : 'Показать пароль';
+      input.focus();
+    }
+
+    function transliterateStaffLogin(value) {
+      const letters = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'i',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'kh',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ы:'y',э:'e',ю:'yu',я:'ya',ъ:'',ь:'' };
+      return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split('').map(char => letters[char] ?? char).join('').replace(/[^a-z0-9]/g, '');
+    }
+
+    function suggestStaffLogin() {
+      const isNew = !document.getElementById('accountId').value;
+      const role = document.getElementById('accountRole').value;
+      const loginInput = document.getElementById('accountLogin');
+      const autoLogin = isNew && ['teacher', 'worker'].includes(role);
+      loginInput.readOnly = autoLogin;
+      loginInput.placeholder = autoLogin ? 'Создается автоматически из ФИО' : 'personal.login';
+      if (!autoLogin) return;
+      const parts = document.getElementById('accountName').value.trim().split(/\s+/).filter(Boolean);
+      const surname = transliterateStaffLogin(parts[0]) || '';
+      const initials = parts.slice(1, 3).map(part => transliterateStaffLogin(part).charAt(0)).join('');
+      loginInput.value = surname ? `${surname}${initials ? `_${initials}` : ''}` : '';
+    }
+
+    function showGeneratedPassword(password) {
+      missingPasswordAccountId = null;
+      activeRecoveryDelivery = null;
+      document.getElementById('generatedPasswordMessage').textContent = 'Пароль доступен только администратору. Передавайте его пользователю по защищенному каналу.';
+      document.getElementById('generatedPasswordValue').textContent = password;
+      document.getElementById('generatedPasswordDisplay').style.display = '';
+      document.getElementById('createMissingPasswordButton').style.display = 'none';
+      document.getElementById('emailRecoveryPasswordButton').style.display = 'none';
+      document.getElementById('completeRecoveryButton').style.display = 'none';
+      document.getElementById('closeGeneratedPasswordButton').style.display = '';
+      document.getElementById('generatedPasswordModal').classList.add('open');
+    }
+
+    function showUnavailablePassword(id) {
+      missingPasswordAccountId = id;
+      activeRecoveryDelivery = null;
+      document.getElementById('generatedPasswordMessage').textContent = 'Для этой учетной записи пароль нельзя показать. Создайте новый пароль, чтобы сохранить его защищенную копию.';
+      document.getElementById('generatedPasswordValue').textContent = '';
+      document.getElementById('generatedPasswordDisplay').style.display = 'none';
+      document.getElementById('createMissingPasswordButton').style.display = '';
+      document.getElementById('emailRecoveryPasswordButton').style.display = 'none';
+      document.getElementById('completeRecoveryButton').style.display = 'none';
+      document.getElementById('closeGeneratedPasswordButton').style.display = '';
+      document.getElementById('generatedPasswordModal').classList.add('open');
+    }
+
+    function closeGeneratedPassword() {
+      missingPasswordAccountId = null;
+      activeRecoveryDelivery = null;
+      document.getElementById('generatedPasswordValue').textContent = '';
+      document.getElementById('generatedPasswordModal').classList.remove('open');
+    }
+
+    async function loadPasswordRecoveryRequests() {
+      const list = document.getElementById('passwordRecoveryList');
+      list.innerHTML = '<div class="empty-state">Загрузка...</div>';
+      try {
+        passwordRecoveryRequests = await api('/api/admin/password-recovery');
+        const count = passwordRecoveryRequests.length;
+        document.getElementById('passwordRecoveryNavCount').textContent = count;
+        document.getElementById('passwordRecoveryNav').classList.toggle('has-requests', count > 0);
+        renderPasswordRecoveryRequests();
+      } catch (error) {
+        list.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function renderPasswordRecoveryRequests() {
+      const list = document.getElementById('passwordRecoveryList');
+      if (!passwordRecoveryRequests.length) {
+        list.innerHTML = '<div class="empty-state">Новых заявок нет</div>';
+        return;
+      }
+      list.innerHTML = `<div class="admin-recovery-list">${passwordRecoveryRequests.map(request => {
+        const createdAt = new Date(`${String(request.created_at).replace(' ', 'T')}Z`);
+        const dateLabel = Number.isNaN(createdAt.getTime()) ? request.created_at : new Intl.DateTimeFormat('ru-RU', { dateStyle: 'medium', timeStyle: 'short' }).format(createdAt);
+        const accountFound = Number(request.account_id) > 0;
+        const isReady = request.status === 'ready';
+        return `<article class="admin-recovery-request${isReady ? ' is-ready' : ''}">
+          <div class="admin-recovery-person"><span>${escapeHtml(request.full_name.trim().split(/\s+/).slice(0, 2).map(part => part.charAt(0)).join('').toUpperCase())}</span><div><small>${escapeHtml(roleLabels[request.role] || request.role)}</small><strong>${escapeHtml(request.full_name)}</strong><em>${escapeHtml(dateLabel)}</em></div></div>
+          <dl><div><dt>Логин</dt><dd>${escapeHtml(request.login)}</dd></div><div><dt>Email</dt><dd>${escapeHtml(request.email)}</dd></div></dl>
+          <div class="admin-recovery-state ${accountFound ? 'is-found' : 'is-missing'}"><i></i>${accountFound ? (isReady ? 'Новый пароль создан' : 'Аккаунт найден') : 'Аккаунт не найден'}</div>
+          <div class="admin-recovery-actions">${accountFound ? `<button class="btn ${isReady ? 'btn--outline' : 'btn--primary'} btn--sm" onclick="${isReady ? 'showRecoveryPassword' : 'resetRecoveryPassword'}(${request.id})">${isReady ? 'Показать и отправить' : 'Создать новый пароль'}</button>` : ''}<button class="btn btn--secondary btn--sm" onclick="resolvePasswordRecovery(${request.id})">${accountFound ? 'Закрыть заявку' : 'Отметить обработанной'}</button></div>
+        </article>`;
+      }).join('')}</div>`;
+    }
+
+    async function resetRecoveryPassword(id) {
+      if (!confirm('Создать новый пароль? Текущий пароль сразу перестанет работать.')) return;
+      try {
+        const result = await api(`/api/admin/password-recovery/${id}/reset`, { method: 'POST' });
+        await loadAccounts();
+        await loadPasswordRecoveryRequests();
+        showRecoveryDelivery(id, result);
+      } catch (error) { alert(error.message); }
+    }
+
+    async function showRecoveryPassword(id) {
+      try {
+        const result = await api(`/api/admin/password-recovery/${id}/password`);
+        showRecoveryDelivery(id, result);
+      } catch (error) { alert(error.message); }
+    }
+
+    function showRecoveryDelivery(id, result) {
+      missingPasswordAccountId = null;
+      activeRecoveryDelivery = { id, ...result };
+      document.getElementById('generatedPasswordMessage').textContent = `Новый пароль подготовлен для ${result.full_name}. Откройте письмо для ${result.email}, затем отметьте заявку отправленной.`;
+      document.getElementById('generatedPasswordValue').textContent = result.password;
+      document.getElementById('generatedPasswordDisplay').style.display = '';
+      document.getElementById('createMissingPasswordButton').style.display = 'none';
+      document.getElementById('emailRecoveryPasswordButton').style.display = '';
+      document.getElementById('completeRecoveryButton').style.display = '';
+      document.getElementById('closeGeneratedPasswordButton').style.display = 'none';
+      document.getElementById('generatedPasswordModal').classList.add('open');
+    }
+
+    function emailRecoveryPassword() {
+      if (!activeRecoveryDelivery) return;
+      const subject = 'Новые данные для входа';
+      const body = `Здравствуйте, ${activeRecoveryDelivery.full_name}!\n\nДля вашей учетной записи создан новый пароль.\n\nЛогин: ${activeRecoveryDelivery.login}\nПароль: ${activeRecoveryDelivery.password}\n\nПосле входа сохраните данные в безопасном месте.`;
+      window.location.href = `mailto:${encodeURIComponent(activeRecoveryDelivery.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    async function completePasswordRecovery() {
+      if (!activeRecoveryDelivery) return;
+      const id = activeRecoveryDelivery.id;
+      await api(`/api/admin/password-recovery/${id}/resolve`, { method: 'PUT' });
+      closeGeneratedPassword();
+      loadPasswordRecoveryRequests();
+    }
+
+    async function resolvePasswordRecovery(id) {
+      if (!confirm('Закрыть эту заявку без отправки письма?')) return;
+      await api(`/api/admin/password-recovery/${id}/resolve`, { method: 'PUT' });
+      loadPasswordRecoveryRequests();
+    }
+
+    async function createMissingPassword() {
+      if (!missingPasswordAccountId) return;
+      const id = missingPasswordAccountId;
+      await resetAccountPassword(id);
+    }
+
+    async function copyGeneratedPassword() {
+      await navigator.clipboard.writeText(document.getElementById('generatedPasswordValue').textContent);
+    }
+
+    async function saveAccount() {
+      const id = document.getElementById('accountId').value;
+      const body = {
+        role: document.getElementById('accountRole').value,
+        full_name: document.getElementById('accountName').value.trim(),
+        login: document.getElementById('accountLogin').value.trim(),
+        password: document.getElementById('accountPassword').value,
+        account_enabled: document.getElementById('accountEnabled').checked,
+        developer_access: document.getElementById('accountDeveloper').checked
+      };
+      const automaticStaffLogin = !id && ['teacher', 'worker'].includes(body.role);
+      if (!body.full_name || (!body.login && !automaticStaffLogin) || (!id && body.role !== 'teacher' && !body.password)) { alert('Заполните обязательные поля'); return; }
+      if (body.password && !/^[A-Za-z0-9]{8,9}$/.test(body.password)) { alert('Пароль должен содержать 8–9 латинских букв или цифр'); return; }
+      try {
+        const result = await api(id ? `/api/admin/accounts/${id}` : '/api/admin/accounts', { method: id ? 'PUT' : 'POST', body: JSON.stringify(body) });
+        closeAccountModal();
+        await loadAccounts();
+        if (result.generated_password) showGeneratedPassword(result.generated_password);
+      } catch (e) { alert(e.message); }
+    }
+
+    async function resetAccountPassword(id) {
+      if (!confirm('Создать новый пароль? Старый пароль сразу перестанет работать.')) return;
+      try {
+        const result = await api(`/api/admin/accounts/${id}/reset-password`, { method: 'POST' });
+        await loadAccounts();
+        if (document.getElementById('printCredentialsModal').classList.contains('open')) renderPrintAccountList();
+        showGeneratedPassword(result.generated_password);
+      } catch (e) { alert(e.message); }
+    }
+
+    async function revealAccountPassword(id) {
+      const account = accounts.find(item => item.id === id);
+      if (account?.password_available !== 1) { showUnavailablePassword(id); return; }
+      try {
+        const result = await api(`/api/admin/accounts/${id}/password`);
+        showGeneratedPassword(result.password);
+      } catch (e) {
+        if (e.message === 'Пароль недоступен до сброса') showUnavailablePassword(id);
+        else alert(e.message);
+      }
+    }
+
+    function openPrintCredentialsModal() {
+      document.getElementById('printCredentialsTitle').textContent = accountSection === 'students' ? 'Выберите студентов' : 'Выберите сотрудников';
+      printSelectedAccountIds = new Set();
+      document.getElementById('printAccountSearch').value = '';
+      const groupSelect = document.getElementById('printGroupFilter');
+      const groups = [...new Set(getSectionAccounts().map(account => account.group_name).filter(Boolean))].sort();
+      groupSelect.innerHTML = '<option value="">Все группы</option>' + groups.map(group => `<option value="${escapeHtml(group)}">${escapeHtml(group)}</option>`).join('');
+      const groupControl = groupSelect.closest('.select-ui') || groupSelect;
+      groupControl.style.display = accountSection === 'students' ? '' : 'none';
+      document.getElementById('printAccountFilters').classList.toggle('is-name-only', accountSection !== 'students');
+      document.getElementById('printSelectAll').checked = false;
+      document.getElementById('printSelectAll').indeterminate = false;
+      renderPrintAccountList();
+      document.getElementById('printCredentialsModal').classList.add('open');
+    }
+
+    function closePrintCredentialsModal() {
+      document.getElementById('printCredentialsModal').classList.remove('open');
+    }
+
+    function renderPrintAccountList() {
+      const search = document.getElementById('printAccountSearch').value.toLowerCase().trim();
+      const group = document.getElementById('printGroupFilter').value;
+      const rows = getSectionAccounts().filter(account => (!search || account.full_name.toLowerCase().includes(search)) && (!group || account.group_name === group));
+      const list = document.getElementById('printAccountList');
+      list.innerHTML = rows.map(account => {
+        const available = account.password_available === 1;
+        return `<label class="admin-print-account${available ? '' : ' is-unavailable'}">
+          <input type="checkbox" data-print-id="${account.id}" onchange="togglePrintAccount(this)"${available ? (printSelectedAccountIds.has(account.id) ? ' checked' : '') : ' disabled'}>
+          <span class="admin-print-account-avatar">${escapeHtml(account.full_name.trim().split(/\s+/).slice(0, 2).map(part => part.charAt(0)).join('').toUpperCase())}</span>
+          <span class="admin-print-account-copy"><strong>${escapeHtml(account.full_name)}</strong><small>${escapeHtml(roleLabels[account.role] || account.role)} · ${escapeHtml(account.login)}</small></span>
+          ${available ? '<span class="admin-print-ready">Готов к печати</span>' : `<button type="button" class="admin-print-create" onclick="event.preventDefault();closePrintCredentialsModal();showUnavailablePassword(${account.id})">Создать пароль</button>`}
+        </label>`;
+      }).join('') || '<div class="empty-state">Учетные записи не найдены</div>';
+      updatePrintSelection();
+    }
+
+    function togglePrintAccount(input) {
+      const id = Number(input.dataset.printId);
+      if (input.checked) printSelectedAccountIds.add(id);
+      else printSelectedAccountIds.delete(id);
+      updatePrintSelection();
+    }
+
+    function toggleAllPrintAccounts(checked) {
+      document.querySelectorAll('#printAccountList input[data-print-id]:not(:disabled)').forEach(input => {
+        input.checked = checked;
+        const id = Number(input.dataset.printId);
+        if (checked) printSelectedAccountIds.add(id);
+        else printSelectedAccountIds.delete(id);
+      });
+      updatePrintSelection();
+    }
+
+    function updatePrintSelection() {
+      const printableIds = new Set(getSectionAccounts().filter(account => account.password_available === 1).map(account => account.id));
+      printSelectedAccountIds.forEach(id => { if (!printableIds.has(id)) printSelectedAccountIds.delete(id); });
+      const visible = [...document.querySelectorAll('#printAccountList input[data-print-id]:not(:disabled)')];
+      const visibleSelected = visible.filter(input => input.checked);
+      const selectAll = document.getElementById('printSelectAll');
+      selectAll.checked = visible.length > 0 && visibleSelected.length === visible.length;
+      selectAll.indeterminate = visibleSelected.length > 0 && visibleSelected.length < visible.length;
+      document.getElementById('printSelectionCount').textContent = `${printSelectedAccountIds.size} выбрано`;
+      document.getElementById('printCredentialsButton').disabled = printSelectedAccountIds.size === 0;
+    }
+
+    async function printSelectedCredentials() {
+      const ids = [...printSelectedAccountIds];
+      if (!ids.length) return;
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) { alert('Разрешите всплывающие окна для печати учетных данных'); return; }
+      printWindow.opener = null;
+      printWindow.document.write('<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Учетные данные</title></head><body style="font-family:Arial,sans-serif;padding:32px;color:#1a2e48">Подготовка учетных данных...</body></html>');
+      try {
+        const result = await api('/api/admin/accounts/credentials', { method: 'POST', body: JSON.stringify({ ids }) });
+        const cards = result.credentials.map(account => `<article><header><span>${escapeHtml(roleLabels[account.role] || account.role)}</span><strong>${escapeHtml(account.full_name)}</strong></header><dl><div><dt>Логин</dt><dd>${escapeHtml(account.login)}</dd></div><div><dt>Пароль</dt><dd>${escapeHtml(account.password)}</dd></div></dl><footer>Санкт-Петербургский горный университет императрицы Екатерины II</footer></article>`).join('');
+        if (!cards) { printWindow.close(); alert('У выбранных учетных записей нет доступных паролей'); return; }
+        const printedAt = new Intl.DateTimeFormat('ru-RU', { dateStyle: 'long' }).format(new Date());
+        printWindow.document.open();
+        printWindow.document.write(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Учетные данные</title><style>@page{size:A4;margin:14mm}*{box-sizing:border-box}body{margin:0;color:#172b46;font-family:Arial,sans-serif}h1{margin:0 0 5px;font-size:21px}body>p{margin:0 0 22px;color:#6c7888;font-size:10px}.grid{display:grid;grid-template-columns:1fr;gap:10px}article{break-inside:avoid;padding:15px;border:1px solid #cfd9e5;border-radius:10px}article header{display:flex;flex-direction:column;gap:4px;padding-bottom:11px;border-bottom:2px solid #e4ba57}article header span{color:#64758b;font-size:8px;font-weight:700;text-transform:uppercase}article header strong{font-size:13px}dl{margin:12px 0 10px}dl div{display:grid;grid-template-columns:52px 1fr;gap:8px;margin-top:7px}dt{color:#758399;font-size:9px}dd{margin:0;font-family:monospace;font-size:12px;font-weight:700;overflow-wrap:anywhere}article footer{color:#8893a2;font-size:7px;line-height:1.4}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><h1>Данные для входа</h1><p>${escapeHtml(printedAt)} · ${result.credentials.length} учетных записей</p><div class="grid">${cards}</div><script>window.addEventListener('load',()=>window.print())<\/script></body></html>`);
+        printWindow.document.close();
+      } catch (error) {
+        printWindow.close();
+        alert(error.message);
+      }
+    }
+
+    async function toggleAccount(id, enabled) {
+      await api(`/api/admin/accounts/${id}/status`, { method: 'PUT', body: JSON.stringify({ account_enabled: enabled }) });
+      loadAccounts();
+    }
+
+    async function deleteAccount(id) {
+      const account = accounts.find(a => a.id === id);
+      if (!account || !confirm(`Удалить пользователя «${account.full_name}»? Это действие нельзя отменить.`)) return;
+      try {
+        await api(`/api/admin/accounts/${id}`, { method: 'DELETE' });
+        await loadAccounts();
+      } catch (e) { alert(e.message); }
+    }
+
+    document.getElementById('roleFilter').addEventListener('change', renderAccounts);
+    document.getElementById('statusFilter').addEventListener('change', renderAccounts);
+    document.getElementById('accountSearch').addEventListener('input', renderAccounts);
+    document.getElementById('accountName').addEventListener('input', suggestStaffLogin);
+    document.querySelectorAll('[data-account-section]').forEach(button => button.addEventListener('click', () => switchAccountSection(button.dataset.accountSection)));
+    document.getElementById('passwordRecoveryNav').addEventListener('click', showPasswordRecoverySection);
+    document.getElementById('menuToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+    document.getElementById('logoutBtn').addEventListener('click', async () => { await fetch('/api/logout', { method: 'POST' }); window.location.href = '/?intro=1'; });
+    document.getElementById('accountModal').addEventListener('click', e => { if (e.target.id === 'accountModal') closeAccountModal(); });
+    document.getElementById('generatedPasswordModal').addEventListener('click', e => { if (e.target.id === 'generatedPasswordModal') closeGeneratedPassword(); });
+    document.getElementById('printCredentialsModal').addEventListener('click', e => { if (e.target.id === 'printCredentialsModal') closePrintCredentialsModal(); });
+    checkAuth().then(ok => { if (ok) { loadSystemStatus(); loadAccounts(); loadPasswordRecoveryRequests(); } });
+  </script>
+  <script src="/modal-layout.js"></script>
+</body>
+</html>

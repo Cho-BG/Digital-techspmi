@@ -1,0 +1,3617 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Руководитель — Личный кабинет</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/redesign.css">
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img class="sidebar-brand-logo" src="/images/university-logo.svg" alt="Санкт-Петербургский горный университет императрицы Екатерины II">
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="userName"></div>
+        <div class="sidebar-user-role" id="userRole"></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Главная</div>
+        <button class="nav-item active" data-tab="home"><span class="icon">📊</span> Аналитика</button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Сотрудники</div>
+        <button class="nav-item" data-tab="staff"><span class="icon">👥</span> Преподаватели и сотрудники</button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Студенты</div>
+        <button class="nav-item" data-tab="students"><span class="icon">👥</span> Список студентов</button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Оценки</div>
+        <button class="nav-item" data-tab="evaluation"><span class="icon">✏️</span> Оценивание</button>
+        <button class="nav-item" data-tab="attendance"><span class="icon">📋</span> Посещаемость</button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Управление</div>
+        <button class="nav-item" data-tab="dpk"><span class="icon">📋</span> Программа</button>
+        <button class="nav-item" data-tab="schedule"><span class="icon">📅</span> Расписания</button>
+        <button class="nav-item" data-tab="bookings"><span class="icon" aria-hidden="true"></span> Бронирование</button>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" id="logoutBtn"><span class="logout-icon" aria-hidden="true"></span><span>Выйти</span></button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar topbar--menu-only">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+      </div>
+      <div class="topbar-right"></div>
+    </div>
+
+    <div class="content-area">
+      <!-- Аналитика -->
+      <div id="tab-home" class="tab-content">
+        <section class="analytics-hero">
+          <div class="analytics-hero-copy">
+            <span class="analytics-eyebrow">Панель руководителя</span>
+            <h2>Обзор образовательной системы</h2>
+            <p>Ключевые показатели университета в одном рабочем пространстве.</p>
+          </div>
+          <div class="analytics-date-card">
+            <span class="analytics-date-icon" aria-hidden="true"></span>
+            <span><small>Сегодня</small><strong id="analyticsDate">—</strong></span>
+          </div>
+        </section>
+
+        <div class="stats-grid analytics-stats-grid">
+          <article class="stat-card analytics-stat analytics-stat--students">
+            <span class="analytics-stat-icon" aria-hidden="true"></span>
+            <div><div class="stat-value" id="statStudents">—</div><div class="stat-label">Студенты</div><small>Учебный контингент</small></div>
+          </article>
+          <article class="stat-card analytics-stat analytics-stat--teachers">
+            <span class="analytics-stat-icon" aria-hidden="true"></span>
+            <div><div class="stat-value" id="statTeachers">—</div><div class="stat-label">Преподаватели</div><small>Академический состав</small></div>
+          </article>
+          <article class="stat-card analytics-stat analytics-stat--workers">
+            <span class="analytics-stat-icon" aria-hidden="true"></span>
+            <div><div class="stat-value" id="statWorkers">—</div><div class="stat-label">Сотрудники</div><small>Профильные специалисты</small></div>
+          </article>
+          <article class="stat-card analytics-stat analytics-stat--lessons">
+            <span class="analytics-stat-icon" aria-hidden="true"></span>
+            <div><div class="stat-value" id="statLessons">—</div><div class="stat-label">Занятия</div><small>В учебном расписании</small></div>
+          </article>
+        </div>
+
+        <div class="analytics-detail-grid">
+          <section class="card analytics-composition-card">
+            <div class="analytics-card-heading"><span><small>Состав системы</small><strong>Образовательное сообщество</strong></span><span class="analytics-total" id="analyticsTotalPeople">—</span></div>
+            <div class="analytics-composition-bar" aria-label="Соотношение пользователей">
+              <span class="analytics-segment analytics-segment--students" id="studentSegment"></span>
+              <span class="analytics-segment analytics-segment--teachers" id="teacherSegment"></span>
+              <span class="analytics-segment analytics-segment--workers" id="workerSegment"></span>
+            </div>
+            <div class="analytics-legend">
+              <span><i class="is-student"></i>Студенты <strong id="legendStudents">—</strong></span>
+              <span><i class="is-teacher"></i>Преподаватели <strong id="legendTeachers">—</strong></span>
+              <span><i class="is-worker"></i>Сотрудники <strong id="legendWorkers">—</strong></span>
+            </div>
+          </section>
+          <section class="card analytics-load-card">
+            <span class="analytics-load-icon" aria-hidden="true"></span>
+            <div class="analytics-load-copy"><small>Учебная активность</small><strong><span id="lessonsPerTeacher">—</span> занятия</strong><p>в среднем на одного преподавателя</p></div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Преподаватели и сотрудники -->
+      <div id="tab-staff" class="tab-content" style="display:none">
+        <section class="staff-overview" aria-labelledby="staffOverviewTitle">
+          <div class="staff-overview-copy">
+            <span class="staff-eyebrow">Команда университета</span>
+            <h2 id="staffOverviewTitle">Преподаватели и сотрудники</h2>
+            <p>Единый каталог специалистов, должностей и подразделений.</p>
+          </div>
+          <div class="staff-overview-stats" aria-label="Состав команды">
+            <div class="staff-overview-stat staff-overview-stat--teachers">
+              <span class="staff-stat-icon" aria-hidden="true"></span>
+              <span><strong id="teacherCount">—</strong><small>Преподавателей</small></span>
+            </div>
+            <div class="staff-overview-stat staff-overview-stat--workers">
+              <span class="staff-stat-icon" aria-hidden="true"></span>
+              <span><strong id="workerCount">—</strong><small>Сотрудников</small></span>
+            </div>
+          </div>
+        </section>
+
+        <div class="staff-global-toolbar">
+          <select class="staff-role-filter" id="staffRoleFilter" onchange="applyStaffFilters()" aria-label="Фильтр по типу сотрудника">
+            <option value="">Все</option>
+            <option value="teacher">Преподаватели</option>
+            <option value="worker">Сотрудники</option>
+          </select>
+          <label class="staff-search">
+            <span class="staff-search-icon" aria-hidden="true"></span>
+            <input type="search" id="staffSearch" placeholder="Найти по имени..." oninput="filterStaff()">
+          </label>
+          <button class="btn btn--primary btn--sm" onclick="openStaffModal()">+ Добавить</button>
+          <button class="btn btn--outline btn--sm" onclick="toggleAllTeacherDetails()" id="toggleTeacherDetailsBtn">Показать полностью</button>
+          <div class="staff-excel-control">
+            <button class="btn btn--outline btn--sm" onclick="toggleExcelMenu('staffExcelMenu')">Excel ▾</button>
+            <div class="excel-dropdown" id="staffExcelMenu" style="display:none">
+              <button onclick="importStaff()">📥 Импорт</button>
+              <button onclick="exportStaff()">📤 Экспорт</button>
+            </div>
+          </div>
+          <button class="btn btn--outline btn--sm" id="toggleStaffActionsBtn" onclick="toggleStaffActions()">✎ Редактировать</button>
+        </div>
+
+        <div class="card staff-directory-card staff-directory-card--teachers" id="teacherDirectoryCard">
+          <div class="card-title staff-directory-header">
+            <div class="staff-directory-heading">
+              <span class="staff-directory-icon staff-directory-icon--teachers" aria-hidden="true"></span>
+              <span><strong>Преподаватели</strong><small>Учебный состав и научные руководители</small></span>
+            </div>
+          </div>
+          <div id="teachersList"><div class="empty-state">Загрузка...</div></div>
+        </div>
+
+        <div class="card staff-directory-card staff-directory-card--workers" id="workerDirectoryCard">
+          <div class="card-title staff-directory-header">
+            <div class="staff-directory-heading">
+              <span class="staff-directory-icon staff-directory-icon--workers" aria-hidden="true"></span>
+              <span><strong>Сотрудники</strong><small>Административные и профильные специалисты</small></span>
+            </div>
+          </div>
+          <div id="workersList"><div class="empty-state">Загрузка...</div></div>
+        </div>
+      </div>
+
+      <!-- Студенты -->
+      <div id="tab-students" class="tab-content" style="display:none">
+        <section class="staff-overview student-overview" aria-labelledby="studentOverviewTitle">
+          <div class="staff-overview-copy">
+            <span class="staff-eyebrow">Учебный контингент</span>
+            <h2 id="studentOverviewTitle">Список студентов</h2>
+            <p>Единый каталог учебных групп, направлений и статусов.</p>
+          </div>
+          <div class="staff-overview-stats" aria-label="Количество студентов">
+            <div class="staff-overview-stat student-overview-stat">
+              <span class="staff-stat-icon" aria-hidden="true"></span>
+              <span><strong id="studentDirectoryCount">—</strong><small>Студентов в списке</small></span>
+            </div>
+          </div>
+        </section>
+
+        <div class="staff-global-toolbar student-global-toolbar">
+          <button class="btn btn--primary btn--sm" onclick="openStudentModal()">+ Добавить</button>
+          <button class="btn btn--outline btn--sm" onclick="toggleAllStudentDetails()" id="toggleStudentDetailsBtn">Показать полностью</button>
+          <div class="staff-excel-control">
+            <button class="btn btn--outline btn--sm" onclick="toggleExcelMenu('studentsExcelMenu')">Excel ▾</button>
+            <div class="excel-dropdown" id="studentsExcelMenu" style="display:none">
+              <button onclick="importStudents()">📥 Импорт</button>
+              <button onclick="exportStudents()">📤 Экспорт</button>
+            </div>
+          </div>
+          <button class="btn btn--outline btn--sm" id="toggleActionsBtn" onclick="toggleActions()">✎ Редактировать</button>
+        </div>
+
+        <div class="card staff-directory-card student-directory-card">
+          <div class="card-title staff-directory-header">
+            <div class="staff-directory-heading">
+              <span class="staff-directory-icon student-directory-icon" aria-hidden="true"></span>
+              <span><strong>Студенты</strong><small>Персональные и учебные сведения</small></span>
+            </div>
+          </div>
+          <div class="filter-bar student-filter-bar">
+            <select id="sCourse"><option value="">Все курсы</option></select>
+            <select id="sSpecialty"><option value="">Все специальности</option></select>
+            <select id="sFlow" style="display:none"></select>
+            <select id="sGroup"><option value="">Все группы</option></select>
+            <input type="search" id="sSearch" placeholder="Найти студента по имени...">
+          </div>
+          <div id="studentsList"><div class="empty-state">Загрузка...</div></div>
+        </div>
+      </div>
+
+      <!-- Оценивание -->
+      <div id="tab-evaluation" class="tab-content" style="display:none">
+        <div id="evalProgramsView">
+          <section class="evaluation-overview">
+            <div class="evaluation-overview-copy">
+              <span class="evaluation-eyebrow">Контроль результатов</span>
+              <h2>Оценивание</h2>
+              <p>Выберите программу, чтобы перейти к критериям и итоговым результатам студентов.</p>
+            </div>
+            <div class="evaluation-overview-stats">
+              <div><strong id="evalProgramsCount">—</strong><small>Программ</small></div>
+              <span></span>
+              <div><strong id="evalEvaluatedCount">—</strong><small>Оценено</small></div>
+            </div>
+          </section>
+          <div class="card evaluation-programs-card">
+            <div class="card-title evaluation-section-title"><span>Учебные программы</span><small>Нажмите на карточку для начала работы</small></div>
+            <div id="evalProgramsList"><div class="empty-state">Загрузка...</div></div>
+          </div>
+        </div>
+        <div class="card evaluation-detail-card" id="evalDetailView" style="display:none">
+          <div class="evaluation-detail-header">
+            <button class="btn btn--outline btn--sm" onclick="closeEvalDetail()">← Назад</button>
+            <div class="evaluation-detail-heading"><span class="evaluation-detail-icon" aria-hidden="true"></span><span><strong id="evalDetailTitle"></strong><small>Критерии и итоговые оценки</small></span></div>
+            <div class="evaluation-detail-actions"><span class="evaluation-autosave"><i></i>Автосохранение</span><button class="btn btn--primary btn--sm results-button" onclick="openResultsModal()"><span class="results-button-icon" aria-hidden="true"></span><span>Показать результаты</span></button></div>
+          </div>
+          <div class="filter-bar eval-filters">
+            <select id="evalCourse"><option value="">Все курсы</option></select>
+            <select id="evalSpecialty"><option value="">Все специальности</option></select>
+            <select id="evalGroup"><option value="">Все группы</option></select>
+            <input type="text" id="evalSearch" placeholder="Поиск по ФИО..." class="filter-input" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--bg);color:var(--text);min-width:180px">
+          </div>
+          <div id="evalGroupsContainer"></div>
+        </div>
+      </div>
+
+      <!-- Results Modal -->
+      <div class="modal-overlay" id="resultsModal">
+        <div class="modal modal--wide results-modal">
+          <div class="results-modal-header">
+            <span class="results-modal-icon" aria-hidden="true"></span>
+            <span><strong>Результаты оценивания</strong><small>Управление доступом студентов к итоговым оценкам</small></span>
+          </div>
+          <div class="modal-body">
+            <div class="results-summary">
+              <span><strong id="resultsTotalGroups">—</strong><small>Всего групп</small></span>
+              <span><strong id="resultsPublishedGroups">—</strong><small>Опубликовано</small></span>
+            </div>
+            <label class="results-search"><span aria-hidden="true"></span><input type="search" id="resultsGroupSearch" placeholder="Найти группу..."></label>
+            <div id="resultsGroupsList" class="results-cards"></div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn--outline" onclick="closeModal('resultsModal')">Закрыть</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Посещаемость -->
+      <div id="tab-attendance" class="tab-content" style="display:none">
+        <div class="attendance-overview">
+          <div class="attendance-overview-copy">
+            <span class="attendance-eyebrow">Учебный контроль</span>
+            <h2>Посещаемость</h2>
+            <p>Отмечайте присутствие студентов и контролируйте посещение занятий по каждой программе.</p>
+          </div>
+          <div class="attendance-overview-stats" aria-label="Количество программ"><div class="attendance-overview-stat"><span class="attendance-overview-stat-icon" aria-hidden="true"></span><span><strong id="attProgramCount">0</strong><small>Программ в журнале</small></span></div></div>
+        </div>
+        <div class="card attendance-programs-card" id="attProgramsView">
+          <div class="card-title attendance-card-title"><span><strong>Учебные программы</strong><small>Выберите программу для открытия журнала</small></span></div>
+          <div id="attProgramsList"><div class="empty-state">Загрузка...</div></div>
+        </div>
+        <div class="card attendance-detail-card" id="attDetailView" style="display:none">
+          <div class="attendance-detail-header">
+            <button class="attendance-back-button" onclick="closeAttDetail()" aria-label="Назад к программам"><span></span></button>
+            <div class="attendance-detail-heading"><small>Журнал посещаемости</small><strong id="attDetailTitle"></strong></div>
+            <button class="attendance-add-assignment" type="button" onclick="openAddAttAssignmentModal()"><span>+</span> Добавить задание</button>
+            <div class="attendance-legend"><span><i class="is-present"></i>Присутствовал</span><span><i class="is-absent"></i>Отсутствовал</span><span><i></i>Не отмечено</span></div>
+          </div>
+          <div class="filter-bar att-filters">
+            <select id="attCourse"><option value="">Все курсы</option></select>
+            <select id="attSpecialty"><option value="">Все специальности</option></select>
+            <select id="attGroup"><option value="">Все группы</option></select>
+            <input type="text" id="attSearch" placeholder="Поиск по ФИО..." class="filter-input" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--bg);color:var(--text);min-width:180px">
+          </div>
+          <div id="attGroupsContainer"></div>
+        </div>
+      </div>
+
+      <!-- DPK Programs -->
+      <div id="tab-dpk" class="tab-content" style="display:none">
+        <section class="dpk-overview">
+          <div class="dpk-overview-copy"><span class="dpk-overview-eyebrow">Дополнительное образование</span><h2>Программы</h2><p>Управляйте учебными группами, преподавателями, оценщиками и часами занятий.</p></div>
+          <div class="dpk-overview-stats" aria-label="Количество программ"><div class="dpk-overview-stat"><span class="dpk-overview-stat-icon" aria-hidden="true"></span><span><strong id="dpkProgramCount">0</strong><small>Программ в системе</small></span></div></div>
+        </section>
+        <div class="card dpk-programs-card" id="dpkProgramsView">
+          <div class="card-title dpk-programs-heading">
+            <span><strong>Учебные программы</strong><small>Выберите программу для управления</small></span>
+            <button class="btn btn--primary btn--sm" onclick="openDpkProgramModal()">+ Добавить программу</button>
+          </div>
+          <div id="dpkProgramsList"><div class="empty-state">Загрузка...</div></div>
+        </div>
+        <div class="card dpk-workspace" id="dpkDetailView" style="display:none">
+          <div class="dpk-detail-header">
+            <button class="dpk-back-button" onclick="closeDpkDetailView()"><span></span>Назад к программам</button>
+            <div class="dpk-detail-actions">
+              <button class="btn btn--secondary btn--sm" id="dpkDetailEditBtn" onclick="editCurrentDpkProgram()">✎ Редактировать</button>
+              <button class="btn btn--danger btn--sm dpk-delete-button" id="dpkDetailDeleteBtn" onclick="deleteCurrentDpkProgram()"><span class="dpk-delete-icon" aria-hidden="true"></span><span>Удалить</span></button>
+            </div>
+          </div>
+          <div class="dpk-detail-info">
+            <span class="dpk-detail-icon" aria-hidden="true"></span>
+            <div class="dpk-detail-copy"><small>Учебная программа</small><h2 id="dpkDetailName"></h2></div>
+            <div class="dpk-detail-metrics"><span id="dpkDetailHours" class="dpk-detail-hours"></span><span id="dpkDetailGroups" class="dpk-detail-groups"></span></div>
+          </div>
+          <section id="dpkDetailGroupsSection" class="dpk-detail-section dpk-detail-section--groups">
+            <div class="dpk-detail-teachers-header">
+              <span><strong>Группы программы <em id="dpkGroupsSectionCount" class="dpk-section-count">0</em></strong><small>Преподаватели и распределение часов</small></span>
+              <button class="btn btn--primary btn--sm" onclick="openDpkGroupModalFromDetail()">+ Добавить группу</button>
+            </div>
+            <div id="dpkDetailGroupsList" class="dpk-group-list"></div>
+          </section>
+          <section id="dpkDetailEvaluatorsSection" class="dpk-detail-section dpk-detail-section--evaluators">
+            <div class="dpk-detail-teachers-header">
+              <span><strong>Оценщики программы <em id="dpkEvaluatorsSectionCount" class="dpk-section-count">0</em></strong><small>Специалисты, назначенные для оценивания</small></span>
+              <button class="btn btn--primary btn--sm" onclick="openDpkEvaluatorModal()">+ Добавить оценщика</button>
+            </div>
+            <div id="dpkDetailEvaluatorsList" class="dpk-teacher-grid"><div class="empty-state">Нет оценщиков</div></div>
+          </section>
+        </div>
+        <div class="card dpk-teacher-workspace" id="dpkTeacherLessonView" style="display:none">
+          <div class="dpk-detail-header">
+            <button class="dpk-back-button" onclick="closeTeacherLessonView()"><span></span>Назад к программе</button>
+          </div>
+          <div class="teacher-workload-hero">
+            <span class="teacher-workload-icon" aria-hidden="true"></span>
+            <div><small>Учебная нагрузка</small><h2 id="teacherLessonViewTitle"></h2></div>
+          </div>
+          <div class="teacher-workload-content">
+            <div class="teacher-workload-heading"><span><strong>Распределение часов</strong><small>Занятия создаются автоматически после изменения нагрузки</small></span></div>
+            <div class="teacher-hours-grid">
+              <label class="teacher-hours-card teacher-hours-card--lecture"><span><small>Вид занятия</small><strong>Лекции</strong></span><input type="number" id="tlLectureHours" class="dpk-hours-input" value="0" min="0" onchange="autoGenerateTeacherLessons()"><em>ч</em></label>
+              <label class="teacher-hours-card teacher-hours-card--practice"><span><small>Вид занятия</small><strong>Практики</strong></span><input type="number" id="tlPracticeHours" class="dpk-hours-input" value="0" min="0" onchange="autoGenerateTeacherLessons()"><em>ч</em></label>
+              <label class="teacher-hours-card teacher-hours-card--lab"><span><small>Вид занятия</small><strong>Лабораторные</strong></span><input type="number" id="tlLabHours" class="dpk-hours-input" value="0" min="0" onchange="autoGenerateTeacherLessons()"><em>ч</em></label>
+            </div>
+            <div class="teacher-lessons-heading"><span><strong>План занятий</strong><small>Даты, аудитории и время проведения</small></span></div>
+            <div id="teacherLessonList" class="teacher-lesson-list">
+              <div class="empty-state">Нет занятий. Укажите часы выше</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule -->
+      <div id="tab-schedule" class="tab-content" style="display:none">
+        <!-- Landing: two big cards -->
+        <div id="scheduleLanding">
+          <section class="schedule-overview">
+            <div class="schedule-overview-copy"><span class="schedule-overview-eyebrow">Планирование времени</span><h2>Расписания</h2><p>Личные занятия и расписание программ в едином календарном пространстве.</p></div>
+            <div class="schedule-overview-symbol" aria-hidden="true"><span></span></div>
+          </section>
+          <div class="schedule-landing-cards">
+            <div class="schedule-landing-card" onclick="showPersonalSchedule()">
+              <div class="slc-icon slc-icon--personal" aria-hidden="true"></div>
+              <div class="slc-kicker">Персональный календарь</div>
+              <div class="slc-title">Личное расписание</div>
+              <div class="slc-desc">Управляйте своим личным расписанием</div>
+              <span class="slc-arrow" aria-hidden="true">→</span>
+            </div>
+            <div class="schedule-landing-card" onclick="showDpkSchedule()">
+              <div class="slc-icon slc-icon--dpk" aria-hidden="true"></div>
+              <div class="slc-kicker">Учебные программы</div>
+              <div class="slc-title">Расписание ДПК</div>
+              <div class="slc-desc">Просмотр и управление расписанием программ ДПК</div>
+              <span class="slc-arrow" aria-hidden="true">→</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal schedule view -->
+        <div id="schedulePersonalView" style="display:none">
+          <div class="card schedule-workspace">
+            <button class="schedule-back-button" onclick="showScheduleLanding()"><span></span>Назад к расписаниям</button>
+            <div class="schedule-nav">
+              <button class="schedule-nav-btn" onclick="navigatePersonalWeek(-1)">◀</button>
+              <button class="schedule-today-btn" onclick="navigatePersonalWeek(0, true)">Сегодня</button>
+              <button class="schedule-nav-btn" onclick="navigatePersonalWeek(1)">▶</button>
+              <span class="schedule-nav-month" onclick="toggleMonthPicker(event)">
+                <span id="personalMonthLabelText"></span>
+                <div class="schedule-month-picker" id="personalMonthPicker"></div>
+              </span>
+              <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+                <button class="btn btn--primary btn--sm" onclick="openPersonalScheduleModal()">+ Добавить</button>
+                <button class="btn btn--secondary btn--sm" onclick="importPersonalICS()">📥 Импорт ICS</button>
+              </div>
+            </div>
+            <div id="personalScheduleGrid"><div class="empty-state">Загрузка...</div></div>
+          </div>
+        </div>
+
+        <!-- DPK Schedule view -->
+        <div id="scheduleDpkView" style="display:none">
+          <div class="card schedule-workspace">
+            <button class="schedule-back-button" onclick="showScheduleLanding()"><span></span>Назад к расписаниям</button>
+            <div class="sub-tab-bar">
+              <button class="sub-tab-btn active" data-subtab="main" onclick="switchScheduleSubtab('main')">Расписание</button>
+              <button class="sub-tab-btn" data-subtab="teacher" onclick="switchScheduleSubtab('teacher')">Преподаватель</button>
+              <button class="sub-tab-btn" data-subtab="room" onclick="switchScheduleSubtab('room')">Аудитория</button>
+            </div>
+            <div id="scheduleMainView">
+              <div class="schedule-nav" id="scheduleNavBar">
+                <button class="schedule-nav-btn" onclick="navigateWeek(-1)">◀</button>
+                <button class="schedule-today-btn" onclick="navigateWeek(0, true)">Сегодня</button>
+                <button class="schedule-nav-btn" onclick="navigateWeek(1)">▶</button>
+                <span class="schedule-nav-month" id="scheduleMonthLabel" onclick="toggleMonthPicker(event)">
+                  <span id="scheduleMonthLabelText"></span>
+                  <div class="schedule-month-picker" id="scheduleMonthPicker"></div>
+                </span>
+                <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+                  <button class="btn btn--outline btn--sm" onclick="toggleExcelMenu('scheduleExcelMenu')">Excel ▾</button>
+                  <div class="excel-dropdown" id="scheduleExcelMenu" style="display:none">
+                    <button onclick="importScheduleExcel()">📥 Импорт</button>
+                    <button onclick="exportScheduleExcel()">📤 Экспорт</button>
+                  </div>
+                  <button class="btn btn--primary btn--sm" onclick="openScheduleModal()">+ Добавить</button>
+                </div>
+              </div>
+              <div id="scheduleGridContainer"></div>
+            </div>
+            <div id="scheduleTeacherView" style="display:none">
+              <div class="schedule-nav">
+                <button class="schedule-nav-btn" onclick="navigateWeek(-1)">◀</button>
+                <button class="schedule-today-btn" onclick="navigateWeek(0, true)">Сегодня</button>
+                <button class="schedule-nav-btn" onclick="navigateWeek(1)">▶</button>
+                <span class="schedule-nav-month" id="scheduleMonthLabelTeacher" onclick="toggleMonthPicker(event)">
+                  <span id="scheduleMonthLabelTeacherText"></span>
+                  <div class="schedule-month-picker" id="scheduleMonthPickerTeacher"></div>
+                </span>
+                <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+                  <select id="scheduleTeacherSelect" onchange="loadScheduleByTeacher()" style="flex:1;max-width:240px"><option value="">Все преподаватели</option></select>
+                  <button class="btn btn--primary btn--sm" onclick="openScheduleModal()">+ Добавить</button>
+                </div>
+              </div>
+              <div id="scheduleTeacherGridContainer"></div>
+            </div>
+            <div id="scheduleRoomView" style="display:none">
+              <div class="schedule-nav">
+                <button class="schedule-nav-btn" onclick="navigateWeek(-1)">◀</button>
+                <button class="schedule-today-btn" onclick="navigateWeek(0, true)">Сегодня</button>
+                <button class="schedule-nav-btn" onclick="navigateWeek(1)">▶</button>
+                <span class="schedule-nav-month" id="scheduleMonthLabelRoom" onclick="toggleMonthPicker(event)">
+                  <span id="scheduleMonthLabelRoomText"></span>
+                  <div class="schedule-month-picker" id="scheduleMonthPickerRoom"></div>
+                </span>
+                <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+                  <select id="scheduleRoomSelect" onchange="loadScheduleByRoom()" style="flex:1;max-width:200px"><option value="">Все аудитории</option></select>
+                  <button class="btn btn--primary btn--sm" onclick="openScheduleModal()">+ Добавить</button>
+                </div>
+              </div>
+              <div id="scheduleRoomGridContainer"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="tab-bookings" class="tab-content" style="display:none">
+        <div class="booking-overview">
+          <div class="booking-overview-symbol"><span aria-hidden="true"></span></div>
+          <div class="booking-overview-copy"><small>Управление аудиториями</small><h2>Бронирование аудиторий</h2><p>Проверяйте заявки, расписание и доступность помещений в одном месте.</p></div>
+          <div class="booking-overview-stats">
+            <span class="booking-overview-stat booking-overview-stat--pending"><strong id="bookingPendingCount">0</strong><small>ожидают</small></span>
+            <span class="booking-overview-stat booking-overview-stat--approved"><strong id="bookingApprovedCount">0</strong><small>подтверждены</small></span>
+            <span class="booking-overview-stat booking-overview-stat--rejected"><strong id="bookingRejectedCount">0</strong><small>отклонены</small></span>
+          </div>
+        </div>
+        <div class="card booking-review-workspace">
+          <div class="booking-review-header">
+            <span><strong>Заявки на бронирование</strong><small>Рассмотрите новые запросы или откройте историю решений</small></span>
+            <a class="btn btn--outline btn--sm booking-calendar-link" href="http://localhost:3001" target="_blank"><i aria-hidden="true"></i>Открыть календарь</a>
+          </div>
+          <div class="booking-review-toolbar"><label><span>Статус заявки</span><select id="bookingStatusFilter" onchange="loadBookingRequests()"><option value="requested">Ожидают решения</option><option value="">Все заявки</option><option value="approved">Подтвержденные</option><option value="rejected">Отклоненные</option></select></label><button class="btn btn--outline btn--sm booking-refresh-button" onclick="loadBookingRequests()"><i aria-hidden="true"></i>Обновить</button></div>
+          <div id="bookingRequestsList" class="booking-requests-container"><div class="empty-state">Загрузка...</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Модал сотрудника -->
+  <div class="modal-overlay" id="staffModal">
+    <div class="modal staff-editor-modal">
+      <div class="modal-title" id="staffModalTitle">Добавить</div>
+      <input type="hidden" id="editStaffId">
+      <input type="hidden" id="editStaffLogin">
+      <div class="staff-editor-body">
+        <p class="staff-editor-intro">Заполните личные и рабочие данные участника команды.</p>
+
+        <section class="staff-editor-section">
+          <div class="staff-editor-section-heading">
+            <span class="staff-editor-section-number">01</span>
+            <span><strong>Основные данные</strong><small>Тип учетной записи и идентификация</small></span>
+          </div>
+          <div class="staff-editor-grid">
+            <div class="form-group staff-editor-field--wide">
+              <label for="staffName">ФИО</label>
+              <input type="text" id="staffName" placeholder="Иванов Иван Иванович">
+            </div>
+            <div class="form-group">
+              <label for="editStaffRole">Категория</label>
+              <select id="editStaffRole">
+                <option value="teacher">Преподаватель</option>
+                <option value="worker">Сотрудник</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="staffCode">Шифр</label>
+              <input type="text" id="staffCode" placeholder="Например: 123456">
+            </div>
+          </div>
+        </section>
+
+        <section class="staff-editor-section">
+          <div class="staff-editor-section-heading">
+            <span class="staff-editor-section-number">02</span>
+            <span><strong>Рабочая информация</strong><small>Должность, подразделение и занятость</small></span>
+          </div>
+          <div class="staff-editor-grid">
+            <div class="form-group">
+              <label for="staffPosition">Должность</label>
+              <input type="text" id="staffPosition" placeholder="Например: доцент">
+            </div>
+            <div class="form-group">
+              <label for="staffTitle">Ученая степень или звание</label>
+              <input type="text" id="staffTitle" placeholder="Например: кандидат наук">
+            </div>
+            <div class="form-group staff-editor-field--wide">
+              <label for="staffDepartment">Подразделение</label>
+              <input type="text" id="staffDepartment" placeholder="Например: Кафедра информатики">
+            </div>
+            <div class="form-group">
+              <label for="staffWorkType">Вид работы</label>
+              <input type="text" id="staffWorkType" placeholder="Например: основное место работы">
+            </div>
+            <div class="form-group">
+              <label for="staffSupervisor">Руководитель</label>
+              <input type="text" id="staffSupervisor" placeholder="Например: Иванов И.И.">
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('staffModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="saveStaff()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модал студента -->
+  <div class="modal-overlay" id="studentModal">
+    <div class="modal">
+      <div class="modal-title" id="studentModalTitle">Добавить студента</div>
+      <input type="hidden" id="editStudentId">
+      <div class="form-group">
+        <label for="sCode">Шифр</label>
+        <input type="text" id="sCode" placeholder="Например: 25">
+      </div>
+      <div class="form-group">
+        <label for="sFaculty">Факультет</label>
+        <input type="text" id="sFaculty" placeholder="Например: Институт информационных технологий">
+      </div>
+      <div class="form-group">
+        <label for="sGroupName">Имя группы</label>
+        <input type="text" id="sGroupName" placeholder="Например: СТАМ-25">
+      </div>
+      <div class="form-group">
+        <label for="sQualification">Квалификация</label>
+        <input type="text" id="sQualification" placeholder="Например: Бакалавр">
+      </div>
+      <div class="form-group">
+        <label for="sDepartment">Кафедра</label>
+        <input type="text" id="sDepartment" placeholder="Например: Кафедра информатики">
+      </div>
+      <div class="form-group">
+        <label for="sCourseText">Курс</label>
+        <input type="text" id="sCourseText" placeholder="Например: Курс 1">
+      </div>
+      <div class="form-group">
+        <label for="sStatus">Статус</label>
+        <input type="text" id="sStatus" placeholder="Активен">
+      </div>
+      <div class="form-group">
+        <label for="sName">ФИО</label>
+        <input type="text" id="sName" placeholder="Иванов Иван Иванович">
+      </div>
+      <div class="form-group">
+        <label for="sSpecialtyText">Специальность</label>
+        <input type="text" id="sSpecialtyText" placeholder="Например: СТАМ">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('studentModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="saveStudent()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модал управления -->
+  <div class="modal-overlay" id="managementModal">
+    <div class="modal modal--wide">
+      <div class="modal-title">Управление</div>
+      <div class="modal-body" id="managementBody" style="max-height:60vh;overflow-y:auto"><div class="empty-state">Загрузка...</div></div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('managementModal')">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модал курса -->
+  <div class="modal-overlay" id="courseModal">
+    <div class="modal">
+      <div class="modal-title" id="courseModalTitle">Добавить курс</div>
+      <input type="hidden" id="editCourseOldName">
+      <div class="form-group">
+        <label for="courseName">Название курса</label>
+        <input type="text" id="courseName" placeholder="Например: Курс 1">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('courseModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="saveCourse()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модал потока -->
+  <div class="modal-overlay" id="flowModal">
+    <div class="modal">
+      <div class="modal-title" id="flowModalTitle">Добавить поток</div>
+      <input type="hidden" id="editFlowOldName">
+      <input type="hidden" id="flowCourseName">
+      <div class="form-group">
+        <label for="flowName">Название потока</label>
+        <input type="text" id="flowName" placeholder="Например: Поток 1">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('flowModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="saveFlow()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модал группы (внутри потока+курса) -->
+  <div class="modal-overlay" id="groupModal">
+    <div class="modal">
+      <div class="modal-title" id="groupModalTitle">Добавить группу</div>
+      <input type="hidden" id="editGroupOldName">
+      <input type="hidden" id="groupCourseName">
+      <input type="hidden" id="groupFlowName">
+      <div class="form-group">
+        <label for="groupName">Название группы</label>
+        <input type="text" id="groupName" placeholder="Например: СТАМ-25">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('groupModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="saveGroup()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модал оценки -->
+  <div class="modal-overlay" id="gradeModal">
+    <div class="modal">
+      <div class="modal-title">Поставить оценку — 3Д моделирование и визуализация</div>
+      <input type="hidden" id="gradeStudentId">
+      <input type="hidden" id="gradeModalLessonId">
+      <div class="form-group">
+        <label>Студент</label>
+        <div id="gradeStudentName" style="font-weight:600;font-size:14px"></div>
+      </div>
+      <div class="form-group">
+        <label for="gradeValue">Оценка</label>
+        <select id="gradeValue">
+          <option value="5">5 — Отлично</option>
+          <option value="4">4 — Хорошо</option>
+          <option value="3">3 — Удовлетворительно</option>
+          <option value="2">2 — Неудовлетворительно</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="gradeComment">Комментарий</label>
+        <textarea id="gradeComment" placeholder="Комментарий к оценке"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('gradeModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="submitGrade()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DPK Program Modal -->
+  <div class="modal-overlay" id="dpkProgramModal">
+    <div class="modal">
+      <div class="modal-title" id="dpkProgramModalTitle">Добавить программу</div>
+      <input type="hidden" id="editDpkProgramId">
+      <div class="form-group">
+        <label for="dpkProgramType">Тип программы</label>
+        <select id="dpkProgramType">
+          <option value="ДПК">ДПК</option>
+          <option value="ООП">ООП</option>
+          <option value="ЛШ">ЛШ</option>
+          <option value="Лаб">Лаб</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="dpkProgramName">Название программы</label>
+        <input type="text" id="dpkProgramName" placeholder="Например: Программа повышения квалификации">
+      </div>
+      <div class="form-group">
+        <div style="font-size:13px;color:var(--text-secondary)">Часы рассчитываются автоматически на основе нагрузки преподавателей</div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('dpkProgramModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="saveDpkProgram()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DPK Teacher Modal -->
+  <div class="modal-overlay" id="dpkTeacherModal">
+    <div class="modal">
+      <div class="modal-title">Добавить преподавателя в программу</div>
+      <input type="hidden" id="dpkTeacherProgramId">
+      <input type="hidden" id="dpkTeacherGroupName">
+      <div class="form-group">
+        <label for="dpkTeacherSelect">Преподаватель</label>
+        <select id="dpkTeacherSelect"><option value="">Выберите преподавателя</option></select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('dpkTeacherModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="saveDpkTeacher()">Добавить</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="dpkGroupModal">
+    <div class="modal">
+      <div class="modal-title">Добавить группу</div>
+      <input type="hidden" id="dpkGroupProgramId">
+      <div class="form-group">
+        <label for="dpkGroupSelect">Группа</label>
+        <select id="dpkGroupSelect"><option value="">Выберите группу</option></select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('dpkGroupModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="saveDpkGroup()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DPK Evaluator Modal -->
+  <div class="modal-overlay" id="dpkEvaluatorModal">
+    <div class="modal">
+      <div class="modal-title">Добавить оценщиков</div>
+      <div class="form-group">
+        <label>Выберите преподавателей</label>
+        <div id="dpkEvaluatorTeacherList" style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:8px">
+          <div class="empty-state">Загрузка...</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('dpkEvaluatorModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="saveDpkEvaluators()">Добавить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schedule Modal -->
+  <div class="modal-overlay" id="scheduleModal">
+    <div class="modal">
+      <div class="modal-title" id="scheduleModalTitle">Добавить занятие</div>
+      <input type="hidden" id="editScheduleId">
+      <div class="form-group">
+        <label for="scheduleProgramSelect">ДПК</label>
+        <select id="scheduleProgramSelect"><option value="">Выберите программу</option></select>
+      </div>
+      <div class="form-group">
+        <label for="scheduleTeacherSelectModal">Преподаватель</label>
+        <select id="scheduleTeacherSelectModal"><option value="">Выберите преподавателя</option></select>
+      </div>
+      <div class="form-group">
+        <label for="scheduleGroupSelect">Группа</label>
+        <select id="scheduleGroupSelect"><option value="">Выберите группу</option></select>
+      </div>
+      <div class="form-group">
+        <label for="scheduleRoomField">Аудитория</label>
+        <input type="text" id="scheduleRoomField" placeholder="Например: 301">
+      </div>
+      <div class="form-group">
+        <label for="scheduleDateField">Дата</label>
+        <input type="date" id="scheduleDateField">
+      </div>
+      <div class="form-group">
+        <label for="schedulePairSelect">Пара</label>
+        <select id="schedulePairSelect">
+          <option value="1">1 пара (8:50–10:20)</option>
+          <option value="2">2 пара (10:35–12:05)</option>
+          <option value="3">3 пара (12:35–14:05)</option>
+          <option value="4">4 пара (14:15–15:45)</option>
+          <option value="5">5 пара (15:55–17:20)</option>
+          <option value="6">6 пара (17:30–19:00)</option>
+        </select>
+      </div>
+      <input type="hidden" id="scheduleDaySelect">
+      <input type="hidden" id="scheduleTimeStart">
+      <input type="hidden" id="scheduleTimeEnd">
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('scheduleModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="saveSchedule()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personal Schedule Modal -->
+  <div class="modal-overlay" id="personalScheduleModal">
+    <div class="modal">
+      <div class="modal-title" id="personalScheduleModalTitle">Добавить занятие</div>
+      <input type="hidden" id="editPersonalScheduleId">
+      <div class="form-group">
+        <label for="personalScheduleProgramInput">Программа</label>
+        <input type="text" id="personalScheduleProgramInput" placeholder="Название программы">
+      </div>
+      <div class="form-group">
+        <label for="personalScheduleLessonType">Вид учебных занятий</label>
+        <select id="personalScheduleLessonType">
+          <option value="">—</option>
+          <option value="Лекции">Лекции</option>
+          <option value="Практическое занятие">Практическое занятие</option>
+          <option value="Лабораторная работа">Лабораторная работа</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="personalScheduleGroupInput">Группа / Название</label>
+        <input type="text" id="personalScheduleGroupInput" placeholder="Например: СТАМ-25">
+      </div>
+      <div class="form-group">
+        <label for="personalScheduleRoomField">Аудитория</label>
+        <input type="text" id="personalScheduleRoomField" placeholder="Например: 301">
+      </div>
+      <div class="form-group">
+        <label for="personalScheduleDateField">Дата</label>
+        <input type="date" id="personalScheduleDateField">
+      </div>
+      <div class="form-group">
+        <label for="personalSchedulePairSelect">Пара</label>
+        <select id="personalSchedulePairSelect">
+          <option value="1">1 пара (8:50–10:20)</option>
+          <option value="2">2 пара (10:35–12:05)</option>
+          <option value="3">3 пара (12:35–14:05)</option>
+          <option value="4">4 пара (14:15–15:45)</option>
+          <option value="5">5 пара (15:55–17:20)</option>
+          <option value="6">6 пара (17:30–19:00)</option>
+        </select>
+      </div>
+      <input type="hidden" id="personalScheduleDaySelect">
+      <input type="hidden" id="personalScheduleTimeStart">
+      <input type="hidden" id="personalScheduleTimeEnd">
+      <div class="modal-actions">
+        <button class="btn btn--secondary" onclick="closeModal('personalScheduleModal')">Отмена</button>
+        <button class="btn btn--primary" onclick="savePersonalSchedule()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="attAssignmentModal">
+    <div class="modal attendance-assignment-modal">
+      <div class="modal-title">Добавить задания</div>
+      <div class="attendance-assignment-intro">Выберите группу и количество новых заданий для журнала.</div>
+      <div class="form-group">
+        <label for="attAssignmentGroup">Учебная группа</label>
+        <select id="attAssignmentGroup"><option value="">Выберите группу</option></select>
+      </div>
+      <div class="form-group">
+        <label for="attAssignmentCount">Количество заданий</label>
+        <input type="number" id="attAssignmentCount" min="1" max="30" value="1" inputmode="numeric">
+        <small class="attendance-assignment-hint">Можно добавить от 1 до 30 заданий за один раз.</small>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--secondary" type="button" onclick="closeModal('attAssignmentModal')">Отмена</button>
+        <button class="btn btn--primary" type="button" onclick="addAttAssignments(this)">Добавить</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="personalIcsFileInput" accept=".ics" style="display:none">
+
+  <script>
+    let showActions = false;
+    let currentUser = null;
+
+    function academicPositionLabel(user, fallback) {
+      const position = String(user.position || '').trim();
+      if (!position) return fallback;
+      let department = String(user.department || '').trim().replace(/^кафедра\s+/i, '');
+      if (/^прикладных компетенций в области цифровых технологий$/i.test(department)) department = 'ПКОЦТ';
+      if (!department) return position;
+      if (/кафедр(?:а|ы|е|ой|у)/i.test(position)) return `${position} ${department}`;
+      return `${position} кафедры ${department}`;
+    }
+
+    async function checkAuth() {
+      const res = await fetch('/api/me');
+      const data = await res.json();
+      if (!data.user || data.user.role !== 'supervisor') { window.location.href = '/'; return; }
+      currentUser = data.user;
+      document.getElementById('userName').textContent = data.user.full_name;
+      const roleMap = { supervisor: 'Руководитель', teacher: 'Преподаватель', worker: 'Сотрудник', student: 'Студент' };
+      const roleElement = document.getElementById('userRole');
+      roleElement.classList.toggle('is-developer', data.user.developer_access === 1);
+      if (data.user.developer_access === 1) {
+        let department = String(data.user.department || '').trim().replace(/^кафедра\s+/i, '');
+        if (/^прикладных компетенций в области цифровых технологий$/i.test(department)) department = 'ПКОЦТ';
+        roleElement.textContent = `${department ? `кафедра ${department}\n` : ''}Разработчик`;
+      } else {
+        roleElement.textContent = academicPositionLabel(data.user, roleMap[data.user.role] || '');
+      }
+      return data.user;
+    }
+
+    async function api(path, opts = {}) {
+      const headers = { 'Content-Type': 'application/json', ...opts.headers };
+      const res = await fetch(path, { headers, ...opts });
+      return res.json();
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+      m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); });
+    });
+
+    function toggleActions() {
+      showActions = !showActions;
+      document.getElementById('toggleActionsBtn').textContent = showActions ? '✕ Отменить' : '✎ Редактировать';
+      document.getElementById('toggleActionsBtn').className = showActions ? 'btn btn--danger btn--sm' : 'btn btn--outline btn--sm';
+      loadStudents();
+    }
+
+    // --- Courses/Flows/Groups helpers ---
+    async function loadCoursesSelect(selectId) {
+      const courses = await api('/api/worker/courses');
+      const sel = document.getElementById(selectId);
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">Все курсы</option>';
+      courses.forEach(c => { sel.innerHTML += `<option value="${c}" ${c === cur ? 'selected' : ''}>${c}</option>`; });
+      return courses;
+    }
+
+    async function loadSpecialties(selectId, courseSelectId) {
+      const course = courseSelectId ? document.getElementById(courseSelectId)?.value || '' : '';
+      const specialties = await api(`/api/worker/specialties?course=${course}`);
+      const sel = document.getElementById(selectId);
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">Все специальности</option>';
+      specialties.forEach(s => { sel.innerHTML += `<option value="${s}" ${s === cur ? 'selected' : ''}>${s}</option>`; });
+      return specialties;
+    }
+
+    async function loadFlows(selectId, courseSelectId) {
+      const course = courseSelectId ? document.getElementById(courseSelectId)?.value || '' : '';
+      const flows = await api(`/api/teacher/flows?course=${course}`);
+      const sel = document.getElementById(selectId);
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">Все потоки</option>';
+      flows.forEach(f => { sel.innerHTML += `<option value="${f}" ${f === cur ? 'selected' : ''}>${f}</option>`; });
+      return flows;
+    }
+
+    async function loadGroups(selectId, flowSelectId, courseSelectId, specialtySelectId) {
+      const course = courseSelectId ? document.getElementById(courseSelectId)?.value || '' : '';
+      const flow = flowSelectId ? document.getElementById(flowSelectId)?.value || '' : '';
+      const specialty = specialtySelectId ? document.getElementById(specialtySelectId)?.value || '' : '';
+      let url = `/api/teacher/groups?course=${course}&flow=${flow}`;
+      if (specialty) url += `&specialty=${specialty}`;
+      const groups = await api(url);
+      const sel = document.getElementById(selectId);
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">Все группы</option>';
+      groups.forEach(g => { sel.innerHTML += `<option value="${g}" ${g === cur ? 'selected' : ''}>${g}</option>`; });
+    }
+
+    // --- Home ---
+    async function loadHome() {
+      const stats = await api('/api/supervisor/stats');
+      const students = Number(stats.students) || 0;
+      const teachers = Number(stats.teachers) || 0;
+      const lessons = Number(stats.lessons) || 0;
+      document.getElementById('statStudents').textContent = stats.students;
+      document.getElementById('statTeachers').textContent = stats.teachers;
+      document.getElementById('statLessons').textContent = stats.lessons;
+      const workers = await api('/api/supervisor/workers');
+      document.getElementById('statWorkers').textContent = workers.length;
+      const total = students + teachers + workers.length;
+      document.getElementById('analyticsDate').textContent = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(new Date());
+      document.getElementById('analyticsTotalPeople').textContent = total;
+      document.getElementById('legendStudents').textContent = students;
+      document.getElementById('legendTeachers').textContent = teachers;
+      document.getElementById('legendWorkers').textContent = workers.length;
+      document.getElementById('studentSegment').style.width = `${total ? students / total * 100 : 0}%`;
+      document.getElementById('teacherSegment').style.width = `${total ? teachers / total * 100 : 0}%`;
+      document.getElementById('workerSegment').style.width = `${total ? workers.length / total * 100 : 0}%`;
+      document.getElementById('lessonsPerTeacher').textContent = teachers ? (lessons / teachers).toFixed(1).replace('.', ',') : '0';
+    }
+
+    // --- Staff CRUD ---
+    let showFullTeacherDetails = false;
+    let showStaffActions = false;
+    let staffSearchTimeout = null;
+
+    function filterStaff() {
+      clearTimeout(staffSearchTimeout);
+      staffSearchTimeout = setTimeout(applyStaffFilters, 180);
+    }
+
+    function applyStaffFilters() {
+      const role = document.getElementById('staffRoleFilter').value;
+      document.getElementById('teacherDirectoryCard').style.display = role === 'worker' ? 'none' : '';
+      document.getElementById('workerDirectoryCard').style.display = role === 'teacher' ? 'none' : '';
+      loadStaff('teacher', 'teachersList');
+      loadStaff('worker', 'workersList');
+    }
+
+    function toggleStaffActions() {
+      showStaffActions = !showStaffActions;
+      document.getElementById('toggleStaffActionsBtn').textContent = showStaffActions ? '✕ Отменить' : '✎ Редактировать';
+      document.getElementById('toggleStaffActionsBtn').className = showStaffActions ? 'btn btn--danger btn--sm' : 'btn btn--outline btn--sm';
+      loadStaff('teacher', 'teachersList');
+      loadStaff('worker', 'workersList');
+    }
+
+    function toggleAllTeacherDetails() {
+      showFullTeacherDetails = !showFullTeacherDetails;
+      document.getElementById('toggleTeacherDetailsBtn').textContent = showFullTeacherDetails ? 'Сократить' : 'Показать полностью';
+      loadStaff('teacher', 'teachersList');
+    }
+
+    function shortenFIO(full) {
+      const parts = full.split(' ');
+      if (parts.length < 2) return full;
+      return parts[0] + ' ' + parts.slice(1).map(p => p.charAt(0) + '.').join('');
+    }
+
+    function shortenDegree(deg) {
+      const map = {
+        'кандидат технических наук': 'к.т.н',
+        'доктор технических наук': 'д.т.н',
+        'кандидат экономических наук': 'к.э.н',
+        'доктор экономических наук': 'д.э.н',
+        'кандидат педагогических наук': 'к.п.н',
+        'доктор педагогических наук': 'д.п.н',
+        'кандидат физико-математических наук': 'к.ф.-м.н',
+        'доктор физико-математических наук': 'д.ф.-м.н',
+      };
+      return map[deg.trim().toLowerCase()] || deg;
+    }
+
+    function escapeStaffText(value) {
+      const element = document.createElement('div');
+      element.textContent = value == null ? '' : String(value);
+      return element.innerHTML;
+    }
+
+    function staffInitials(name) {
+      return String(name || '').trim().split(/\s+/).slice(0, 2).map(part => part.charAt(0)).join('').toUpperCase() || '?';
+    }
+
+    function shortenDepartment(value) {
+      const text = String(value || '').trim();
+      const departmentMatch = text.match(/^кафедра\s+(.+)$/i);
+      if (departmentMatch) {
+        const stopWords = new Set(['в', 'во', 'и', 'на', 'по', 'для', 'с', 'со', 'к', 'из', 'при']);
+        const initials = departmentMatch[1].split(/\s+/)
+          .map(word => word.replace(/[^A-Za-zА-Яа-яЁё0-9]/g, ''))
+          .filter(word => word && !stopWords.has(word.toLowerCase()))
+          .map(word => word.charAt(0).toUpperCase())
+          .join('');
+        if (initials) return `Каф. ${initials}`;
+      }
+      return text.length > 28 ? text.slice(0, 27).trimEnd() + '…' : text;
+    }
+
+    function expandableStaffValue(shortValue, fullValue, className = '') {
+      const shortText = String(shortValue || '—');
+      const fullText = String(fullValue || '—');
+      if (shortText === fullText) return `<span class="${className}">${escapeStaffText(fullText)}</span>`;
+      return `<button type="button" class="staff-expandable ${className}" data-short="${encodeURIComponent(shortText)}" data-full="${encodeURIComponent(fullText)}" aria-expanded="false" onclick="toggleStaffValue(this)" title="Показать полностью">${escapeStaffText(shortText)}</button>`;
+    }
+
+    function toggleStaffValue(button) {
+      const expanded = button.getAttribute('aria-expanded') === 'true';
+      button.textContent = decodeURIComponent(button.dataset[expanded ? 'short' : 'full']);
+      button.setAttribute('aria-expanded', String(!expanded));
+      button.title = expanded ? 'Показать полностью' : 'Свернуть';
+    }
+
+    function editStaffFromButton(button) {
+      const staff = JSON.parse(decodeURIComponent(button.dataset.staff));
+      editStaff(staff.id, staff.full_name, staff.login, staff.role, staff.code, staff.title, staff.work_type, staff.position, staff.department, staff.supervisor_name);
+    }
+
+    function deleteStaffFromButton(button) {
+      deleteStaff(Number(button.dataset.id), decodeURIComponent(button.dataset.name));
+    }
+
+    async function loadStaff(role, listId) {
+      const endpoint = role === 'teacher' ? '/api/supervisor/teachers' : '/api/supervisor/workers';
+      const allItems = await api(endpoint);
+      const search = document.getElementById('staffSearch').value.toLowerCase().trim();
+      const items = search ? allItems.filter(item => item.full_name.toLowerCase().includes(search)) : allItems;
+      const el = document.getElementById(listId);
+      const countEl = document.getElementById(role === 'teacher' ? 'teacherCount' : 'workerCount');
+      if (countEl) countEl.textContent = allItems.length;
+      if (!items.length) { el.innerHTML = `<div class="empty-state">${search ? 'Преподаватели не найдены' : `${role === 'teacher' ? 'Преподаватели' : 'Сотрудники'} пока не добавлены`}</div>`; return; }
+      let html;
+      if (role === 'teacher') {
+        html = `<div class="staff-table-wrap"><table class="staff-table staff-directory-data-table${showStaffActions ? ' has-actions' : ''}"><thead><tr><th>#</th><th>Шифр</th><th>Преподаватель</th><th>Звание</th><th>Вид работы</th><th>Должность</th><th>Подразделение</th><th>Категория</th>${showStaffActions ? '<th>Действия</th>' : ''}</tr></thead><tbody>`;
+        items.forEach((t, i) => {
+          const fio = showFullTeacherDetails ? t.full_name : shortenFIO(t.full_name);
+          const department = showFullTeacherDetails ? t.department : shortenDepartment(t.department);
+          const staffData = encodeURIComponent(JSON.stringify({ ...t, role }));
+          let row = `<tr>
+            <td class="staff-row-number" data-label="#">${i + 1}</td>
+            <td data-label="Шифр"><span class="staff-code">${escapeStaffText(t.code) || '—'}</span></td>
+            <td data-label="Преподаватель"><div class="staff-person"><span class="staff-avatar staff-avatar--teacher">${escapeStaffText(staffInitials(t.full_name))}</span><span>${expandableStaffValue(fio, t.full_name, 'staff-person-name')}</span></div></td>
+            <td data-label="Звание">${escapeStaffText(t.title) || '—'}</td>
+            <td data-label="Вид работы">${escapeStaffText(t.work_type) || '—'}</td>
+            <td data-label="Должность">${escapeStaffText(t.position) || '—'}</td>
+            <td data-label="Подразделение">${expandableStaffValue(department, t.department, 'staff-department')}</td>
+            <td data-label="Категория">${t.category ? `<span class="staff-category">${escapeStaffText(t.category)}</span>` : '—'}</td>`;
+          if (showStaffActions) {
+            row += `<td data-label="Действия" class="student-actions-cell"><div class="student-row-actions">
+              <button class="student-action-button student-action-button--edit" data-staff="${staffData}" onclick="editStaffFromButton(this)" aria-label="Редактировать ${escapeStaffText(t.full_name)}" title="Редактировать"><span aria-hidden="true"></span></button>
+              <button class="student-action-button student-action-button--delete" data-id="${t.id}" data-name="${encodeURIComponent(t.full_name)}" onclick="deleteStaffFromButton(this)" aria-label="Удалить ${escapeStaffText(t.full_name)}" title="Удалить"><span aria-hidden="true"></span></button>
+            </div></td>`;
+          }
+          row += '</tr>';
+          html += row;
+        });
+        html += '</tbody></table></div>';
+      } else {
+        html = `<div class="staff-table-wrap"><table class="staff-table staff-directory-data-table${showStaffActions ? ' has-actions' : ''}"><thead><tr><th>#</th><th>Шифр</th><th>Сотрудник</th><th>Звание</th><th>Вид работы</th><th>Должность</th><th>Подразделение</th><th>Категория</th>${showStaffActions ? '<th>Действия</th>' : ''}</tr></thead><tbody>`;
+        items.forEach((t, i) => {
+          const fio = showFullTeacherDetails ? t.full_name : shortenFIO(t.full_name);
+          const department = showFullTeacherDetails ? t.department : shortenDepartment(t.department);
+          const staffData = encodeURIComponent(JSON.stringify({ ...t, role }));
+          html += `<tr>
+            <td class="staff-row-number" data-label="#">${i+1}</td>
+            <td data-label="Шифр"><span class="staff-code">${escapeStaffText(t.code) || '—'}</span></td>
+            <td data-label="Сотрудник"><div class="staff-person"><span class="staff-avatar staff-avatar--worker">${escapeStaffText(staffInitials(t.full_name))}</span><span>${expandableStaffValue(fio, t.full_name, 'staff-person-name')}</span></div></td>
+            <td data-label="Звание">${escapeStaffText(t.title) || '—'}</td>
+            <td data-label="Вид работы">${escapeStaffText(t.work_type) || '—'}</td>
+            <td data-label="Должность">${escapeStaffText(t.position) || '—'}</td>
+            <td data-label="Подразделение">${expandableStaffValue(department, t.department, 'staff-department')}</td>
+            <td data-label="Категория">-</td>`;
+          if (showStaffActions) {
+            html += `<td data-label="Действия" class="student-actions-cell"><div class="student-row-actions">
+              <button class="student-action-button student-action-button--edit" data-staff="${staffData}" onclick="editStaffFromButton(this)" aria-label="Редактировать ${escapeStaffText(t.full_name)}" title="Редактировать"><span aria-hidden="true"></span></button>
+              <button class="student-action-button student-action-button--delete" data-id="${t.id}" data-name="${encodeURIComponent(t.full_name)}" onclick="deleteStaffFromButton(this)" aria-label="Удалить ${escapeStaffText(t.full_name)}" title="Удалить"><span aria-hidden="true"></span></button>
+            </div></td>`;
+          }
+          html += `</tr>`;
+        });
+        html += '</tbody></table></div>';
+      }
+      el.innerHTML = html;
+    }
+
+    function openStaffModal() {
+      document.getElementById('staffModalTitle').textContent = 'Добавить в команду';
+      document.getElementById('editStaffId').value = '';
+      document.getElementById('editStaffRole').value = 'teacher';
+      document.getElementById('editStaffRole').disabled = false;
+      document.getElementById('editStaffLogin').value = '';
+      document.getElementById('staffName').value = '';
+      document.getElementById('staffCode').value = '';
+      document.getElementById('staffTitle').value = '';
+      document.getElementById('staffWorkType').value = '';
+      document.getElementById('staffPosition').value = '';
+      document.getElementById('staffDepartment').value = '';
+      document.getElementById('staffSupervisor').value = '';
+      document.getElementById('staffModal').classList.add('open');
+    }
+
+    function editStaff(id, name, login, role, code, title, work_type, position, department, supervisor_name) {
+      document.getElementById('staffModalTitle').textContent = 'Редактировать';
+      document.getElementById('editStaffId').value = id;
+      document.getElementById('editStaffRole').value = role;
+      document.getElementById('editStaffRole').disabled = true;
+      document.getElementById('editStaffLogin').value = login;
+      document.getElementById('staffName').value = name;
+      document.getElementById('staffCode').value = code || '';
+      document.getElementById('staffTitle').value = title || '';
+      document.getElementById('staffWorkType').value = work_type || '';
+      document.getElementById('staffPosition').value = position || '';
+      document.getElementById('staffDepartment').value = department || '';
+      document.getElementById('staffSupervisor').value = supervisor_name || '';
+      document.getElementById('staffModal').classList.add('open');
+    }
+
+    async function saveStaff() {
+      const id = document.getElementById('editStaffId').value;
+      const role = document.getElementById('editStaffRole').value;
+      const existingLogin = document.getElementById('editStaffLogin').value;
+      const full_name = document.getElementById('staffName').value.trim();
+      const code = document.getElementById('staffCode').value.trim();
+      const title = document.getElementById('staffTitle').value.trim();
+      const work_type = document.getElementById('staffWorkType').value.trim();
+      const position = document.getElementById('staffPosition').value;
+      const department = document.getElementById('staffDepartment').value.trim();
+      const supervisor_name = document.getElementById('staffSupervisor').value.trim();
+      if (!full_name) { alert('Заполните ФИО'); return; }
+      const body = { full_name, role, code, title, work_type, position, department, supervisor_name };
+      if (id) {
+        await api(`/api/supervisor/staff/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      } else {
+        body.login = existingLogin || '';
+        const res = await api('/api/supervisor/staff', { method: 'POST', body: JSON.stringify(body) });
+        if (!res.success) { alert(res.message); return; }
+      }
+      closeModal('staffModal');
+      loadStaff(role, role === 'teacher' ? 'teachersList' : 'workersList');
+      if (role === 'teacher') loadHome();
+    }
+
+    async function deleteStaff(id, name) {
+      if (!confirm(`Удалить "${name}"?`)) return;
+      await api(`/api/supervisor/staff/${id}`, { method: 'DELETE' });
+      loadStaff('teacher', 'teachersList');
+      loadStaff('worker', 'workersList');
+      loadHome();
+    }
+
+    // --- Student CRUD ---
+    let searchTimeout = null;
+    let showFullStudentDetails = false;
+
+    function toggleAllStudentDetails() {
+      showFullStudentDetails = !showFullStudentDetails;
+      document.getElementById('toggleStudentDetailsBtn').textContent = showFullStudentDetails ? 'Сократить' : 'Показать полностью';
+      loadStudents();
+    }
+
+    function editStudentFromButton(button) {
+      const student = JSON.parse(decodeURIComponent(button.dataset.student));
+      editStudent(student.id, student.full_name, student.login, student.course, student.specialty, student.group_name, student.code, student.status, student.faculty, student.qualification, student.department);
+    }
+
+    async function loadStudents() {
+      const course = document.getElementById('sCourse').value;
+      const specialty = document.getElementById('sSpecialty').value;
+      const group = document.getElementById('sGroup').value;
+      const search = document.getElementById('sSearch').value;
+      const students = await api(`/api/worker/students?course=${course}&specialty=${specialty}&group=${group}&search=${encodeURIComponent(search)}`);
+      const el = document.getElementById('studentsList');
+      document.getElementById('studentDirectoryCount').textContent = students.length;
+      if (!students.length) { el.innerHTML = '<div class="empty-state">Нет студентов</div>'; return; }
+      let html = `<div class="staff-table-wrap"><table class="staff-table student-directory-table${showActions ? ' has-actions' : ''}"><thead><tr><th>#</th><th>Шифр</th><th>ФИО</th><th>Курс</th><th>Имя группы</th><th>Специальность</th><th>Факультет</th><th>Статус</th><th>Квалификация</th>${showActions ? '<th>Действия</th>' : ''}</tr></thead><tbody>`;
+      students.forEach((s, i) => {
+        const fio = showFullStudentDetails ? s.full_name : shortenFIO(s.full_name);
+        const studentData = encodeURIComponent(JSON.stringify(s));
+        const normalizedStatus = String(s.status || '').toLowerCase();
+        const isActive = !s.status || normalizedStatus.includes('актив') || normalizedStatus.includes('обуч');
+        let row = `<tr>
+          <td class="staff-row-number" data-label="#">${i + 1}</td>
+          <td data-label="Шифр"><span class="staff-code">${escapeStaffText(s.code) || '-'}</span></td>
+          <td data-label="ФИО"><div class="staff-person"><span class="staff-avatar student-avatar">${escapeStaffText(staffInitials(s.full_name))}</span><span>${expandableStaffValue(fio, s.full_name, 'staff-person-name')}</span></div></td>
+          <td data-label="Курс"><span class="student-course-badge">${escapeStaffText(s.course) || '-'}</span></td>
+          <td data-label="Имя группы"><span class="student-group-badge">${escapeStaffText(s.group_name) || '-'}</span></td>
+          <td data-label="Специальность">${escapeStaffText(s.specialty) || '-'}</td>
+          <td data-label="Факультет">${escapeStaffText(s.faculty) || '-'}</td>
+          <td data-label="Статус"><span class="student-status-badge ${isActive ? 'is-active' : ''}">${escapeStaffText(s.status) || 'Активен'}</span></td>
+          <td data-label="Квалификация">${escapeStaffText(s.qualification) || '-'}</td>`;
+        if (showActions) {
+          row += `<td data-label="Действия" class="student-actions-cell"><div class="student-row-actions">
+            <button class="student-action-button student-action-button--edit" data-student="${studentData}" onclick="editStudentFromButton(this)" aria-label="Редактировать ${escapeStaffText(s.full_name)}" title="Редактировать"><span aria-hidden="true"></span></button>
+            <button class="student-action-button student-action-button--delete" onclick="deleteStudent(${s.id})" aria-label="Удалить ${escapeStaffText(s.full_name)}" title="Удалить"><span aria-hidden="true"></span></button>
+          </div></td>`;
+        }
+        row += `</tr>`;
+        html += row;
+      });
+      html += '</tbody></table></div>';
+      el.innerHTML = html;
+    }
+
+    document.getElementById('sCourse').addEventListener('change', () => {
+      loadSpecialties('sSpecialty', 'sCourse'); loadGroups('sGroup', 'sFlow', 'sCourse', 'sSpecialty'); loadStudents();
+    });
+    document.getElementById('sSpecialty').addEventListener('change', () => { loadGroups('sGroup', 'sFlow', 'sCourse', 'sSpecialty'); loadStudents(); });
+    document.getElementById('sGroup').addEventListener('change', loadStudents);
+    document.getElementById('sSearch').addEventListener('input', () => {
+      clearTimeout(searchTimeout); searchTimeout = setTimeout(loadStudents, 300);
+    });
+
+    function openStudentModal(data) {
+      document.getElementById('studentModalTitle').textContent = data ? 'Редактировать студента' : 'Добавить студента';
+      document.getElementById('editStudentId').value = data ? data.id : '';
+      document.getElementById('sCode').value = data ? data.code : '';
+      document.getElementById('sFaculty').value = data ? data.faculty : '';
+      document.getElementById('sGroupName').value = data ? data.group_name : '';
+      document.getElementById('sQualification').value = data ? data.qualification : '';
+      document.getElementById('sDepartment').value = data ? data.department : '';
+      document.getElementById('sCourseText').value = data ? data.course : '';
+      document.getElementById('sStatus').value = data ? data.status : 'Активен';
+      document.getElementById('sName').value = data ? data.name : '';
+      document.getElementById('sSpecialtyText').value = data ? data.specialty : '';
+      document.getElementById('studentModal').classList.add('open');
+    }
+
+    function editStudent(id, name, login, course, specialty, group_name, code, status, faculty, qualification, department) {
+      openStudentModal({ id, name, login, course, specialty, group_name, code, status, faculty, qualification, department });
+    }
+
+    async function saveStudent() {
+      const id = document.getElementById('editStudentId').value;
+      const full_name = document.getElementById('sName').value.trim();
+      const course = document.getElementById('sCourseText').value.trim();
+      const specialty = document.getElementById('sSpecialtyText').value.trim();
+      const group_name = document.getElementById('sGroupName').value.trim();
+      const code = document.getElementById('sCode').value.trim();
+      const status = document.getElementById('sStatus').value.trim() || 'Активен';
+      const faculty = document.getElementById('sFaculty').value.trim();
+      const qualification = document.getElementById('sQualification').value.trim();
+      const department = document.getElementById('sDepartment').value.trim();
+      if (!full_name) { alert('Заполните ФИО'); return; }
+      if (id) {
+        await api(`/api/worker/student/${id}`, { method: 'PUT', body: JSON.stringify({ full_name, course, specialty, group_name, code, status, faculty, qualification, department }) });
+      } else {
+        const login = 's' + Date.now();
+        const res = await api('/api/worker/student', { method: 'POST', body: JSON.stringify({ login, full_name, course, specialty, group_name, code, status, faculty, qualification, department }) });
+        if (!res.success) { alert(res.message); return; }
+      }
+      closeModal('studentModal');
+      loadStudents();
+    }
+
+    async function deleteStudent(id) {
+      if (!confirm('Удалить студента?')) return;
+      await api(`/api/worker/student/${id}`, { method: 'DELETE' });
+      loadStudents();
+    }
+
+
+
+    // --- Management modal ---
+    async function openManagementModal() {
+      document.getElementById('managementModal').classList.add('open');
+      await loadManagementBody();
+    }
+
+    async function loadManagementBody() {
+      const el = document.getElementById('managementBody');
+      const courses = await api('/api/worker/courses');
+      if (!courses.length) { el.innerHTML = '<div class="empty-state">Нет курсов. <button class="btn btn--primary btn--sm" onclick="closeModal(\'managementModal\');openCourseModal()">+ Добавить курс</button></div>'; return; }
+
+      let html = '';
+      for (const c of courses) {
+        const flows = await api(`/api/teacher/flows?course=${encodeURIComponent(c)}`);
+        let flowsHtml = '';
+        if (flows.length) {
+          for (const f of flows) {
+            const groups = await api(`/api/teacher/groups?course=${encodeURIComponent(c)}&flow=${encodeURIComponent(f)}`);
+            let groupsHtml = '';
+            if (groups.length) {
+              groupsHtml = groups.map(g =>
+                `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(26,75,140,0.06);padding:3px 8px;border-radius:6px;margin:2px 4px 2px 0;font-size:12px;white-space:nowrap">
+                  ${g}
+                  <button class="btn btn--secondary btn--sm" style="padding:1px 4px;font-size:10px;min-width:auto" onclick="closeModal('managementModal');editGroupInCourse('${c}','${f}','${g}')">✎</button>
+                  <button class="btn btn--danger btn--sm" style="padding:1px 4px;font-size:10px;min-width:auto" onclick="closeModal('managementModal');deleteGroupInCourse('${c}','${f}','${g}')">✕</button>
+                </span>`
+              ).join('');
+            } else {
+              groupsHtml = '<span style="color:var(--text-secondary);font-size:12px">Нет групп</span>';
+            }
+            flowsHtml += `<div style="margin:6px 0 6px 24px;padding:6px 10px;background:rgba(26,75,140,0.03);border-radius:6px;border-left:3px solid var(--accent)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                <strong style="font-size:13px">${f}</strong>
+                <button class="btn btn--secondary btn--sm" style="padding:1px 6px;font-size:10px;min-width:auto" onclick="closeModal('managementModal');editFlowInCourse('${c}','${f}')">✎</button>
+                <button class="btn btn--danger btn--sm" style="padding:1px 6px;font-size:10px;min-width:auto" onclick="closeModal('managementModal');deleteFlowInCourse('${c}','${f}')">✕</button>
+              </div>
+              <div>${groupsHtml}
+                <button class="btn btn--primary btn--sm" style="padding:1px 6px;font-size:10px;margin:2px 0" onclick="closeModal('managementModal');openGroupModal('${c}','${f}')">+ группу</button>
+              </div>
+            </div>`;
+          }
+        } else {
+          flowsHtml = '<div style="margin:6px 0 6px 24px;color:var(--text-secondary);font-size:12px">Нет потоков</div>';
+        }
+
+        html += `<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-weight:700;font-size:15px">${c}</span>
+            <button class="btn btn--secondary btn--sm" style="padding:2px 8px;font-size:11px" onclick="closeModal('managementModal');editCourse('${c}')">✎</button>
+            <button class="btn btn--danger btn--sm" style="padding:2px 8px;font-size:11px" onclick="closeModal('managementModal');deleteCourse('${c}')">✕</button>
+            <button class="btn btn--primary btn--sm" style="padding:2px 8px;font-size:11px;margin-left:auto" onclick="closeModal('managementModal');openFlowModal('${c}')">+ поток</button>
+          </div>
+          ${flowsHtml}
+        </div>`;
+      }
+      el.innerHTML = html;
+    }
+
+    // --- Course CRUD ---
+    function openCourseModal(data) {
+      document.getElementById('courseModalTitle').textContent = data ? 'Редактировать курс' : 'Добавить курс';
+      document.getElementById('editCourseOldName').value = data || '';
+      document.getElementById('courseName').value = data || '';
+      document.getElementById('courseModal').classList.add('open');
+    }
+    function editCourse(name) { openCourseModal(name); }
+
+    async function saveCourse() {
+      const oldName = document.getElementById('editCourseOldName').value;
+      const newName = document.getElementById('courseName').value.trim();
+      if (!newName) { alert('Введите название курса'); return; }
+      if (oldName) {
+        await api('/api/worker/course', { method: 'PUT', body: JSON.stringify({ oldName, newName }) });
+      } else {
+        const res = await api('/api/worker/course', { method: 'POST', body: JSON.stringify({ name: newName }) });
+        if (!res.success) { alert(res.message); return; }
+      }
+      closeModal('courseModal');
+      loadManagementBody();
+      loadCoursesSelect('sCourse');
+      loadCoursesSelect('sCourseSelect');
+    }
+
+    async function deleteCourse(name) {
+      if (!confirm(`Удалить курс "${name}"?`)) return;
+      await api('/api/worker/course', { method: 'DELETE', body: JSON.stringify({ name }) });
+      loadManagementBody();
+      loadCoursesSelect('sCourse');
+      loadCoursesSelect('sCourseSelect');
+    }
+
+    // --- Flow CRUD ---
+    function openFlowModal(course, data) {
+      document.getElementById('flowModalTitle').textContent = data ? 'Редактировать поток' : 'Добавить поток';
+      document.getElementById('editFlowOldName').value = data || '';
+      document.getElementById('flowCourseName').value = course;
+      document.getElementById('flowName').value = data || '';
+      document.getElementById('flowModal').classList.add('open');
+    }
+    function editFlowInCourse(course, name) { openFlowModal(course, name); }
+
+    async function saveFlow() {
+      const oldName = document.getElementById('editFlowOldName').value;
+      const newName = document.getElementById('flowName').value.trim();
+      const course = document.getElementById('flowCourseName').value;
+      if (!newName) { alert('Введите название потока'); return; }
+      if (oldName) {
+        await api('/api/worker/flow', { method: 'PUT', body: JSON.stringify({ oldName, newName }) });
+        if (course) {
+          await api('/api/worker/flow', { method: 'PUT', body: JSON.stringify({ oldName: newName, newName: newName }) });
+        }
+      } else {
+        await api('/api/worker/flow', { method: 'POST', body: JSON.stringify({ name: newName }) });
+        if (course) {
+          await api('/api/worker/flow', { method: 'PUT', body: JSON.stringify({ oldName: newName, newName: newName }) });
+        }
+      }
+      closeModal('flowModal');
+      loadManagementBody();
+      loadFlows('sFlow', 'sCourse');
+    }
+
+    async function deleteFlowInCourse(course, name) {
+      if (!confirm(`Удалить поток "${name}"?`)) return;
+      await api('/api/worker/flow', { method: 'DELETE', body: JSON.stringify({ name }) });
+      loadManagementBody();
+      loadFlows('sFlow', 'sCourse');
+    }
+
+    // --- Group CRUD ---
+    function openGroupModal(course, flow, data) {
+      document.getElementById('groupModalTitle').textContent = data ? 'Редактировать группу' : 'Добавить группу';
+      document.getElementById('editGroupOldName').value = data || '';
+      document.getElementById('groupCourseName').value = course;
+      document.getElementById('groupFlowName').value = flow;
+      document.getElementById('groupName').value = data || '';
+      document.getElementById('groupModal').classList.add('open');
+    }
+
+    function editGroupInCourse(course, flow, name) { openGroupModal(course, flow, name); }
+
+    async function saveGroup() {
+      const oldName = document.getElementById('editGroupOldName').value;
+      const newName = document.getElementById('groupName').value.trim();
+      const course = document.getElementById('groupCourseName').value;
+      const flow = document.getElementById('groupFlowName').value;
+      if (!newName) { alert('Введите название группы'); return; }
+      if (oldName) {
+        await api('/api/worker/group', { method: 'PUT', body: JSON.stringify({ oldName, newName, flow }) });
+      } else {
+        await api('/api/worker/group', { method: 'POST', body: JSON.stringify({ name: newName }) });
+        const groups = await api(`/api/teacher/groups?flow=${encodeURIComponent(flow)}`);
+        if (!groups.includes(newName)) {
+          await api('/api/worker/group', { method: 'PUT', body: JSON.stringify({ oldName: newName, newName, flow }) });
+        }
+      }
+      closeModal('groupModal');
+      loadManagementBody();
+      loadGroups('sGroup', 'sFlow', 'sCourse', 'sSpecialty');
+    }
+
+    async function deleteGroupInCourse(course, flow, name) {
+      if (!confirm(`Удалить группу "${name}"?`)) return;
+      await api('/api/worker/group', { method: 'DELETE', body: JSON.stringify({ name, flow }) });
+      loadManagementBody();
+      loadGroups('sGroup', 'sFlow', 'sCourse', 'sSpecialty');
+    }
+
+    // --- Excel menu ---
+    function toggleExcelMenu(id) {
+      closeExcelMenus();
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function closeExcelMenus() {
+      document.querySelectorAll('.excel-dropdown').forEach(el => el.style.display = 'none');
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.excel-dropdown') && !e.target.closest('button[onclick*="toggleExcelMenu"]')) {
+        closeExcelMenus();
+      }
+    });
+
+    let importFileInput = null;
+
+    function createImportInput() {
+      if (!importFileInput) {
+        importFileInput = document.createElement('input');
+        importFileInput.type = 'file';
+        importFileInput.accept = '.xlsx,.xls';
+        importFileInput.style.display = 'none';
+        importFileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const formData = new FormData();
+          formData.append('file', file);
+          const result = await api('/api/worker/import', { method: 'POST', body: formData, headers: {} });
+          if (result.success) {
+            alert(`✓ Добавлено: ${result.imported}. Обновлено: ${result.updated || 0}. Пропущено: ${result.skipped || 0}. Всего строк: ${result.total}.`);
+            loadStudents();
+          } else {
+            alert(`✗ ${result.message}`);
+          }
+          importFileInput.value = '';
+        });
+        document.body.appendChild(importFileInput);
+      }
+      return importFileInput;
+    }
+
+    function importStudents() {
+      closeExcelMenus();
+      createImportInput().click();
+    }
+
+    async function exportStudents() {
+      closeExcelMenus();
+      const course = document.getElementById('sCourse').value;
+      const specialty = document.getElementById('sSpecialty').value;
+      const group = document.getElementById('sGroup').value;
+      const search = document.getElementById('sSearch').value;
+      const url = `/api/worker/students/export?course=${course}&specialty=${specialty}&group=${group}&search=${encodeURIComponent(search)}`;
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Список студентов.xlsx';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    async function exportStaff() {
+      closeExcelMenus();
+      const res = await fetch('/api/supervisor/staff/export');
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Преподаватели и сотрудники.xlsx';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    let staffImportFileInput = null;
+
+    function importStaff() {
+      closeExcelMenus();
+      if (!staffImportFileInput) {
+        staffImportFileInput = document.createElement('input');
+        staffImportFileInput.type = 'file';
+        staffImportFileInput.accept = '.xlsx,.xls';
+        staffImportFileInput.style.display = 'none';
+        staffImportFileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const formData = new FormData();
+          formData.append('file', file);
+          const result = await api('/api/worker/teachers/import', { method: 'POST', body: formData, headers: {} });
+          if (result.success) {
+            alert(`✓ Добавлено: ${result.imported}. Обновлено: ${result.updated || 0}. Преподавателей: ${result.teachers || 0}. Сотрудников: ${result.workers || 0}. Пропущено: ${result.skipped || 0}.`);
+            loadStaff('teacher', 'teachersList');
+            loadStaff('worker', 'workersList');
+          } else {
+            alert(`✗ ${result.message}`);
+          }
+          staffImportFileInput.value = '';
+        });
+        document.body.appendChild(staffImportFileInput);
+      }
+      staffImportFileInput.click();
+    }
+
+    // --- Evaluation ---
+    let evalProgramsData = [];
+    let currentEvalProgramId = null;
+    let evalTableRequest = 0;
+
+    async function loadEvalPrograms() {
+      closeEvalDetail();
+      const programs = await api('/api/evaluation/programs');
+      evalProgramsData = programs;
+      const el = document.getElementById('evalProgramsList');
+      document.getElementById('evalProgramsCount').textContent = programs.length;
+      document.getElementById('evalEvaluatedCount').textContent = programs.reduce((total, program) => total + (Number(program.evaluated_count) || 0), 0);
+      if (!programs.length) { el.innerHTML = '<div class="empty-state">Нет программ</div>'; return; }
+      let html = '<div class="evaluation-program-grid">';
+      for (const p of programs) {
+        html += `<button class="evaluation-program-card" onclick="openEvalDetail(${p.id})">
+          <span class="evaluation-program-type">${escapeStaffText(p.program_type || 'ДПК')}</span>
+          <strong>${escapeStaffText(p.name)}</strong>
+          <span class="evaluation-program-footer"><span><b>${p.evaluated_count || 0}</b> из ${p.students_count || 0} оценено</span><i aria-hidden="true">→</i></span>
+        </button>`;
+      }
+      html += '</div>';
+      el.innerHTML = html;
+    }
+
+    async function openEvalDetail(programId) {
+      const p = evalProgramsData.find(x => x.id == programId);
+      if (!p) return;
+      currentEvalProgramId = programId;
+      document.getElementById('evalProgramsView').style.display = 'none';
+      document.getElementById('evalDetailView').style.display = 'block';
+      document.getElementById('evalDetailTitle').textContent = p.name;
+      await loadEvalFilters();
+      loadEvalTable();
+    }
+
+    function closeEvalDetail() {
+      currentEvalProgramId = null;
+      evalTableRequest++;
+      document.getElementById('evalDetailView').style.display = 'none';
+      document.getElementById('evalProgramsView').style.display = 'block';
+    }
+
+    function getEvalFilterParams() {
+      const course = document.getElementById('evalCourse').value;
+      const specialty = document.getElementById('evalSpecialty').value;
+      const group = document.getElementById('evalGroup').value;
+      const search = document.getElementById('evalSearch').value;
+      const p = new URLSearchParams();
+      if (course) p.set('course', course);
+      if (specialty) p.set('specialty', specialty);
+      if (group) p.set('group_name', group);
+      if (search) p.set('search', search);
+      return p.toString();
+    }
+
+    async function loadEvalFilters() {
+      if (!currentEvalProgramId) return;
+      const courseSelect = document.getElementById('evalCourse');
+      const specialtySelect = document.getElementById('evalSpecialty');
+      const groupSelect = document.getElementById('evalGroup');
+      const currentCourse = courseSelect.value;
+      const currentSpecialty = specialtySelect.value;
+      const currentGroup = groupSelect.value;
+      const params = new URLSearchParams();
+      if (currentCourse) params.set('course', currentCourse);
+      if (currentSpecialty) params.set('specialty', currentSpecialty);
+      const filters = await api(`/api/evaluation/program/${currentEvalProgramId}/filters?${params}`);
+      const allFilters = await api(`/api/evaluation/program/${currentEvalProgramId}/filters`);
+      courseSelect.innerHTML = '<option value="">Все курсы</option>' + allFilters.courses.map(v => `<option value="${escapeStaffText(v)}"${v === currentCourse ? ' selected' : ''}>${escapeStaffText(v)}</option>`).join('');
+      specialtySelect.innerHTML = '<option value="">Все специальности</option>' + filters.specialties.map(v => `<option value="${escapeStaffText(v)}"${v === currentSpecialty ? ' selected' : ''}>${escapeStaffText(v)}</option>`).join('');
+      groupSelect.innerHTML = '<option value="">Все группы</option>' + filters.groups.map(v => `<option value="${escapeStaffText(v)}"${v === currentGroup ? ' selected' : ''}>${escapeStaffText(v)}</option>`).join('');
+    }
+
+    function evalColor(value) {
+      if (!value) return '';
+      const low = ['Низкий', 'Нет', '3 ошибки'];
+      const mid = ['Средний', '1 ошибка'];
+      const warn = ['2 ошибки'];
+      if (low.includes(value)) return 'eval-red';
+      if (mid.includes(value)) return 'eval-yellow';
+      if (warn.includes(value)) return 'eval-orange';
+      return 'eval-green';
+    }
+
+    function evalSelect(field, studentId, value, options) {
+      const colorClass = evalColor(value);
+      const optionButtons = [
+        `<button type="button" class="eval-choice-option${!value ? ' is-selected' : ''}" data-value="" onclick="selectEvalChoice(this)"><span>Не выбрано</span>${!value ? '<i>✓</i>' : ''}</button>`,
+        ...options.map(option => `<button type="button" class="eval-choice-option${option === value ? ' is-selected' : ''}" data-value="${encodeURIComponent(option)}" onclick="selectEvalChoice(this)"><span>${escapeStaffText(option)}</span>${option === value ? '<i>✓</i>' : ''}</button>`)
+      ].join('');
+      return `<div class="eval-choice ${colorClass}">
+        <input type="hidden" class="eval-input" data-student="${studentId}" data-field="${field}" value="${escapeStaffText(value)}">
+        <button type="button" class="eval-choice-trigger" onclick="toggleEvalChoice(this)" aria-expanded="false"><span>${escapeStaffText(value) || 'Выберите значение'}</span><i aria-hidden="true"></i></button>
+        <div class="eval-choice-menu">${optionButtons}</div>
+      </div>`;
+    }
+
+    function closeEvalChoices(except = null) {
+      document.querySelectorAll('.eval-choice.is-open').forEach(choice => {
+        if (choice === except) return;
+        choice.classList.remove('is-open');
+        choice.classList.remove('drop-up');
+        choice.querySelector('.eval-choice-trigger').setAttribute('aria-expanded', 'false');
+      });
+    }
+
+    function toggleEvalChoice(trigger) {
+      const choice = trigger.closest('.eval-choice');
+      const willOpen = !choice.classList.contains('is-open');
+      closeEvalChoices(choice);
+      choice.classList.toggle('is-open', willOpen);
+      choice.classList.remove('drop-up');
+      if (willOpen) {
+        const menu = choice.querySelector('.eval-choice-menu');
+        const triggerRect = trigger.getBoundingClientRect();
+        const menuHeight = Math.min(menu.scrollHeight, 240) + 10;
+        const spaceBelow = window.innerHeight - triggerRect.bottom;
+        const spaceAbove = triggerRect.top;
+        choice.classList.toggle('drop-up', spaceBelow < menuHeight && spaceAbove > spaceBelow);
+      }
+      trigger.setAttribute('aria-expanded', String(willOpen));
+    }
+
+    function selectEvalChoice(option) {
+      const choice = option.closest('.eval-choice');
+      const input = choice.querySelector('.eval-input');
+      const value = decodeURIComponent(option.dataset.value);
+      input.value = value;
+      choice.classList.remove('eval-red', 'eval-yellow', 'eval-orange', 'eval-green');
+      const colorClass = evalColor(value);
+      if (colorClass) choice.classList.add(colorClass);
+      choice.querySelector('.eval-choice-trigger span').textContent = value || 'Выберите значение';
+      choice.querySelectorAll('.eval-choice-option').forEach(item => {
+        const selected = item === option;
+        item.classList.toggle('is-selected', selected);
+        item.querySelector('i')?.remove();
+        if (selected) item.insertAdjacentHTML('beforeend', '<i>✓</i>');
+      });
+      closeEvalChoices();
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function calcEvalRow(s) {
+      const detail = s.model_detail_level || '';
+      const orig = s.model_originality || '';
+      const files = s.model_files_on_disk || '';
+      const render = s.bonus_render || '';
+      const interesting = s.bonus_interesting_model || '';
+      const animation = s.bonus_animation || '';
+      const guides = s.has_guides || '';
+      const blocks = s.dashboard_blocks || '';
+      const errors = s.chart_errors || '';
+      const design = s.bonus_design || '';
+      const prog = s.bonus_program_implementation || '';
+      const defense = s.defense_score || '';
+
+      const allFields = [detail, orig, files, render, interesting, animation, guides, blocks, errors, design, prog, defense];
+      const blankCount = allFields.filter(f => f === '').length;
+      if (blankCount > 10) return { total_score: '0', grade: '', fact: '' };
+
+      let score = 5;
+      if (detail === 'Низкий') score -= 0.5;
+      else if (detail === 'Высокий') score += 0.5;
+      if (orig === 'Нет') score -= 1;
+      if (files === 'Нет') score -= 0.3;
+      if (render === 'Да') score += 0.3;
+      if (interesting === 'Да') score += 0.3;
+      if (animation === 'Да') score += 0.3;
+      if (guides === 'Нет') score -= 0.4;
+      if (blocks === 'Нет') score -= 0.7;
+      if (errors === '1 ошибка') score -= 0.3;
+      else if (errors === '2 ошибки') score -= 0.5;
+      else if (errors === '3 ошибки') score -= 0.8;
+      if (design === 'Да') score += 0.3;
+      if (prog === 'Да') score += 0.3;
+      if (defense === '1 вопрос не ответили') score -= 1;
+      else if (defense === '2 вопроса не ответили') score -= 2;
+      score = Math.round(score * 10) / 10;
+      if (score < 0) score = 0;
+
+      const ml = s.missed_lectures || 0;
+      const admission = ml >= 2 ? 'НЕДОПУСК' : ml >= 1 ? 'ДОП. ВОПРОС' : 'ДОПУСК';
+
+      let grade = '';
+      if (!defense) grade = 'требует защиты';
+      else if (score >= 4.5) grade = 'отлично';
+      else if (score >= 3.5) grade = 'хорошо';
+      else if (score >= 2.5) grade = 'удовлетворительно';
+      else grade = 'неудовлетворительно';
+
+      let fact = '';
+      if (admission === 'НЕДОПУСК') fact = 'НЕДОПУСК';
+      else if (!defense) fact = 'неявка';
+      else if (score >= 4.5) fact = 'отлично';
+      else if (score >= 3.5) fact = 'хорошо';
+      else if (score >= 2.5) fact = 'удовлетворительно';
+      else fact = 'неудовлетворительно';
+
+      return { total_score: String(score), grade, fact };
+    }
+
+    async function loadEvalTable() {
+      const container = document.getElementById('evalGroupsContainer');
+      if (!currentEvalProgramId) return;
+      const programId = currentEvalProgramId;
+      const requestId = ++evalTableRequest;
+      const params = getEvalFilterParams();
+      const students = await api(`/api/evaluation/program/${programId}?${params}`);
+      if (requestId !== evalTableRequest || programId !== currentEvalProgramId) return;
+
+      if (!students.length) {
+        container.innerHTML = '<div class="empty-state">Нет студентов</div>';
+        return;
+      }
+
+      const groups = {};
+      students.forEach(s => {
+        const g = s.group_name || 'Без группы';
+        if (!groups[g]) groups[g] = [];
+        groups[g].push(s);
+      });
+
+      let html = '';
+      Object.keys(groups).sort().forEach(groupName => {
+        html += `<div class="eval-group-section">
+          <div class="eval-group-header"><span>Группа ${escapeStaffText(groupName)}</span><small>${groups[groupName].length} студентов</small></div>
+          <div class="evaluation-student-list">`;
+        groups[groupName].forEach(s => {
+          const subgroup = s.eval_subgroup || s.subgroup || '';
+          const ml = s.missed_lectures || 0;
+          const mp = s.missed_practicals || 0;
+          const admission = ml >= 2 ? 'НЕДОПУСК' : ml >= 1 ? 'ДОП. ВОПРОС' : 'ДОПУСК';
+          const admissionClass = admission === 'НЕДОПУСК' ? 'admission-no' : admission === 'ДОП. ВОПРОС' ? 'admission-warn' : 'admission-yes';
+          const calc = calcEvalRow(s);
+          html += `<article class="evaluation-student-card" data-sid="${s.id}">
+            <header class="evaluation-student-header">
+              <span class="staff-avatar student-avatar">${escapeStaffText(staffInitials(s.full_name))}</span>
+              <span class="evaluation-student-name"><strong>${escapeStaffText(s.full_name)}</strong><small>${escapeStaffText(s.specialty || groupName)}</small></span>
+              <span class="evaluation-score"><small>Итоговый балл</small><strong id="ts_${s.id}">${calc.total_score}</strong></span>
+            </header>
+            <div class="evaluation-section evaluation-section--attendance">
+              <div class="evaluation-section-heading"><span class="evaluation-section-icon evaluation-section-icon--attendance"></span><span><strong>Посещение и допуск</strong><small>Данные из журнала посещаемости</small></span></div>
+              <div class="evaluation-field-grid evaluation-field-grid--attendance">
+                <label class="evaluation-field"><span>Подгруппа</span><input class="eval-input" data-student="${s.id}" data-field="subgroup" value="${escapeStaffText(subgroup)}"></label>
+                <div class="evaluation-readonly-field"><span>Пропуски лекций</span><strong class="eval-missed-lectures">${ml}</strong></div>
+                <div class="evaluation-readonly-field"><span>Пропуски практик</span><strong>${mp}</strong></div>
+                <div class="evaluation-readonly-field"><span>Допуск</span><strong class="evaluation-admission ${admissionClass}">${admission}</strong></div>
+              </div>
+            </div>
+            <div class="evaluation-section">
+              <div class="evaluation-section-heading"><span class="evaluation-section-icon"></span><span><strong>Соблюдение технического задания</strong><small>Основные и дополнительные критерии проекта</small></span></div>
+              <div class="evaluation-field-grid">
+                <label class="evaluation-field"><span>Детализация модели</span>${evalSelect('model_detail_level', s.id, s.model_detail_level || '', ['Высокий', 'Средний', 'Низкий'])}</label>
+                <label class="evaluation-field"><span>Оригинальность</span>${evalSelect('model_originality', s.id, s.model_originality || '', ['Оригинальная', 'Нет'])}</label>
+                <label class="evaluation-field"><span>Файлы на диске</span>${evalSelect('model_files_on_disk', s.id, s.model_files_on_disk || '', ['Да', 'Нет'])}</label>
+                <label class="evaluation-field evaluation-field--bonus"><span>Рендер <i>+ балл</i></span>${evalSelect('bonus_render', s.id, s.bonus_render || '', ['Да', 'Нет'])}</label>
+                <label class="evaluation-field evaluation-field--bonus"><span>Анимация <i>+ балл</i></span>${evalSelect('bonus_animation', s.id, s.bonus_animation || '', ['Да', 'Нет'])}</label>
+                <label class="evaluation-field evaluation-field--bonus"><span>Интересная модель <i>+ балл</i></span>${evalSelect('bonus_interesting_model', s.id, s.bonus_interesting_model || '', ['Да', 'Нет'])}</label>
+                <label class="evaluation-field"><span>Направляющие</span>${evalSelect('has_guides', s.id, s.has_guides || '', ['Да', 'Нет'])}</label>
+                <label class="evaluation-field"><span>5 блоков в дашборде</span>${evalSelect('dashboard_blocks', s.id, s.dashboard_blocks || '', ['Да', 'Нет'])}</label>
+                <label class="evaluation-field"><span>Ошибки в графиках</span>${evalSelect('chart_errors', s.id, s.chart_errors || '', ['Нет', '1 ошибка', '2 ошибки', '3 ошибки'])}</label>
+                <label class="evaluation-field evaluation-field--bonus"><span>Оформление <i>+ балл</i></span>${evalSelect('bonus_design', s.id, s.bonus_design || '', ['Да', 'Нет'])}</label>
+                <label class="evaluation-field evaluation-field--bonus"><span>Программная реализация <i>+ балл</i></span>${evalSelect('bonus_program_implementation', s.id, s.bonus_program_implementation || '', ['Да', 'Нет'])}</label>
+              </div>
+            </div>
+            <div class="evaluation-section evaluation-section--result">
+              <div class="evaluation-section-heading"><span class="evaluation-section-icon evaluation-section-icon--result"></span><span><strong>Защита и результат</strong><small>Финальная оценка рассчитывается автоматически</small></span></div>
+              <div class="evaluation-result-grid">
+                <label class="evaluation-field evaluation-defense-field"><span>Ответы на вопросы</span>${evalSelect('defense_score', s.id, s.defense_score || '', ['Все ответили', '1 вопрос не ответили', '2 вопроса не ответили'])}</label>
+                <div class="evaluation-result-value"><span>Оценка</span><strong class="eval-grade-display" id="gr_${s.id}">${calc.grade || '—'}</strong></div>
+                <div class="evaluation-result-value"><span>Факт</span><strong class="eval-fact-display" id="fa_${s.id}">${calc.fact || '—'}</strong></div>
+              </div>
+            </div>
+          </article>`;
+        });
+        html += `</div></div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    async function recalcRow(studentId) {
+      const row = document.querySelector(`.evaluation-student-card[data-sid="${studentId}"]`);
+      if (!row) return;
+      const s = { id: studentId };
+      row.querySelectorAll('.eval-input').forEach(el => {
+        s[el.dataset.field] = el.value;
+      });
+      const ml = parseInt(row.querySelector('.eval-missed-lectures')?.textContent || '0');
+      s.missed_lectures = ml;
+      const calc = calcEvalRow(s);
+      document.getElementById(`ts_${studentId}`).textContent = calc.total_score;
+      document.getElementById(`gr_${studentId}`).textContent = calc.grade || '—';
+      document.getElementById(`fa_${studentId}`).textContent = calc.fact || '—';
+      await api(`/api/evaluation/program/${currentEvalProgramId}`, {
+        method: 'POST',
+        body: JSON.stringify({ student_id: studentId, total_score: parseFloat(calc.total_score), grade: calc.grade, fact: calc.fact, defense_score: s.defense_score || '' })
+      });
+    }
+
+    document.addEventListener('change', async function(e) {
+      if (e.target.classList.contains('eval-input') && currentEvalProgramId) {
+        const studentId = parseInt(e.target.dataset.student);
+        const field = e.target.dataset.field;
+        const value = e.target.value;
+        await api(`/api/evaluation/program/${currentEvalProgramId}`, {
+          method: 'POST',
+          body: JSON.stringify({ student_id: studentId, [field]: value })
+        });
+        recalcRow(studentId);
+      }
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.eval-choice')) closeEvalChoices();
+    });
+
+    document.getElementById('evalCourse').addEventListener('change', async () => {
+      document.getElementById('evalSpecialty').value = '';
+      document.getElementById('evalGroup').value = '';
+      await loadEvalFilters();
+      loadEvalTable();
+    });
+    document.getElementById('evalSpecialty').addEventListener('change', async () => {
+      document.getElementById('evalGroup').value = '';
+      await loadEvalFilters();
+      loadEvalTable();
+    });
+    document.getElementById('evalGroup').addEventListener('change', loadEvalTable);
+    document.getElementById('evalSearch').addEventListener('input', loadEvalTable);
+
+    // --- Attendance ---
+    let attProgramsData = [];
+    let currentAttProgramId = null;
+    let activeAttAssignment = null;
+
+    async function loadAttPrograms() {
+      closeAttDetail();
+      const programs = await api('/api/evaluation/programs');
+      attProgramsData = programs;
+      const el = document.getElementById('attProgramsList');
+      document.getElementById('attProgramCount').textContent = programs.length;
+      if (!programs.length) { el.innerHTML = '<div class="empty-state">Нет программ</div>'; return; }
+      let html = '<div class="attendance-program-grid">';
+      for (const p of programs) {
+        html += `<button class="attendance-program-card" onclick="openAttDetail(${p.id})">
+          <span class="attendance-program-icon"></span>
+          <span class="attendance-program-copy"><small>Учебная программа</small><strong>${p.name}</strong></span>
+          <span class="attendance-program-meta"><b>${p.groups_count || 0}</b><small>групп</small></span>
+          <span class="attendance-program-arrow">→</span>
+        </button>`;
+      }
+      html += '</div>';
+      el.innerHTML = html;
+    }
+
+    async function openAttDetail(programId) {
+      const p = attProgramsData.find(x => x.id == programId);
+      if (!p) return;
+      currentAttProgramId = programId;
+      document.getElementById('attProgramsView').style.display = 'none';
+      document.getElementById('attDetailView').style.display = 'block';
+      document.getElementById('attDetailTitle').textContent = p.name;
+      await loadAttFilters();
+      loadAttTable(programId);
+    }
+
+    function closeAttDetail() {
+      currentAttProgramId = null;
+      document.getElementById('attDetailView').style.display = 'none';
+      document.getElementById('attProgramsView').style.display = 'block';
+    }
+
+    async function loadAttTable(programId) {
+      closeAttAssignmentMenu();
+      const container = document.getElementById('attGroupsContainer');
+      const params = getAttFilterParams();
+      const resp = await api(`/api/attendance/program/${programId}?${params}`);
+      const data = resp.students || resp;
+      if (!data.length) {
+        container.innerHTML = '<div class="empty-state">Нет студентов</div>';
+        return;
+      }
+      const groupHours = resp.groupHours || {};
+      const defaultHours = resp.hours || {};
+      const assignments = resp.assignments || [];
+      const getColCount = (groupName, t) => {
+        const gh = groupHours[groupName] || defaultHours || {};
+        return Math.floor((gh[t] || 0) / 2);
+      };
+      const groups = {};
+      data.forEach(s => {
+        const g = s.group_name || 'Без группы';
+        if (!groups[g]) groups[g] = [];
+        groups[g].push(s);
+      });
+      let html = '';
+      Object.keys(groups).sort().forEach(groupName => {
+        const groupAssignments = assignments.filter(assignment => !assignment.group_name || assignment.group_name === groupName);
+        const sections = [
+          { key: 'lecture', label: 'Лекция', cols: getColCount(groupName, 'lecture') },
+          { key: 'practice', label: 'Практика', cols: getColCount(groupName, 'practice') },
+          { key: 'lab', label: 'Лабораторная', cols: getColCount(groupName, 'lab') }
+        ];
+        const lessonCount = sections.reduce((sum, section) => sum + section.cols, 0);
+        html += `<div class="att-group-section">
+          <div class="att-group-header"><span><i></i><strong>Группа ${groupName}</strong></span><span class="att-group-meta"><b>${groups[groupName].length} студентов</b><b>${lessonCount} занятий</b></span></div>
+          <div class="att-table-wrap">
+            <table class="att-table">
+              <thead><tr>
+                <th>ФИО</th>`;
+        sections.forEach(sec => {
+          if (sec.cols > 0) {
+            html += `<th class="att-type att-type--${sec.key}" colspan="${sec.cols}">${sec.label}</th>`;
+          }
+        });
+        if (groupAssignments.length) html += `<th class="att-type att-type--assignment" colspan="${groupAssignments.length}">Задания</th>`;
+        html += `</tr>
+              <tr>
+                <th></th>`;
+        sections.forEach(sec => {
+          for (let i = 1; i <= sec.cols; i++) {
+            html += `<th>${i}</th>`;
+          }
+        });
+        groupAssignments.forEach((assignment, index) => {
+          html += `<th class="att-assignment-heading"><span>${index + 1}</span><button type="button" title="Удалить задание ${index + 1}" aria-label="Удалить задание ${index + 1}" onclick="deleteAttAssignment(${assignment.id},${index + 1})"></button></th>`;
+        });
+        html += `</tr></thead>
+              <tbody>`;
+        groups[groupName].forEach(s => {
+          html += `<tr><td class="att-name">${s.full_name}</td>`;
+          sections.forEach(sec => {
+            for (let i = 1; i <= sec.cols; i++) {
+              const key = `${sec.key}_${i}`;
+              const st = s.records[key] || '';
+              const display = st === 'present' ? '✓' : st === 'absent' ? '✗' : '';
+              html += `<td class="att-cell${st === 'present' ? ' att-present' : st === 'absent' ? ' att-absent' : ''}" data-status="${st}" title="Нажмите, чтобы изменить отметку" onclick="toggleAtt(${programId},${s.student_id},'${sec.key}',${i},this)">${display}</td>`;
+            }
+          });
+          groupAssignments.forEach((assignment, index) => {
+            const status = s.assignments?.[assignment.id] || '';
+            const label = status === 'completed' ? 'Выполнено' : status === 'plus' ? '+1' : status === 'minus' ? '-1' : 'Не отмечено';
+            html += `<td class="att-assignment-cell"><button type="button" class="att-assignment-control${status ? ` is-${status}` : ''}" data-status="${status}" aria-label="Задание ${index + 1}: ${label}" aria-haspopup="listbox" aria-expanded="false" onclick="openAttAssignmentMenu(${assignment.id},${s.student_id},this)"><span>${label}</span><i></i></button></td>`;
+          });
+          html += `</tr>`;
+        });
+        html += `</tbody></table></div></div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    async function openAddAttAssignmentModal() {
+      if (!currentAttProgramId) return;
+      const filters = await api(`/api/attendance/program/${currentAttProgramId}/filters`);
+      if (!filters.groups?.length) return alert('Для этой программы нет доступных групп');
+      const select = document.getElementById('attAssignmentGroup');
+      select.innerHTML = '<option value="">Выберите группу</option>' + filters.groups.map(group => `<option value="${group}">${group}</option>`).join('');
+      select.value = document.getElementById('attGroup').value || '';
+      select.dispatchEvent(new Event('change'));
+      document.getElementById('attAssignmentCount').value = 1;
+      document.getElementById('attAssignmentModal').classList.add('open');
+    }
+
+    async function addAttAssignments(button) {
+      if (!currentAttProgramId || button.disabled) return;
+      const groupName = document.getElementById('attAssignmentGroup').value;
+      const count = Number(document.getElementById('attAssignmentCount').value);
+      if (!groupName) return alert('Выберите группу');
+      if (!Number.isInteger(count) || count < 1 || count > 30) return alert('Укажите количество заданий от 1 до 30');
+      button.disabled = true;
+      try {
+        const result = await api(`/api/attendance/program/${currentAttProgramId}/assignments`, {
+          method: 'POST',
+          body: JSON.stringify({ group_name: groupName, count })
+        });
+        if (result.success) {
+          closeModal('attAssignmentModal');
+          loadAttTable(currentAttProgramId);
+        }
+        else alert(result.message || 'Не удалось добавить задание');
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function closeAttAssignmentMenu() {
+      document.getElementById('attAssignmentStatusMenu')?.remove();
+      if (activeAttAssignment?.button) activeAttAssignment.button.setAttribute('aria-expanded', 'false');
+      activeAttAssignment = null;
+    }
+
+    function openAttAssignmentMenu(assignmentId, studentId, button) {
+      if (activeAttAssignment?.button === button) return closeAttAssignmentMenu();
+      closeAttAssignmentMenu();
+      const menu = document.createElement('div');
+      menu.id = 'attAssignmentStatusMenu';
+      menu.className = 'att-assignment-menu';
+      menu.setAttribute('role', 'listbox');
+      const options = [['', 'Не отмечено'], ['completed', 'Выполнено'], ['plus', '+1'], ['minus', '-1']];
+      menu.innerHTML = options.map(([value, label]) => `<button type="button" class="att-assignment-option${button.dataset.status === value ? ' is-selected' : ''}" data-value="${value}" role="option" aria-selected="${button.dataset.status === value}"><i></i><span>${label}</span><b>✓</b></button>`).join('');
+      document.body.appendChild(menu);
+      const rect = button.getBoundingClientRect();
+      menu.style.left = `${Math.max(10, Math.min(rect.left, window.innerWidth - menu.offsetWidth - 10))}px`;
+      const openUp = window.innerHeight - rect.bottom < menu.offsetHeight + 10;
+      menu.style.top = `${openUp ? rect.top - menu.offsetHeight - 6 : rect.bottom + 6}px`;
+      menu.classList.toggle('opens-up', openUp);
+      activeAttAssignment = { assignmentId, studentId, button, menu };
+      button.setAttribute('aria-expanded', 'true');
+      menu.querySelectorAll('.att-assignment-option').forEach(option => option.addEventListener('click', () => saveAttAssignment(option.dataset.value)));
+    }
+
+    async function saveAttAssignment(status) {
+      if (!activeAttAssignment) return;
+      const { assignmentId, studentId, button } = activeAttAssignment;
+      const result = await api('/api/attendance/assignment/save', {
+        method: 'POST',
+        body: JSON.stringify({ assignment_id: assignmentId, student_id: studentId, status })
+      });
+      if (!result.success) return alert(result.message || 'Не удалось сохранить отметку');
+      const label = status === 'completed' ? 'Выполнено' : status === 'plus' ? '+1' : status === 'minus' ? '-1' : 'Не отмечено';
+      button.dataset.status = status;
+      button.className = `att-assignment-control${status ? ` is-${status}` : ''}`;
+      button.querySelector('span').textContent = label;
+      closeAttAssignmentMenu();
+    }
+
+    document.addEventListener('click', (event) => {
+      if (activeAttAssignment && !activeAttAssignment.menu.contains(event.target) && !activeAttAssignment.button.contains(event.target)) closeAttAssignmentMenu();
+    });
+
+    async function deleteAttAssignment(assignmentId, number) {
+      if (!confirm(`Удалить задание ${number} и все отметки по нему?`)) return;
+      const result = await api(`/api/attendance/assignment/${assignmentId}`, { method: 'DELETE' });
+      if (!result.success) return alert(result.message || 'Не удалось удалить задание');
+      loadAttTable(currentAttProgramId);
+    }
+
+    async function toggleAtt(programId, studentId, classType, classNumber, el) {
+      const current = el.textContent.trim();
+      let newStatus;
+      if (!current) newStatus = 'present';
+      else if (current === '✓') newStatus = 'absent';
+      else newStatus = '';
+      await api('/api/attendance/save', {
+        method: 'POST',
+        body: JSON.stringify({ program_id: programId, student_id: studentId, class_type: classType, class_number: classNumber, status: newStatus })
+      });
+      el.textContent = newStatus === 'present' ? '✓' : newStatus === 'absent' ? '✗' : '';
+      el.dataset.status = newStatus;
+      el.classList.toggle('att-present', newStatus === 'present');
+      el.classList.toggle('att-absent', newStatus === 'absent');
+    }
+
+    function getAttFilterParams() {
+      const course = document.getElementById('attCourse').value;
+      const specialty = document.getElementById('attSpecialty').value;
+      const group = document.getElementById('attGroup').value;
+      const search = document.getElementById('attSearch').value;
+      const p = new URLSearchParams();
+      if (course) p.set('course', course);
+      if (specialty) p.set('specialty', specialty);
+      if (group) p.set('group_name', group);
+      if (search) p.set('search', search);
+      return p.toString();
+    }
+
+    async function loadAttFilters() {
+      if (!currentAttProgramId) return;
+      const courseSelect = document.getElementById('attCourse');
+      const specialtySelect = document.getElementById('attSpecialty');
+      const groupSelect = document.getElementById('attGroup');
+      const currentCourse = courseSelect.value;
+      const currentSpecialty = specialtySelect.value;
+      const currentGroup = groupSelect.value;
+      const params = new URLSearchParams();
+      if (currentCourse) params.set('course', currentCourse);
+      if (currentSpecialty) params.set('specialty', currentSpecialty);
+      const filters = await api(`/api/attendance/program/${currentAttProgramId}/filters?${params}`);
+      const allFilters = await api(`/api/attendance/program/${currentAttProgramId}/filters`);
+      courseSelect.innerHTML = '<option value="">Все курсы</option>' + allFilters.courses.map(v => `<option value="${v}"${v === currentCourse ? ' selected' : ''}>${v}</option>`).join('');
+      specialtySelect.innerHTML = '<option value="">Все специальности</option>' + filters.specialties.map(v => `<option value="${v}"${v === currentSpecialty ? ' selected' : ''}>${v}</option>`).join('');
+      groupSelect.innerHTML = '<option value="">Все группы</option>' + filters.groups.map(v => `<option value="${v}"${v === currentGroup ? ' selected' : ''}>${v}</option>`).join('');
+    }
+
+    document.getElementById('attCourse').addEventListener('change', async () => {
+      document.getElementById('attSpecialty').value = '';
+      document.getElementById('attGroup').value = '';
+      await loadAttFilters();
+      if (currentAttProgramId) loadAttTable(currentAttProgramId);
+    });
+    document.getElementById('attSpecialty').addEventListener('change', async () => {
+      document.getElementById('attGroup').value = '';
+      await loadAttFilters();
+      if (currentAttProgramId) loadAttTable(currentAttProgramId);
+    });
+    document.getElementById('attGroup').addEventListener('change', () => {
+      if (currentAttProgramId) loadAttTable(currentAttProgramId);
+    });
+    document.getElementById('attSearch').addEventListener('input', () => {
+      if (currentAttProgramId) loadAttTable(currentAttProgramId);
+    });
+
+    // --- Results Modal ---
+    let resultsPublished = {};
+    let resultsGroupsCache = {};
+
+    function openResultsModal() {
+      document.getElementById('resultsModal').classList.add('open');
+      document.getElementById('resultsGroupSearch').value = '';
+      resultsPublished = {};
+      resultsGroupsCache = {};
+      loadResultsGroups();
+    }
+
+    async function loadResultsGroups() {
+      if (!currentEvalProgramId) return;
+      const students = await api(`/api/evaluation/program/${currentEvalProgramId}`);
+      resultsGroupsCache = {};
+      students.forEach(s => {
+        const g = s.group_name || 'Без группы';
+        if (!resultsGroupsCache[g]) resultsGroupsCache[g] = [];
+        resultsGroupsCache[g].push(s);
+      });
+      const pubRes = await api(`/api/evaluation/published-status/${currentEvalProgramId}`);
+      const serverPublished = pubRes.groups || {};
+      Object.keys(serverPublished).forEach(g => {
+        if (serverPublished[g]) resultsPublished[g] = true;
+      });
+      renderResultsCards();
+    }
+
+    function renderResultsCards() {
+      const search = document.getElementById('resultsGroupSearch').value.toLowerCase().trim();
+      const groupNames = Object.keys(resultsGroupsCache).sort();
+      document.getElementById('resultsTotalGroups').textContent = groupNames.length;
+      document.getElementById('resultsPublishedGroups').textContent = groupNames.filter(group => resultsPublished[group]).length;
+      let html = '';
+      groupNames.forEach(groupName => {
+        if (search && !groupName.toLowerCase().includes(search)) return;
+        const pub = resultsPublished[groupName];
+        html += `<button class="results-card${pub ? ' published' : ''}" data-group="${encodeURIComponent(groupName)}" onclick="togglePublishGroup(decodeURIComponent(this.dataset.group))">
+          <span class="results-group-icon" aria-hidden="true"></span>
+          <span class="results-group-copy"><strong>Группа ${escapeStaffText(groupName)}</strong><small>${resultsGroupsCache[groupName].length} студентов</small></span>
+          <span class="results-publication-status">${pub ? 'Опубликовано' : 'Скрыто'}</span>
+          <span class="results-card-check${pub ? ' published' : ''}">${pub ? '✓' : ''}</span>
+        </button>`;
+      });
+      document.getElementById('resultsGroupsList').innerHTML = html || '<div class="empty-state">Нет результатов</div>';
+    }
+
+    async function togglePublishGroup(groupName) {
+      if (!currentEvalProgramId) return;
+      const wasPublished = Boolean(resultsPublished[groupName]);
+      resultsPublished[groupName] = !wasPublished;
+      renderResultsCards();
+      const action = resultsPublished[groupName] ? 'publish' : 'unpublish';
+      try {
+        const result = await api(`/api/evaluation/${action}`, {
+          method: 'POST',
+          body: JSON.stringify({ program_id: currentEvalProgramId, group_name: groupName })
+        });
+        if (!result.success) throw new Error(result.message || 'Не удалось изменить публикацию');
+        flashNotice(`Результаты группы ${groupName} ${resultsPublished[groupName] ? 'опубликованы' : 'скрыты'} для студентов`);
+      } catch (error) {
+        resultsPublished[groupName] = wasPublished;
+        renderResultsCards();
+        flashNotice(error.message || 'Не удалось изменить публикацию');
+      }
+    }
+
+    function flashNotice(msg) {
+      const existing = document.querySelector('.flash-notice');
+      if (existing) existing.remove();
+      const el = document.createElement('div');
+      el.className = 'flash-notice';
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(() => { el.classList.add('show'); }, 10);
+      setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 2500);
+    }
+
+    document.getElementById('resultsGroupSearch').addEventListener('input', renderResultsCards);
+
+    function escapeBookingText(value) {
+      const element = document.createElement('div');
+      element.textContent = value == null ? '' : String(value);
+      return element.innerHTML;
+    }
+
+    function formatBookingDate(value) {
+      const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return escapeBookingText(value);
+      return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+    }
+
+    async function loadBookingRequests() {
+      const status = document.getElementById('bookingStatusFilter').value;
+      const allRequests = await api('/api/booking/requests');
+      const list = document.getElementById('bookingRequestsList');
+      if (!Array.isArray(allRequests)) return;
+      document.getElementById('bookingPendingCount').textContent = allRequests.filter(request => request.status === 'requested').length;
+      document.getElementById('bookingApprovedCount').textContent = allRequests.filter(request => request.status === 'approved').length;
+      document.getElementById('bookingRejectedCount').textContent = allRequests.filter(request => request.status === 'rejected').length;
+      const requests = status ? allRequests.filter(request => request.status === status) : allRequests;
+      if (!requests.length) { list.innerHTML = '<div class="booking-empty"><span aria-hidden="true"></span><strong>Заявок с таким статусом нет</strong><small>Измените фильтр или обновите список позднее</small></div>'; return; }
+      const recurrenceLabels = { once: 'Однократно', daily: 'Ежедневно', weekly: 'Еженедельно', every2weeks: 'Раз в 2 недели', monthly: 'Ежемесячно' };
+      const statusLabels = { requested: 'Ожидает', approved: 'Подтверждена', rejected: 'Отклонена' };
+      list.innerHTML = `<div class="booking-review-list">${requests.map(request => `<article class="booking-review-card booking-review-card--${request.status}">
+        <div class="booking-review-main">
+          <div class="booking-review-heading"><span><small>Заявка №${request.id}</small><strong>${escapeBookingText(request.title)}</strong></span><span class="booking-status booking-status--${request.status}">${statusLabels[request.status]}</span></div>
+          <div class="booking-review-facts"><span class="booking-fact booking-fact--room">Аудитория <strong>${escapeBookingText(request.room)}</strong></span><span class="booking-fact booking-fact--date">${formatBookingDate(request.event_date)}<strong>${escapeBookingText(request.time_start)}–${escapeBookingText(request.time_end)}</strong></span><span class="booking-fact booking-fact--repeat">${recurrenceLabels[request.recurrence] || escapeBookingText(request.recurrence)}${request.recurrence_end ? `<strong>до ${formatBookingDate(request.recurrence_end)}</strong>` : ''}</span><span class="booking-fact booking-fact--people"><strong>${Number(request.attendees) || 1}</strong> участников</span></div>
+          <div class="booking-review-description"><small>Описание события</small><p>${escapeBookingText(request.description)}</p></div>
+          <div class="booking-requester"><span class="booking-requester-avatar">${escapeBookingText(getInitials(request.requester_name))}</span><span><small>Заявитель</small><strong>${escapeBookingText(request.requester_name)}</strong><em>${[request.requester_email, request.organization].filter(Boolean).map(escapeBookingText).join(' · ') || 'Подразделение не указано'}</em></span></div>
+          ${request.review_comment ? `<div class="booking-review-comment"><strong>Комментарий к решению</strong><span>${escapeBookingText(request.review_comment)}</span></div>` : ''}
+        </div>
+        ${request.status === 'requested' ? `<div class="booking-review-actions"><small>Принять решение</small><button class="btn btn--primary btn--sm" onclick="reviewBooking(${request.id}, 'approved')">Подтвердить</button><button class="btn btn--danger btn--sm" onclick="reviewBooking(${request.id}, 'rejected')">Отклонить</button></div>` : ''}
+      </article>`).join('')}</div>`;
+    }
+
+    async function reviewBooking(id, status) {
+      const review_comment = prompt(status === 'approved' ? 'Комментарий к подтверждению (необязательно)' : 'Укажите причину отклонения', '') ?? null;
+      if (review_comment === null) return;
+      const response = await fetch(`/api/booking/requests/${id}/review`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status, review_comment }) });
+      const result = await response.json();
+      if (!response.ok) { alert(result.message || 'Не удалось обработать заявку'); return; }
+      loadBookingRequests();
+    }
+
+    // --- Navigation ---
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+        const tab = item.dataset.tab;
+        document.getElementById(`tab-${tab}`).style.display = 'block';
+        if (tab === 'home') loadHome();
+        if (tab === 'staff') {
+          showFullTeacherDetails = false;
+          document.getElementById('toggleTeacherDetailsBtn').textContent = 'Показать полностью';
+          showStaffActions = false;
+          document.getElementById('toggleStaffActionsBtn').textContent = '✎ Редактировать';
+          document.getElementById('toggleStaffActionsBtn').className = 'btn btn--outline btn--sm';
+          applyStaffFilters();
+        }
+        if (tab === 'students') { showActions = false; showFullStudentDetails = false; document.getElementById('toggleActionsBtn').textContent = '✎ Редактировать'; document.getElementById('toggleActionsBtn').className = 'btn btn--outline btn--sm'; document.getElementById('toggleStudentDetailsBtn').textContent = 'Показать полностью'; loadCoursesSelect('sCourse'); loadSpecialties('sSpecialty', 'sCourse'); loadGroups('sGroup', 'sFlow', 'sCourse', 'sSpecialty'); loadStudents(); }
+        if (tab === 'evaluation') { loadEvalPrograms(); }
+        if (tab === 'attendance') { loadAttPrograms(); }
+        if (tab === 'dpk') loadDpkPrograms();
+        if (tab === 'schedule') { initScheduleTab(); }
+        if (tab === 'bookings') loadBookingRequests();
+      });
+    });
+
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/?intro=0';
+    });
+
+    // --- DPK Programs ---
+    let dpkProgramsData = [];
+    let currentDpkProgramId = null;
+
+    const AVATAR_COLORS = ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e'];
+
+    function getAvatarColor(name) {
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+    }
+
+    function getInitials(name) {
+      const parts = name.trim().split(/\s+/);
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return parts[0]?.charAt(0)?.toUpperCase() || '?';
+    }
+
+    async function loadDpkPrograms() {
+      const programs = await api('/api/dpk/programs');
+      dpkProgramsData = programs;
+      const el = document.getElementById('dpkProgramsList');
+      document.getElementById('dpkProgramCount').textContent = programs.length;
+      if (!programs.length) { el.innerHTML = '<div class="empty-state">Нет программ</div>'; return; }
+      let html = '<div class="dpk-list">';
+      for (const p of programs) {
+        html += `<div class="dpk-card" onclick="openDpkDetailView(${p.id})">
+          <div class="dpk-card-top"><span class="dpk-type-badge">${p.program_type || 'ДПК'}</span><span class="dpk-card-icon" aria-hidden="true"></span></div>
+          <div class="dpk-name">${p.name}</div>
+          <div class="dpk-card-footer"><span><b>${p.total_hours}</b><small>часов</small></span><span><b>${p.groups_count || 0}</b><small>групп</small></span><i>→</i></div>
+        </div>`;
+      }
+      html += '</div>';
+      el.innerHTML = html;
+    }
+
+    function openDpkProgramModal(data) {
+      document.getElementById('dpkProgramModalTitle').textContent = data ? 'Редактировать программу' : 'Добавить программу';
+      document.getElementById('editDpkProgramId').value = data ? data.id : '';
+      document.getElementById('dpkProgramType').value = data ? (data.program_type || 'ДПК') : 'ДПК';
+      document.getElementById('dpkProgramName').value = data ? data.name : '';
+      document.getElementById('dpkProgramModal').classList.add('open');
+    }
+
+    function openDpkDetailView(programId) {
+      const p = dpkProgramsData.find(x => x.id == programId);
+      if (!p) return;
+      currentDpkProgramId = programId;
+      document.getElementById('dpkProgramsView').style.display = 'none';
+      document.getElementById('dpkDetailView').style.display = 'block';
+      document.getElementById('dpkDetailName').textContent = p.name;
+      document.getElementById('dpkDetailHours').innerHTML = '<strong>' + p.total_hours + '</strong><small>часов</small>';
+      document.getElementById('dpkDetailGroups').innerHTML = '<strong>' + (p.groups_count || 0) + '</strong><small>групп</small>';
+      loadDpkDetailGroups(programId);
+      loadDpkDetailEvaluators(programId);
+    }
+
+    function closeDpkDetailView() {
+      currentDpkProgramId = null;
+      document.getElementById('dpkDetailView').style.display = 'none';
+      document.getElementById('dpkProgramsView').style.display = 'block';
+    }
+
+    function editCurrentDpkProgram() {
+      const p = dpkProgramsData.find(x => x.id == currentDpkProgramId);
+      if (p) openDpkProgramModal(p);
+    }
+
+    async function deleteCurrentDpkProgram() {
+      if (!currentDpkProgramId || !confirm('Удалить программу?')) return;
+      await api(`/api/dpk/program/${currentDpkProgramId}`, { method: 'DELETE' });
+      closeDpkDetailView();
+      loadDpkPrograms();
+    }
+
+    async function loadDpkDetailGroups(programId) {
+      const el = document.getElementById('dpkDetailGroupsList');
+      const groups = await api(`/api/dpk/program/${programId}/groups`);
+      document.getElementById('dpkGroupsSectionCount').textContent = groups.length;
+      let html = '';
+      for (const g of groups) {
+        const teachers = await api(`/api/dpk/program/${programId}/teachers?group=${encodeURIComponent(g.group_name)}`);
+        let teachersHtml = '';
+          teachers.forEach(t => {
+            const color = getAvatarColor(t.teacher_name);
+            const initials = getInitials(t.teacher_name);
+            const lh = t.lecture_hours || 0, ph = t.practice_hours || 0, labh = t.lab_hours || 0;
+            const total = lh + ph + labh;
+            teachersHtml += `<div class="dpk-teacher-card dpk-group-teacher-card" onclick="openTeacherLessonView(${currentDpkProgramId},${t.teacher_id},'${g.group_name.replace(/'/g, "\\'")}','${t.teacher_name.replace(/'/g, "\\'")}')">
+              <div class="dpk-teacher-avatar" style="background:${color}">${initials}</div>
+              <div class="dpk-teacher-card-info">
+                <div class="dpk-teacher-card-name">${t.teacher_name}</div>
+                <div class="dpk-teacher-card-role">Учебная нагрузка</div>
+              </div>
+              <div class="dpk-teacher-card-total"><strong>${total}</strong><small>часов</small></div>
+              <div class="dpk-teacher-card-actions">
+                <button class="dpk-remove-button" onclick="event.stopPropagation();deleteDpkGroupTeacher(${t.id},'${g.group_name.replace(/'/g, "\\'")}')" aria-label="Удалить преподавателя" title="Удалить преподавателя"><span class="dpk-delete-icon" aria-hidden="true"></span></button>
+              </div>
+            </div>`;
+          });
+        const teacherCount = teachers.length;
+        html += `<div class="dpk-group-card">
+          <div class="dpk-group-card-header">
+            <span class="dpk-group-identity"><i aria-hidden="true"></i><span><small>Учебная группа</small><strong>${g.group_name}</strong></span><em>${teacherCount} ${teacherCount === 1 ? 'преподаватель' : 'преподавателей'}</em></span>
+            <div class="dpk-group-actions">
+              <button class="btn btn--primary btn--sm" onclick="openDpkTeacherModalForGroup('${g.group_name.replace(/'/g, "\\'")}')">+ Преподавателя</button>
+              <button class="dpk-remove-button" onclick="deleteDpkGroup(${g.id})" aria-label="Удалить группу" title="Удалить группу"><span class="dpk-delete-icon" aria-hidden="true"></span></button>
+            </div>
+          </div>
+          <div id="dpkGroupTeachers_${g.id}" class="dpk-group-teachers">${teachersHtml || '<div class="dpk-inline-empty"><span></span><strong>Преподаватели не назначены</strong><small>Добавьте преподавателя для распределения нагрузки</small></div>'}</div>
+        </div>`;
+      }
+      if (!groups.length) {
+        el.innerHTML = '<div class="empty-state">Нет групп</div>';
+      } else {
+        el.innerHTML = html;
+      }
+    }
+
+    function openDpkTeacherModalForGroup(groupName) {
+      document.getElementById('dpkTeacherProgramId').value = currentDpkProgramId;
+      document.getElementById('dpkTeacherGroupName').value = groupName;
+      const sel = document.getElementById('dpkTeacherSelect');
+      sel.value = '';
+      api('/api/supervisor/teachers').then(teachers => {
+        sel.innerHTML = '<option value="">Выберите преподавателя</option>';
+        teachers.forEach(t => { sel.innerHTML += `<option value="${t.id}">${t.full_name}</option>`; });
+      });
+      document.querySelector('#dpkTeacherModal .modal-title').textContent = 'Добавить преподавателя в группу ' + groupName;
+      document.getElementById('dpkTeacherModal').classList.add('open');
+    }
+
+    async function deleteDpkGroupTeacher(id, groupName) {
+      if (!confirm('Удалить преподавателя из группы?')) return;
+      await api(`/api/dpk/program/teacher/${id}`, { method: 'DELETE' });
+      loadDpkDetailGroups(currentDpkProgramId);
+      loadDpkPrograms();
+    }
+
+    let teacherLessonState = { programId: null, teacherId: null, groupName: null, teacherName: null };
+
+    function openTeacherLessonView(programId, teacherId, groupName, teacherName) {
+      teacherLessonState = { programId, teacherId, groupName, teacherName };
+      document.getElementById('dpkDetailView').style.display = 'none';
+      document.getElementById('dpkTeacherLessonView').style.display = 'block';
+      document.getElementById('teacherLessonViewTitle').textContent = 'Занятия — ' + teacherName + ' (группа ' + groupName + ')';
+      document.getElementById('tlLectureHours').value = 0;
+      document.getElementById('tlPracticeHours').value = 0;
+      document.getElementById('tlLabHours').value = 0;
+      loadTeacherLessons();
+    }
+
+    function closeTeacherLessonView() {
+      document.getElementById('dpkTeacherLessonView').style.display = 'none';
+      document.getElementById('dpkDetailView').style.display = 'block';
+      loadDpkDetailGroups(currentDpkProgramId);
+    }
+
+    async function loadTeacherLessons() {
+      const { programId, teacherId, groupName } = teacherLessonState;
+      const lessons = await api(`/api/dpk/teacher/${teacherId}/lessons?program_id=${programId}&group_name=${encodeURIComponent(groupName)}`);
+      const el = document.getElementById('teacherLessonList');
+      const typeLabels = { lecture: 'Лекция', practice: 'Практика', lab: 'Лабораторная' };
+      let html = '<table class="teacher-lessons-table"><thead><tr>' +
+        '<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Тип</th>' +
+        '<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">№</th>' +
+        '<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Дата</th>' +
+        '<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Аудитория</th>' +
+        '<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Время</th>' +
+        '<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)">Действия</th>' +
+        '</tr></thead><tbody>';
+      const paraOptions = [
+        { val: '08:50-10:20', label: '1 пара (08:50–10:20)' },
+        { val: '10:35-12:05', label: '2 пара (10:35–12:05)' },
+        { val: '12:35-14:05', label: '3 пара (12:35–14:05)' },
+        { val: '14:15-15:45', label: '4 пара (14:15–15:45)' },
+        { val: '15:55-17:20', label: '5 пара (15:55–17:20)' },
+        { val: '17:30-19:00', label: '6 пара (17:30–19:00)' }
+      ];
+      lessons.forEach(l => {
+        const label = typeLabels[l.class_type] || l.class_type;
+        const ts = l.time_start || '08:50';
+        const te = l.time_end || '10:20';
+        const currentPara = `${ts}-${te}`;
+        let paraHtml = `<select class="lesson-para-input" data-id="${l.id}" onchange="updateLessonPara(this)">`;
+        paraOptions.forEach(p => {
+          paraHtml += `<option value="${p.val}"${p.val === currentPara ? ' selected' : ''}>${p.label}</option>`;
+        });
+        paraHtml += `</select>`;
+        html += `<tr>
+          <td style="padding:6px 8px;border-bottom:1px solid var(--border)"><span class="teacher-lesson-type teacher-lesson-type--${l.class_type}">${label}</span></td>
+          <td style="padding:6px 8px;border-bottom:1px solid var(--border)">${l.class_number}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid var(--border)"><input type="date" class="lesson-date-input" value="${l.date || ''}" data-id="${l.id}" onchange="updateLessonDate(this)"></td>
+          <td style="padding:6px 8px;border-bottom:1px solid var(--border)"><input type="text" class="lesson-room-input" value="${l.room || ''}" data-id="${l.id}" placeholder="Ауд." onchange="updateLessonRoom(this)"></td>
+          <td style="padding:6px 8px;border-bottom:1px solid var(--border)">${paraHtml}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid var(--border)"><button class="dpk-remove-button" onclick="deleteTeacherLesson(${l.id})" aria-label="Удалить занятие" title="Удалить занятие"><span class="dpk-delete-icon" aria-hidden="true"></span></button></td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      if (!lessons.length) {
+        html = '<div class="empty-state">Нет занятий. Укажите часы выше</div>';
+      }
+      el.innerHTML = html;
+    }
+
+    let autoGenerateTimer = null;
+
+    function autoGenerateTeacherLessons() {
+      clearTimeout(autoGenerateTimer);
+      autoGenerateTimer = setTimeout(() => {
+        generateTeacherLessons();
+      }, 400);
+    }
+
+    async function generateTeacherLessons() {
+      const { programId, teacherId, groupName } = teacherLessonState;
+      const lecture_hours = parseInt(document.getElementById('tlLectureHours').value) || 0;
+      const practice_hours = parseInt(document.getElementById('tlPracticeHours').value) || 0;
+      const lab_hours = parseInt(document.getElementById('tlLabHours').value) || 0;
+      if (!lecture_hours && !practice_hours && !lab_hours) {
+        // Clear all lessons if all hours are zero
+        await api(`/api/dpk/teacher/${teacherId}/lessons/generate`, {
+          method: 'POST',
+          body: JSON.stringify({ program_id: programId, group_name: groupName, lecture_hours: 0, practice_hours: 0, lab_hours: 0 })
+        });
+        loadTeacherLessons();
+        loadDpkPrograms();
+        return;
+      }
+      await api(`/api/dpk/teacher/${teacherId}/lessons/generate`, {
+        method: 'POST',
+        body: JSON.stringify({ program_id: programId, group_name: groupName, lecture_hours, practice_hours, lab_hours })
+      });
+      loadTeacherLessons();
+      loadDpkPrograms();
+    }
+
+    async function updateLessonDate(input) {
+      const id = input.dataset.id;
+      const date = input.value || null;
+      await api(`/api/dpk/teacher/lesson/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ date })
+      });
+    }
+
+    async function updateLessonRoom(input) {
+      const id = input.dataset.id;
+      const room = input.value.trim() || null;
+      await api(`/api/dpk/teacher/lesson/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ room })
+      });
+    }
+
+    async function updateLessonPara(select) {
+      const id = select.dataset.id;
+      const [time_start, time_end] = select.value.split('-');
+      await api(`/api/dpk/teacher/lesson/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ time_start, time_end })
+      });
+    }
+
+    async function deleteTeacherLesson(id) {
+      if (!confirm('Удалить занятие?')) return;
+      await api(`/api/dpk/teacher/lesson/${id}`, { method: 'DELETE' });
+      loadTeacherLessons();
+      loadDpkPrograms();
+    }
+
+    function openDpkGroupModalFromDetail() {
+      if (currentDpkProgramId) {
+        document.getElementById('dpkGroupProgramId').value = currentDpkProgramId;
+        const sel = document.getElementById('dpkGroupSelect');
+        sel.innerHTML = '<option value="">Выберите группу</option>';
+        api('/api/worker/groups/all').then(groups => {
+          groups.forEach(g => { sel.innerHTML += `<option value="${g}">${g}</option>`; });
+        }).catch(() => {});
+        document.getElementById('dpkGroupModal').classList.add('open');
+      }
+    }
+
+    async function saveDpkGroup() {
+      const programId = document.getElementById('dpkGroupProgramId').value;
+      const group_name = document.getElementById('dpkGroupSelect').value;
+      if (!group_name) { alert('Выберите группу'); return; }
+      await api(`/api/dpk/program/${programId}/group`, { method: 'POST', body: JSON.stringify({ group_name }) });
+      closeModal('dpkGroupModal');
+      loadDpkDetailGroups(programId);
+      loadDpkPrograms();
+    }
+
+    async function deleteDpkGroup(id) {
+      if (!confirm('Удалить группу из программы?')) return;
+      await api(`/api/dpk/program/group/${id}`, { method: 'DELETE' });
+      loadDpkDetailGroups(currentDpkProgramId);
+      loadDpkPrograms();
+    }
+
+    // --- Evaluators ---
+    function openDpkEvaluatorModal() {
+      if (!currentDpkProgramId) return;
+      const container = document.getElementById('dpkEvaluatorTeacherList');
+      container.innerHTML = '<div class="empty-state">Загрузка...</div>';
+      document.getElementById('dpkEvaluatorModal').classList.add('open');
+      api('/api/worker/teachers').then(teachers => {
+        api(`/api/dpk/program/${currentDpkProgramId}/evaluators`).then(existing => {
+          const existingIds = new Set(existing.map(e => e.teacher_id));
+          if (!teachers.length) {
+            container.innerHTML = '<div class="empty-state">Нет преподавателей</div>';
+            return;
+          }
+          let html = '';
+          teachers.forEach(t => {
+            const checked = existingIds.has(t.id) ? 'checked disabled' : '';
+            html += `<label style="display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--border);cursor:pointer">
+              <input type="checkbox" class="evaluator-checkbox" value="${t.id}" ${checked}>
+              <span>${t.full_name}</span>
+            </label>`;
+          });
+          container.innerHTML = html;
+        });
+      });
+    }
+
+    async function saveDpkEvaluators() {
+      const selected = Array.from(document.querySelectorAll('.evaluator-checkbox:checked:not(:disabled)')).map(cb => parseInt(cb.value));
+      if (!selected.length) { alert('Выберите хотя бы одного преподавателя'); return; }
+      await api(`/api/dpk/program/${currentDpkProgramId}/evaluator`, {
+        method: 'POST', body: JSON.stringify({ teacher_ids: selected })
+      });
+      closeModal('dpkEvaluatorModal');
+      loadDpkDetailEvaluators(currentDpkProgramId);
+      loadDpkPrograms();
+    }
+
+    async function loadDpkDetailEvaluators(programId) {
+      const el = document.getElementById('dpkDetailEvaluatorsList');
+      const evaluators = await api(`/api/dpk/program/${programId}/evaluators`);
+      document.getElementById('dpkEvaluatorsSectionCount').textContent = evaluators.length;
+      if (!evaluators.length) {
+        el.innerHTML = '<div class="empty-state">Нет оценщиков</div>';
+      } else {
+        let html = '';
+        evaluators.forEach(e => {
+          const color = getAvatarColor(e.teacher_name);
+          const initials = getInitials(e.teacher_name);
+          html += `<div class="dpk-teacher-card dpk-evaluator-card">
+            <div class="dpk-teacher-avatar" style="background:${color}">${initials}</div>
+            <div class="dpk-teacher-card-info">
+              <div class="dpk-teacher-card-name">${e.teacher_name}</div>
+              <div class="dpk-evaluator-role"><i></i>Оценщик программы</div>
+            </div>
+            <div class="dpk-teacher-card-actions">
+              <button class="dpk-remove-button" onclick="deleteDpkEvaluator(${e.id})" aria-label="Удалить оценщика" title="Удалить оценщика"><span class="dpk-delete-icon" aria-hidden="true"></span></button>
+            </div>
+          </div>`;
+        });
+        el.innerHTML = html;
+      }
+    }
+
+    async function deleteDpkEvaluator(id) {
+      if (!confirm('Удалить оценщика из программы?')) return;
+      await api(`/api/dpk/program/evaluator/${id}`, { method: 'DELETE' });
+      loadDpkDetailEvaluators(currentDpkProgramId);
+      loadDpkPrograms();
+    }
+
+    async function saveDpkProgram() {
+      const id = document.getElementById('editDpkProgramId').value;
+      const program_type = document.getElementById('dpkProgramType').value;
+      const name = document.getElementById('dpkProgramName').value.trim();
+      if (!name) { alert('Введите название'); return; }
+      if (id) {
+        await api(`/api/dpk/program/${id}`, { method: 'PUT', body: JSON.stringify({ name, program_type }) });
+      } else {
+        await api('/api/dpk/program', { method: 'POST', body: JSON.stringify({ name, program_type }) });
+      }
+      closeModal('dpkProgramModal');
+      loadDpkPrograms();
+      if (currentDpkProgramId && document.getElementById('dpkDetailView').style.display !== 'none') {
+        openDpkDetailView(currentDpkProgramId);
+      }
+    }
+
+    function openDpkTeacherModal(programId) {
+      document.getElementById('dpkTeacherProgramId').value = programId;
+      const sel = document.getElementById('dpkTeacherSelect');
+      sel.value = '';
+      api('/api/supervisor/teachers').then(teachers => {
+        sel.innerHTML = '<option value="">Выберите преподавателя</option>';
+        teachers.forEach(t => { sel.innerHTML += `<option value="${t.id}">${t.full_name}</option>`; });
+      });
+      document.getElementById('dpkTeacherModal').classList.add('open');
+    }
+
+    async function saveDpkTeacher() {
+      const programId = document.getElementById('dpkTeacherProgramId').value;
+      const teacher_id = document.getElementById('dpkTeacherSelect').value;
+      const group_name = document.getElementById('dpkTeacherGroupName').value;
+      if (!teacher_id) { alert('Выберите преподавателя'); return; }
+      await api(`/api/dpk/program/${programId}/teacher`, { method: 'POST', body: JSON.stringify({ teacher_id, group_name }) });
+      closeModal('dpkTeacherModal');
+      loadDpkPrograms();
+      if (currentDpkProgramId && document.getElementById('dpkDetailView').style.display !== 'none') {
+        loadDpkDetailGroups(currentDpkProgramId);
+      }
+    }
+
+    // --- Schedule Calendar ---
+    let currentScheduleSubtab = 'main';
+    let scheduleWeekOffset = 0;
+    const DAY_NAMES = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const TEACHER_COLORS = ['#2d6fc4', '#e34a6f', '#16a34a', '#f59e0b', '#8b5cf6', '#06b6d4', '#f97316', '#ec4899'];
+    const PAIR_TIMES = [
+      { start: '08:50', end: '10:20' },
+      { start: '10:35', end: '12:05' },
+      { start: '12:35', end: '14:05' },
+      { start: '14:15', end: '15:45' },
+      { start: '15:55', end: '17:20' },
+      { start: '17:30', end: '19:00' }
+    ];
+
+    function timeToMinutes(t) {
+      const p = t.split(':');
+      return parseInt(p[0]) * 60 + parseInt(p[1]);
+    }
+
+    function findPairIndex(timeStr) {
+      const m = timeToMinutes(timeStr);
+      for (let i = 0; i < PAIR_TIMES.length; i++) {
+        const sm = timeToMinutes(PAIR_TIMES[i].start);
+        const em = timeToMinutes(PAIR_TIMES[i].end);
+        if (m >= sm && m <= em) return i + 1;
+      }
+      let best = 1, bestDiff = Infinity;
+      PAIR_TIMES.forEach((p, i) => {
+        const diff = Math.abs(timeToMinutes(p.start) - m);
+        if (diff < bestDiff) { bestDiff = diff; best = i + 1; }
+      });
+      return best;
+    }
+
+    function updatePairTimes() {
+      const sel = document.getElementById('schedulePairSelect');
+      const pair = PAIR_TIMES[parseInt(sel.value) - 1];
+      if (pair) {
+        document.getElementById('scheduleTimeStart').value = pair.start;
+        document.getElementById('scheduleTimeEnd').value = pair.end;
+      }
+    }
+
+    function setupScheduleDateListener() {
+      const dateField = document.getElementById('scheduleDateField');
+      const newField = dateField.cloneNode(true);
+      dateField.parentNode.replaceChild(newField, dateField);
+      newField.addEventListener('change', function() {
+        if (!this.value) return;
+        const d = new Date(this.value + 'T00:00');
+        const jsDay = d.getDay();
+        const dow = jsDay === 0 ? 6 : jsDay - 1;
+        document.getElementById('scheduleDaySelect').value = Math.max(0, Math.min(6, dow));
+      });
+    }
+
+    document.addEventListener('change', function(e) {
+      if (e.target.id === 'schedulePairSelect') updatePairTimes();
+    });
+    const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+
+    function getTeacherColor(teacherId) {
+      return TEACHER_COLORS[parseInt(teacherId) % TEACHER_COLORS.length];
+    }
+
+    function getWeekDates(offset) {
+      const now = new Date();
+      const day = now.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff + offset * 7);
+      return Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        return d;
+      });
+    }
+
+    function fmtLocalDate(d) {
+      return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+
+    function formatDateShort(d) { return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`; }
+
+    function formatMonthYear(dates) {
+      const s = dates[0], e = dates[6];
+      if (s.getMonth() === e.getMonth()) return `${MONTHS[s.getMonth()]} ${s.getFullYear()}`;
+      return `${MONTHS[s.getMonth()].slice(0,3)} – ${MONTHS[e.getMonth()].slice(0,3)} ${e.getFullYear()}`;
+    }
+
+    function isToday(d) {
+      const t = new Date();
+      return d.getDate() === t.getDate() && d.getMonth() === t.getMonth() && d.getFullYear() === t.getFullYear();
+    }
+
+    function navigateWeek(delta, resetToToday) {
+      if (resetToToday) scheduleWeekOffset = 0;
+      else scheduleWeekOffset += delta;
+      refreshCurrentScheduleView();
+    }
+
+    function toggleMonthPicker(event) {
+      event.stopPropagation();
+      const container = event.currentTarget;
+      const picker = container.querySelector('.schedule-month-picker');
+      if (!picker) return;
+      const isOpen = picker.classList.contains('open');
+      document.querySelectorAll('.schedule-month-picker.open').forEach(p => p.classList.remove('open'));
+      if (!isOpen) picker.classList.add('open');
+    }
+
+    function buildMonthPicker(pickerEl, referenceDate) {
+      const year = referenceDate.getFullYear();
+      const month = referenceDate.getMonth();
+      const now = new Date();
+      let html = `<div class="schedule-mp-year">
+        <button onclick="event.stopPropagation();changePickerYear(this, -1)" data-year="${year}">◀</button>
+        <span class="mp-year-label">${year}</span>
+        <button onclick="event.stopPropagation();changePickerYear(this, 1)" data-year="${year}">▶</button>
+      </div><div class="schedule-mp-months">`;
+      const months = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+      months.forEach((m, i) => {
+        const isActive = i === month ? ' active' : '';
+        const isToday = i === now.getMonth() && year === now.getFullYear() ? ' today' : '';
+        html += `<button class="schedule-mp-month${isActive}${isToday}" onclick="event.stopPropagation();goToMonth(this, ${i}, ${year})">${m}</button>`;
+      });
+      html += '</div>';
+      pickerEl.dataset.year = year;
+      pickerEl.innerHTML = html;
+    }
+
+    function changePickerYear(btn, delta) {
+      const picker = btn.closest('.schedule-month-picker');
+      if (!picker) return;
+      const year = parseInt(btn.dataset.year) + delta;
+      btn.dataset.year = year;
+      const refDate = new Date(year, 0);
+      buildMonthPicker(picker, refDate);
+    }
+
+    function goToMonth(btn, month, year) {
+      const picker = btn.closest('.schedule-month-picker');
+      if (picker) picker.classList.remove('open');
+      const targetDate = new Date(year, month, 1);
+      const firstDay = targetDate.getDay();
+      const diff = firstDay === 0 ? -6 : 1 - firstDay;
+      const monday = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1 + diff);
+      const now = new Date();
+      const nowDay = now.getDay();
+      const nowDiff = nowDay === 0 ? -6 : 1 - nowDay;
+      const currentMonday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + nowDiff);
+      const weekDiff = Math.round((monday - currentMonday) / (7 * 86400000));
+      scheduleWeekOffset = weekDiff;
+      refreshCurrentScheduleView();
+    }
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.schedule-month-picker.open').forEach(p => p.classList.remove('open'));
+    });
+
+    function initScheduleTab() {
+      scheduleWeekOffset = 0;
+      personalWeekOffset = 0;
+      currentScheduleSubtab = 'main';
+      showScheduleLanding();
+      loadTeachersForScheduleSelect();
+    }
+
+    function switchScheduleSubtab(subtab) {
+      currentScheduleSubtab = subtab;
+      document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.sub-tab-btn[data-subtab="${subtab}"]`).classList.add('active');
+      ['scheduleMainView', 'scheduleTeacherView', 'scheduleRoomView'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+      });
+      if (subtab === 'main') {
+        document.getElementById('scheduleMainView').style.display = 'block';
+        loadScheduleGrid('scheduleGridContainer');
+      } else if (subtab === 'teacher') {
+        document.getElementById('scheduleTeacherView').style.display = 'block';
+        loadTeachersForScheduleSelect();
+        loadScheduleByTeacher();
+      } else if (subtab === 'room') {
+        document.getElementById('scheduleRoomView').style.display = 'block';
+        loadRoomsList();
+        loadScheduleByRoom();
+      }
+    }
+
+    async function loadTeachersForScheduleSelect() {
+      const teachers = await api('/api/supervisor/teachers');
+      const sel = document.getElementById('scheduleTeacherSelect');
+      sel.innerHTML = '<option value="">Все преподаватели</option>';
+      teachers.forEach(t => { sel.innerHTML += `<option value="${t.id}">${t.full_name}</option>`; });
+    }
+
+    async function loadRoomsList() {
+      const entries = await api('/api/schedule');
+      const rooms = [...new Set(entries.filter(e => e.room).map(e => e.room))].sort();
+      const sel = document.getElementById('scheduleRoomSelect');
+      sel.innerHTML = '<option value="">Все аудитории</option>';
+      rooms.forEach(r => { sel.innerHTML += `<option value="${r}">${r}</option>`; });
+    }
+
+    async function loadScheduleByTeacher() {
+      const teacherId = document.getElementById('scheduleTeacherSelect').value;
+      loadScheduleGrid('scheduleTeacherGridContainer', teacherId ? { teacher_id: teacherId } : {});
+    }
+
+    async function loadScheduleByRoom() {
+      const room = document.getElementById('scheduleRoomSelect').value;
+      loadScheduleGrid('scheduleRoomGridContainer', room ? { room } : {});
+    }
+
+    function buildQueryString(params) {
+      const parts = [];
+      for (const k in params) if (params[k]) parts.push(`${k}=${encodeURIComponent(params[k])}`);
+      return parts.length ? '?' + parts.join('&') : '';
+    }
+
+    async function loadScheduleGrid(containerId, filters) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      filters = filters || {};
+      const weekDates = getWeekDates(scheduleWeekOffset);
+      filters.start_date = fmtLocalDate(weekDates[0]);
+      filters.end_date = fmtLocalDate(weekDates[6]);
+      const url = '/api/schedule' + buildQueryString(filters);
+      const entries = await api(url);
+      container.innerHTML = renderCalendarGrid(entries, filters);
+      const allCells = container.querySelectorAll('.schedule-cal-cell');
+      allCells.forEach(cell => cell.classList.remove('has-entry'));
+      entries.forEach(e => {
+        const startH = parseInt(e.time_start.split(':')[0]);
+        const endH = parseInt(e.time_end.split(':')[0]) + (parseInt(e.time_end.split(':')[1]) > 0 ? 1 : 0);
+        const day = parseInt(e.day_of_week);
+        for (let h = Math.max(startH, 8); h < Math.min(endH, 21); h++) {
+          const cell = container.querySelector(`.schedule-cal-cell[data-day="${day}"][data-hour="${h - 8}"]`);
+          if (cell) cell.classList.add('has-entry');
+        }
+      });
+      container.querySelectorAll('.schedule-entry').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = el.dataset.id;
+          const entry = entries.find(x => x.id == id);
+          if (entry) openScheduleModal(entry);
+        });
+      });
+      container.querySelectorAll('.schedule-entry-more').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showMorePopup(el, entries);
+        });
+      });
+      if (!filters.teacher_id && !filters.room) {
+        allCells.forEach(cell => {
+          if (!cell.classList.contains('has-entry')) {
+            cell.addEventListener('click', () => {
+              const day = parseInt(cell.dataset.day);
+              const hour = parseInt(cell.dataset.hour);
+              openScheduleModal(null, day, hour);
+            });
+          }
+        });
+      }
+    }
+
+    function showMorePopup(el, entries) {
+      const old = document.querySelector('.schedule-more-popup');
+      if (old) old.remove();
+
+      const ids = el.dataset.ids.split(',').map(Number);
+      const group = ids.map(id => entries.find(e => e.id == id)).filter(Boolean);
+      if (!group.length) return;
+
+      const dayNames = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'];
+      const dayName = dayNames[parseInt(group[0].day_of_week)] || '';
+      const popup = document.createElement('div');
+      popup.className = 'schedule-more-popup';
+      popup.innerHTML = `<h4>${dayName} · ${group[0].time_start}–${group[0].time_end}</h4>`;
+      group.forEach(e => {
+        const color = getTeacherColor(e.teacher_id);
+        popup.innerHTML += `<div class="schedule-more-item" data-id="${e.id}">
+          <div class="more-color" style="background:${color}"></div>
+          <div class="more-info">
+            <div class="more-title">${e.program_name || '—'}</div>
+            <div class="more-detail">${e.teacher_name || ''} · ${e.room || '—'}</div>
+          </div>
+        </div>`;
+      });
+      document.body.appendChild(popup);
+
+      const rect = el.getBoundingClientRect();
+      const pad = 10;
+      let left = rect.left;
+      let top = rect.bottom + pad;
+      if (top + popup.offsetHeight > window.innerHeight - pad) {
+        top = rect.top - popup.offsetHeight - pad;
+      }
+      if (left + popup.offsetWidth > window.innerWidth - pad) {
+        left = window.innerWidth - popup.offsetWidth - pad;
+      }
+      if (left < pad) left = pad;
+      popup.style.left = left + 'px';
+      popup.style.top = top + 'px';
+
+      popup.querySelectorAll('.schedule-more-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const entry = entries.find(e => e.id == item.dataset.id);
+          if (entry) { popup.remove(); openScheduleModal(entry); }
+        });
+      });
+
+      setTimeout(() => {
+        document.addEventListener('click', function closePopup(ev) {
+          if (!popup.contains(ev.target)) {
+            popup.remove();
+            document.removeEventListener('click', closePopup);
+          }
+        });
+      }, 10);
+    }
+
+    function renderCalendarGrid(entries, filters) {
+      const dates = getWeekDates(scheduleWeekOffset);
+      const isAllView = !filters.teacher_id && !filters.room;
+
+      const labelIds = [
+        { container: 'scheduleMonthLabel', text: 'scheduleMonthLabelText' },
+        { container: 'scheduleMonthLabelTeacher', text: 'scheduleMonthLabelTeacherText' },
+        { container: 'scheduleMonthLabelRoom', text: 'scheduleMonthLabelRoomText' }
+      ];
+      labelIds.forEach(({ container, text }) => {
+        const el = document.getElementById(text);
+        if (el) el.textContent = formatMonthYear(dates);
+        const picker = document.querySelector(`#${container} .schedule-month-picker`);
+        if (picker) buildMonthPicker(picker, dates[0]);
+      });
+
+      const periods = PAIR_TIMES.slice(0, 6);
+      const periodStarts = periods.map(p => timeToMinutes(p.start));
+      const periodIndexFor = value => periodStarts.reduce((best, start, index) => Math.abs(start - timeToMinutes(value)) < Math.abs(periodStarts[best] - timeToMinutes(value)) ? index : best, 0);
+      const periodTop = index => [0, 90, 210, 300, 390, 480][index];
+      let html = '<div class="schedule-calendar-wrap"><div class="schedule-calendar schedule-calendar--periods">';
+      html += '<div class="schedule-cal-header" style="border-right:1px solid var(--border)"></div>';
+      DAY_NAMES.forEach((name, i) => {
+        const d = dates[i];
+        const today = isToday(d);
+        html += `<div class="schedule-cal-header${today ? ' today' : ''}" style="border-right:${i < 6 ? '1px solid var(--border)' : 'none'}">
+          ${name}
+          <span class="cal-day-num">${d.getDate()}</span>
+        </div>`;
+      });
+      periods.forEach((period, index) => {
+        const even = index % 2 === 0 ? ' is-even' : '';
+        html += `<div class="schedule-cal-time schedule-period-label${even}"><strong>${index + 1} пара</strong><span>${period.start}–${period.end}</span></div>`;
+        for (let d = 0; d < 7; d++) {
+          const borderRight = d < 6 ? 'border-right:1px solid rgba(0,0,0,0.06)' : '';
+          html += `<div class="schedule-cal-cell schedule-period-cell${even}" data-day="${d}" data-period="${index}" style="${borderRight}"></div>`;
+        }
+        if (index === 1) { html += '<div class="schedule-cal-time schedule-break-label">Перерыв<br>12:05–12:35</div>'; for (let d = 0; d < 7; d++) html += '<div class="schedule-cal-cell schedule-break-cell"></div>'; }
+      });
+      // Group by (day, startSlot) for overlap detection
+      const grouped = {};
+      entries.forEach(e => {
+        const key = parseInt(e.day_of_week) + '-' + periodIndexFor(e.time_start);
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(e);
+      });
+      // Overlay for entries
+      html += '</div>'; // end calendar
+      html += '<div class="schedule-entries-overlay">';
+      const allNames = {};
+      Object.values(grouped).forEach(group => {
+        const e = group[0];
+        const periodIndex = periodIndexFor(e.time_start);
+        const topPct = periodTop(periodIndex) / 570 * 100;
+        const heightPct = 90 / 570 * 100;
+        const leftPct = parseInt(e.day_of_week) / 7 * 100;
+        const widthPct = 100 / 7;
+        const color = getTeacherColor(e.teacher_id);
+        if (group.length > 1) {
+          const ids = group.map(g => g.id).join(',');
+          html += `<div class="schedule-entry-more" data-ids="${ids}" style="left:${leftPct}%;top:${topPct}%;width:${widthPct}%;height:${heightPct}%;--entry-color:${color}">
+            +${group.length}
+          </div>`;
+          group.forEach(g => { allNames[g.id] = g; });
+        } else {
+          html += `<div class="schedule-entry" data-id="${e.id}" style="left:${leftPct}%;top:${topPct}%;width:${widthPct}%;height:${heightPct}%;--entry-color:${color}">
+            <div class="entry-title">${e.program_name || '—'}</div>
+            <div class="entry-detail">${e.teacher_name || ''}</div>
+            <div class="entry-class">${e.room ? '· ' + e.room : '· —'}</div>
+          </div>`;
+          allNames[e.id] = e;
+        }
+      });
+      html += '</div>';
+      window.__scheduleEntries = allNames;
+      return html;
+    }
+
+    function openScheduleModal(entry, presetDay, presetHour) {
+      const title = entry ? 'Редактировать занятие' : 'Добавить занятие';
+      document.getElementById('scheduleModalTitle').textContent = title;
+      document.getElementById('editScheduleId').value = entry ? entry.id : '';
+      document.getElementById('scheduleProgramSelect').value = entry ? entry.program_id || '' : '';
+      document.getElementById('scheduleTeacherSelectModal').value = entry ? entry.teacher_id : '';
+      document.getElementById('scheduleGroupSelect').value = entry ? entry.group_name || '' : '';
+      document.getElementById('scheduleRoomField').value = entry ? entry.room || '' : '';
+
+      let dayOfWeek, dateVal;
+      if (entry) {
+        dayOfWeek = entry.day_of_week;
+        dateVal = entry.date || '';
+      } else if (presetDay !== undefined) {
+        dayOfWeek = presetDay;
+        const dates = getWeekDates(scheduleWeekOffset);
+        dateVal = fmtLocalDate(dates[presetDay]);
+      } else {
+        const now = new Date();
+        const jsDay = now.getDay();
+        dayOfWeek = jsDay === 0 ? 6 : jsDay - 1;
+        if (dayOfWeek > 6) dayOfWeek = 0;
+        const dates = getWeekDates(scheduleWeekOffset);
+        dateVal = fmtLocalDate(dates[dayOfWeek]);
+      }
+      document.getElementById('scheduleDaySelect').value = dayOfWeek;
+      document.getElementById('scheduleDateField').value = dateVal;
+
+      let pairVal;
+      if (entry) {
+        pairVal = findPairIndex(entry.time_start);
+      } else if (presetHour !== undefined) {
+        const nearestMins = (presetHour + 8) * 60;
+        let best = 1, bestDiff = Infinity;
+        PAIR_TIMES.forEach((p, i) => {
+          const diff = Math.abs(timeToMinutes(p.start) - nearestMins);
+          if (diff < bestDiff) { bestDiff = diff; best = i + 1; }
+        });
+        pairVal = best;
+      } else {
+        pairVal = 1;
+      }
+      document.getElementById('schedulePairSelect').value = pairVal;
+      updatePairTimes();
+
+      setupScheduleDateListener();
+
+      api('/api/dpk/programs').then(programs => {
+        const sel = document.getElementById('scheduleProgramSelect');
+        const cur = sel.value;
+        sel.innerHTML = '<option value="">Без программы</option>';
+        programs.forEach(p => { sel.innerHTML += `<option value="${p.id}" ${p.id == cur ? 'selected' : ''}>${p.name}</option>`; });
+      });
+      api('/api/supervisor/teachers').then(teachers => {
+        const sel = document.getElementById('scheduleTeacherSelectModal');
+        const cur = sel.value;
+        sel.innerHTML = '<option value="">Выберите преподавателя</option>';
+        teachers.forEach(t => { sel.innerHTML += `<option value="${t.id}" ${t.id == cur ? 'selected' : ''}>${t.full_name}</option>`; });
+      });
+      api('/api/teacher/groups').then(groups => {
+        const sel = document.getElementById('scheduleGroupSelect');
+        const cur = sel.value;
+        sel.innerHTML = '<option value="">Без группы</option>';
+        groups.forEach(g => { sel.innerHTML += `<option value="${g}" ${g == cur ? 'selected' : ''}>${g}</option>`; });
+      });
+
+      document.getElementById('scheduleModal').classList.add('open');
+    }
+
+    async function saveSchedule() {
+      const id = document.getElementById('editScheduleId').value;
+      const program_id = document.getElementById('scheduleProgramSelect').value || null;
+      const teacher_id = document.getElementById('scheduleTeacherSelectModal').value;
+      const group_name = document.getElementById('scheduleGroupSelect').value || null;
+      const room = document.getElementById('scheduleRoomField').value.trim() || null;
+      const date = document.getElementById('scheduleDateField').value;
+      const day_of_week = parseInt(document.getElementById('scheduleDaySelect').value);
+      const time_start = document.getElementById('scheduleTimeStart').value;
+      const time_end = document.getElementById('scheduleTimeEnd').value;
+      if (!teacher_id) { alert('Выберите преподавателя'); return; }
+      if (!date) { alert('Укажите дату'); return; }
+      if (!time_start || !time_end) { alert('Укажите пару'); return; }
+
+      const body = { program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date };
+      if (id) {
+        await api(`/api/schedule/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      } else {
+        await api('/api/schedule', { method: 'POST', body: JSON.stringify(body) });
+      }
+      closeModal('scheduleModal');
+      refreshCurrentScheduleView();
+    }
+
+    async function deleteScheduleEntry(id) {
+      if (!confirm('Удалить занятие?')) return;
+      await api(`/api/schedule/${id}`, { method: 'DELETE' });
+      refreshCurrentScheduleView();
+    }
+
+    function refreshCurrentScheduleView() {
+      if (currentScheduleSubtab === 'main') loadScheduleGrid('scheduleGridContainer');
+      else if (currentScheduleSubtab === 'teacher') loadScheduleByTeacher();
+      else if (currentScheduleSubtab === 'room') loadScheduleByRoom();
+    }
+
+    // --- Schedule Excel ---
+    let scheduleImportInput = null;
+
+    function createScheduleImportInput() {
+      if (!scheduleImportInput) {
+        scheduleImportInput = document.createElement('input');
+        scheduleImportInput.type = 'file';
+        scheduleImportInput.accept = '.xlsx,.xls';
+        scheduleImportInput.style.display = 'none';
+        scheduleImportInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const formData = new FormData();
+          formData.append('file', file);
+          const result = await api('/api/schedule/import', { method: 'POST', body: formData, headers: {} });
+          if (result.success) {
+            alert(`✓ Импортировано: ${result.imported} из ${result.total}`);
+            refreshCurrentScheduleView();
+          } else {
+            alert(`✗ ${result.message}`);
+          }
+          scheduleImportInput.value = '';
+        });
+        document.body.appendChild(scheduleImportInput);
+      }
+      return scheduleImportInput;
+    }
+
+    function importScheduleExcel() {
+      closeExcelMenus();
+      createScheduleImportInput().click();
+    }
+
+    async function exportScheduleExcel() {
+      closeExcelMenus();
+      let url = '/api/schedule/export';
+      let filename = 'Расписания';
+      if (currentScheduleSubtab === 'teacher') {
+        const sel = document.getElementById('scheduleTeacherSelect');
+        if (sel && sel.value) {
+          const teacherId = sel.value;
+          const teacherName = sel.options[sel.selectedIndex].text;
+          url += '?teacher_id=' + teacherId + '&teacher_name=' + encodeURIComponent(teacherName);
+          filename = 'Расписания_' + teacherName;
+        }
+      } else if (currentScheduleSubtab === 'room') {
+        const sel = document.getElementById('scheduleRoomSelect');
+        if (sel && sel.value) {
+          const room = sel.value;
+          url += '?room=' + encodeURIComponent(room);
+          filename = 'Расписания_аудитории ' + room;
+        }
+      }
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename + '.xlsx';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    // --- Personal Schedule (supervisor's own) ---
+    let personalWeekOffset = 0;
+
+    function showScheduleLanding() {
+      document.getElementById('scheduleLanding').style.display = 'block';
+      document.getElementById('schedulePersonalView').style.display = 'none';
+      document.getElementById('scheduleDpkView').style.display = 'none';
+    }
+
+    function showPersonalSchedule() {
+      document.getElementById('scheduleLanding').style.display = 'none';
+      document.getElementById('schedulePersonalView').style.display = 'block';
+      document.getElementById('scheduleDpkView').style.display = 'none';
+      loadPersonalSchedule();
+    }
+
+    function showDpkSchedule() {
+      document.getElementById('scheduleLanding').style.display = 'none';
+      document.getElementById('schedulePersonalView').style.display = 'none';
+      document.getElementById('scheduleDpkView').style.display = 'block';
+      switchScheduleSubtab('main');
+    }
+
+    function navigatePersonalWeek(delta, resetToToday) {
+      if (resetToToday) personalWeekOffset = 0;
+      else personalWeekOffset += delta;
+      loadPersonalSchedule();
+    }
+
+    function updatePersonalPairTimes() {
+      const sel = document.getElementById('personalSchedulePairSelect');
+      const pair = PAIR_TIMES[parseInt(sel.value) - 1];
+      if (pair) {
+        document.getElementById('personalScheduleTimeStart').value = pair.start;
+        document.getElementById('personalScheduleTimeEnd').value = pair.end;
+      }
+    }
+
+    function setupPersonalDateListener() {
+      const dateInput = document.getElementById('personalScheduleDateField');
+      const handler = () => {
+        if (dateInput.value) {
+          const d = new Date(dateInput.value + 'T12:00:00');
+          if (!isNaN(d.getTime())) {
+            const dow = d.getDay();
+            document.getElementById('personalScheduleDaySelect').value = Math.min(6, dow === 0 ? 6 : dow - 1);
+          }
+        }
+      };
+      dateInput.removeEventListener('change', handler);
+      dateInput.addEventListener('change', handler);
+    }
+
+    function getPersonalEntry(id) {
+      return window.__personalEntries ? window.__personalEntries[id] : null;
+    }
+
+    function renderPersonalCalendarGrid(entries) {
+      const dates = getWeekDates(personalWeekOffset);
+      const labelEl = document.getElementById('personalMonthLabelText');
+      if (labelEl) labelEl.textContent = formatMonthYear(dates);
+      const picker = document.getElementById('personalMonthPicker');
+      if (picker) buildMonthPicker(picker, dates[0]);
+
+      const periods = PAIR_TIMES.slice(0, 6);
+      const periodStarts = periods.map(p => timeToMinutes(p.start));
+      const periodIndexFor = value => periodStarts.reduce((best, start, index) => Math.abs(start - timeToMinutes(value)) < Math.abs(periodStarts[best] - timeToMinutes(value)) ? index : best, 0);
+      const periodTop = index => [0, 90, 210, 300, 390, 480][index];
+      let html = '<div class="schedule-calendar-wrap"><div class="schedule-calendar schedule-calendar--periods">';
+      html += '<div class="schedule-cal-header" style="border-right:1px solid var(--border)"></div>';
+      DAY_NAMES.forEach((name, i) => {
+        const d = dates[i];
+        const today = isToday(d);
+        html += `<div class="schedule-cal-header${today ? ' today' : ''}" style="border-right:${i < 6 ? '1px solid var(--border)' : 'none'}">
+          ${name}
+          <span class="cal-day-num">${d.getDate()}</span>
+        </div>`;
+      });
+      periods.forEach((period, index) => {
+        const even = index % 2 === 0 ? ' is-even' : '';
+        html += `<div class="schedule-cal-time schedule-period-label${even}"><strong>${index + 1} пара</strong><span>${period.start}–${period.end}</span></div>`;
+        for (let d = 0; d < 7; d++) {
+          const borderRight = d < 6 ? 'border-right:1px solid rgba(0,0,0,0.06)' : '';
+          html += `<div class="schedule-cal-cell schedule-period-cell${even}" data-day="${d}" data-period="${index}" style="${borderRight}"></div>`;
+        }
+        if (index === 1) { html += '<div class="schedule-cal-time schedule-break-label">Перерыв<br>12:05–12:35</div>'; for (let d = 0; d < 7; d++) html += '<div class="schedule-cal-cell schedule-break-cell"></div>'; }
+      });
+      const grouped = {};
+      entries.forEach(e => {
+        const key = parseInt(e.day_of_week) + '-' + periodIndexFor(e.time_start);
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(e);
+      });
+      html += '</div>';
+      html += '<div class="schedule-entries-overlay">';
+      Object.values(grouped).forEach(group => {
+        const e = group[0];
+        const periodIndex = periodIndexFor(e.time_start);
+        const topPct = periodTop(periodIndex) / 570 * 100;
+        const heightPct = 90 / 570 * 100;
+        const leftPct = parseInt(e.day_of_week) / 7 * 100;
+        const widthPct = 100 / 7;
+        const color = TEACHER_COLORS[Math.abs(e.teacher_id) % TEACHER_COLORS.length];
+        if (group.length > 1) {
+          const ids = group.map(g => g.id).join(',');
+          html += `<div class="schedule-entry-more" data-ids="${ids}" style="left:${leftPct}%;top:${topPct}%;width:${widthPct}%;height:${heightPct}%;--entry-color:${color}">
+            +${group.length}
+          </div>`;
+        } else {
+          const canEdit = e.teacher_id === currentUser?.id;
+          const lessonLabel = e.lesson_type ? `<span class="entry-badge">${e.lesson_type}</span>` : '';
+          html += `<div class="schedule-entry${canEdit ? ' is-editable' : ''}" data-id="${e.id}" style="left:${leftPct}%;top:${topPct}%;width:${widthPct}%;height:${heightPct}%;--entry-color:${color}" onclick="${canEdit ? `openPersonalScheduleModal(getPersonalEntry(${e.id}))` : ''}">
+            <div class="entry-title">${e.program_name || '—'}</div>
+            ${lessonLabel}
+            <div class="entry-detail">${e.teacher_name || ''}</div>
+            <div class="entry-class">${e.room ? '· ' + e.room : '· —'} ${e.group_name ? '· ' + e.group_name : ''}</div>
+            ${canEdit ? `<button class="btn btn--danger btn--sm" style="position:absolute;top:2px;right:2px;padding:1px 4px;font-size:10px;min-width:auto;line-height:1" onclick="event.stopPropagation();deletePersonalScheduleEntry(${e.id})">✕</button>` : ''}
+          </div>`;
+        }
+      });
+      html += '</div></div>';
+      window.__personalEntries = {};
+      entries.forEach(e => { window.__personalEntries[e.id] = e; });
+      return html;
+    }
+
+    async function loadPersonalSchedule() {
+      const container = document.getElementById('personalScheduleGrid');
+      const weekDates = getWeekDates(personalWeekOffset);
+      const start_date = fmtLocalDate(weekDates[0]);
+      const end_date = fmtLocalDate(weekDates[6]);
+      const res = await fetch(`/api/schedule?teacher_id=${currentUser.id}&start_date=${start_date}&end_date=${end_date}`);
+      const entries = await res.json();
+      container.innerHTML = renderPersonalCalendarGrid(entries);
+    }
+
+    document.getElementById('personalSchedulePairSelect').addEventListener('change', updatePersonalPairTimes);
+
+    async function openPersonalScheduleModal(entry) {
+      const isEdit = !!entry;
+      document.getElementById('personalScheduleModalTitle').textContent = isEdit ? 'Редактировать занятие' : 'Добавить занятие';
+      document.getElementById('editPersonalScheduleId').value = entry ? entry.id : '';
+      document.getElementById('personalScheduleProgramInput').value = entry ? (entry.program_name || '') : '';
+      document.getElementById('personalScheduleLessonType').value = entry ? (entry.lesson_type || '') : '';
+      document.getElementById('personalScheduleGroupInput').value = entry ? (entry.group_name || '') : '';
+      document.getElementById('personalScheduleRoomField').value = entry ? (entry.room || '') : '';
+
+      let dayOfWeek, dateVal, pairVal;
+      if (entry) {
+        dayOfWeek = entry.day_of_week;
+        dateVal = entry.date || '';
+        pairVal = findPairIndex(entry.time_start);
+      } else {
+        const now = new Date();
+        const jsDay = now.getDay();
+        dayOfWeek = jsDay === 0 ? 6 : jsDay - 1;
+        const dates = getWeekDates(personalWeekOffset);
+        dateVal = fmtLocalDate(dates[dayOfWeek]);
+        pairVal = 1;
+      }
+      document.getElementById('personalScheduleDateField').value = dateVal;
+      document.getElementById('personalScheduleDaySelect').value = dayOfWeek;
+      document.getElementById('personalSchedulePairSelect').value = pairVal;
+      updatePersonalPairTimes();
+      setupPersonalDateListener();
+      document.getElementById('personalScheduleModal').classList.add('open');
+    }
+
+    async function savePersonalSchedule() {
+      const id = document.getElementById('editPersonalScheduleId').value;
+      const program_name = document.getElementById('personalScheduleProgramInput').value.trim() || null;
+      const lesson_type = document.getElementById('personalScheduleLessonType').value || null;
+      const group_name = document.getElementById('personalScheduleGroupInput').value.trim() || null;
+      const room = document.getElementById('personalScheduleRoomField').value.trim() || null;
+      const date = document.getElementById('personalScheduleDateField').value;
+      const day_of_week = parseInt(document.getElementById('personalScheduleDaySelect').value);
+      const time_start = document.getElementById('personalScheduleTimeStart').value;
+      const time_end = document.getElementById('personalScheduleTimeEnd').value;
+      if (!date) { alert('Укажите дату'); return; }
+      if (!time_start || !time_end) { alert('Укажите пару'); return; }
+
+      const body = { program_name, lesson_type, group_name, room, day_of_week, time_start, time_end, date };
+      if (id) {
+        await api(`/api/teacher/schedule/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      } else {
+        await api('/api/teacher/schedule', { method: 'POST', body: JSON.stringify(body) });
+      }
+      closeModal('personalScheduleModal');
+      loadPersonalSchedule();
+    }
+
+    async function deletePersonalScheduleEntry(id) {
+      if (!confirm('Удалить занятие?')) return;
+      await api(`/api/teacher/schedule/${id}`, { method: 'DELETE' });
+      loadPersonalSchedule();
+    }
+
+    // --- Personal ICS Import ---
+    document.getElementById('personalIcsFileInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const progName = prompt('Введите название программы для импорта (или оставьте пустым):');
+      if (progName === null) { document.getElementById('personalIcsFileInput').value = ''; return; }
+
+      const formData = new FormData();
+      formData.append('file', file);
+      if (progName.trim()) formData.append('program_name', progName.trim());
+
+      const res = await fetch('/api/teacher/schedule/import-ics', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Импортировано ${data.imported} занятий`);
+        loadPersonalSchedule();
+      } else {
+        alert('Ошибка: ' + (data.message || 'Неизвестная ошибка'));
+      }
+      document.getElementById('personalIcsFileInput').value = '';
+    });
+
+    function importPersonalICS() {
+      const input = document.getElementById('personalIcsFileInput');
+      input.value = '';
+      input.click();
+    }
+
+    checkAuth().then(user => { if (user) loadHome(); });
+  </script>
+  <script src="/modal-layout.js"></script>
+</body>
+</html>
