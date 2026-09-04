@@ -1245,19 +1245,24 @@
     ];
     const SCHEDULE_ROOMS = ['3303','3306','3307','3308','3309','3313','3317','3321','3518','3520','4414','4501'];
 
+    function formatScheduleTime(value) {
+      const [hours, minutes] = String(value).split(':').map(Number);
+      return `${hours % 12 || 12}:${String(minutes).padStart(2,'0')} ${hours < 12 ? 'AM' : 'PM'}`;
+    }
+
     function fillScheduleTimeOptions(ids) {
       ids.forEach(id => {
         const select = document.getElementById(id);
-        for (let minutes = 7 * 60; minutes <= 22 * 60; minutes += 5) {
+        for (let minutes = 0; minutes < 24 * 60; minutes += 5) {
           const value = `${String(Math.floor(minutes / 60)).padStart(2,'0')}:${String(minutes % 60).padStart(2,'0')}`;
-          select.add(new Option(value, value));
+          select.add(new Option(formatScheduleTime(value), value));
         }
       });
     }
 
     function setScheduleTimeValue(id, value) {
       const select = document.getElementById(id);
-      if (value && !Array.from(select.options).some(option => option.value === value)) select.add(new Option(value, value));
+      if (value && !Array.from(select.options).some(option => option.value === value)) select.add(new Option(formatScheduleTime(value), value));
       select.value = value;
     }
 
