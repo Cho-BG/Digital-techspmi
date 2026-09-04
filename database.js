@@ -1,4 +1,5 @@
 import pg from 'pg';
+import { fileURLToPath } from 'node:url';
 
 const { Pool, types } = pg;
 
@@ -11,7 +12,13 @@ let pool;
 function connectionString() {
   const value = process.env.DATABASE_URL;
   if (!value) throw new Error('DATABASE_URL is required (use the Supabase pooled connection string)');
-  return value;
+  if (process.env.DATABASE_SSL === 'false') return value;
+
+  // URL SSL settings override Pool.ssl, so keep the trusted CA in the URL too.
+  const url = new URL(value);
+  url.searchParams.set('sslmode', 'verify-full');
+  url.searchParams.set('sslrootcert', fileURLToPath(new URL('./certs/supabase-root.crt', import.meta.url)));
+  return url.toString();
 }
 
 function postgresSql(sql) {
@@ -43,7 +50,7 @@ export function getPool() {
       max: Number(process.env.DATABASE_POOL_SIZE || 1),
       idleTimeoutMillis: 10_000,
       connectionTimeoutMillis: 10_000,
-      ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false }
+      ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: true }
     });
     pool.on('error', error => console.error('Unexpected PostgreSQL pool error:', error));
   }
