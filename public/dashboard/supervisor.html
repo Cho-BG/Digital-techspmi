@@ -818,16 +818,11 @@
         <label for="scheduleDateField">Дата</label>
         <input type="date" id="scheduleDateField" onchange="updateScheduleRepeat('schedule')">
       </div>
-      <div class="form-group">
-        <label for="schedulePairSelect">Пара</label>
-        <select id="schedulePairSelect">
-          <option value="1">1 пара (8:50–10:20)</option>
-          <option value="2">2 пара (10:35–12:05)</option>
-          <option value="3">3 пара (12:35–14:05)</option>
-          <option value="4">4 пара (14:15–15:45)</option>
-          <option value="5">5 пара (15:55–17:20)</option>
-          <option value="6">6 пара (17:30–19:00)</option>
-        </select>
+      <div class="schedule-time-card" id="scheduleTimeCard">
+        <div class="schedule-time-heading"><span aria-hidden="true"></span><div><strong>Время занятия</strong><small>Выберите пару или задайте точное время</small></div></div>
+        <div class="schedule-time-switch" role="group" aria-label="Способ выбора времени"><button type="button" data-time-mode="pair" onclick="setScheduleTimeMode('schedule','pair')">По номеру пары</button><button type="button" data-time-mode="manual" onclick="setScheduleTimeMode('schedule','manual')">Указать время</button></div>
+        <div class="form-group schedule-pair-field" id="schedulePairGroup"><label for="schedulePairSelect">Пара</label><select id="schedulePairSelect"><option value="1">1 пара (8:50–10:20)</option><option value="2">2 пара (10:35–12:05)</option><option value="3">3 пара (12:35–14:05)</option><option value="4">4 пара (14:15–15:45)</option><option value="5">5 пара (15:55–17:20)</option><option value="6">6 пара (17:30–19:00)</option></select></div>
+        <div class="schedule-manual-time" id="scheduleManualTime" style="display:none"><div class="form-group"><label for="scheduleManualStart">С</label><input type="time" id="scheduleManualStart" step="300" onchange="syncManualScheduleTime('schedule')"></div><span aria-hidden="true">→</span><div class="form-group"><label for="scheduleManualEnd">До</label><input type="time" id="scheduleManualEnd" step="300" onchange="syncManualScheduleTime('schedule')"></div></div>
       </div>
       <div class="schedule-repeat-card" id="scheduleRepeatBlock">
         <div class="schedule-repeat-heading"><span aria-hidden="true"></span><div><strong>Повтор занятия</strong><small>Создайте серию занятий одним действием</small></div></div>
@@ -873,16 +868,11 @@
         <label for="personalScheduleDateField">Дата</label>
         <input type="date" id="personalScheduleDateField" onchange="updateScheduleRepeat('personalSchedule')">
       </div>
-      <div class="form-group">
-        <label for="personalSchedulePairSelect">Пара</label>
-        <select id="personalSchedulePairSelect">
-          <option value="1">1 пара (8:50–10:20)</option>
-          <option value="2">2 пара (10:35–12:05)</option>
-          <option value="3">3 пара (12:35–14:05)</option>
-          <option value="4">4 пара (14:15–15:45)</option>
-          <option value="5">5 пара (15:55–17:20)</option>
-          <option value="6">6 пара (17:30–19:00)</option>
-        </select>
+      <div class="schedule-time-card" id="personalScheduleTimeCard">
+        <div class="schedule-time-heading"><span aria-hidden="true"></span><div><strong>Время занятия</strong><small>Выберите пару или задайте точное время</small></div></div>
+        <div class="schedule-time-switch" role="group" aria-label="Способ выбора времени"><button type="button" data-time-mode="pair" onclick="setScheduleTimeMode('personalSchedule','pair')">По номеру пары</button><button type="button" data-time-mode="manual" onclick="setScheduleTimeMode('personalSchedule','manual')">Указать время</button></div>
+        <div class="form-group schedule-pair-field" id="personalSchedulePairGroup"><label for="personalSchedulePairSelect">Пара</label><select id="personalSchedulePairSelect"><option value="1">1 пара (8:50–10:20)</option><option value="2">2 пара (10:35–12:05)</option><option value="3">3 пара (12:35–14:05)</option><option value="4">4 пара (14:15–15:45)</option><option value="5">5 пара (15:55–17:20)</option><option value="6">6 пара (17:30–19:00)</option></select></div>
+        <div class="schedule-manual-time" id="personalScheduleManualTime" style="display:none"><div class="form-group"><label for="personalScheduleManualStart">С</label><input type="time" id="personalScheduleManualStart" step="300" onchange="syncManualScheduleTime('personalSchedule')"></div><span aria-hidden="true">→</span><div class="form-group"><label for="personalScheduleManualEnd">До</label><input type="time" id="personalScheduleManualEnd" step="300" onchange="syncManualScheduleTime('personalSchedule')"></div></div>
       </div>
       <div class="schedule-repeat-card" id="personalScheduleRepeatBlock">
         <div class="schedule-repeat-heading"><span aria-hidden="true"></span><div><strong>Повтор занятия</strong><small>Создайте серию занятий одним действием</small></div></div>
@@ -2859,12 +2849,36 @@
       return best;
     }
 
-    function updatePairTimes() {
-      const sel = document.getElementById('schedulePairSelect');
+    function updateSchedulePairTimes(prefix) {
+      const sel = document.getElementById(`${prefix}PairSelect`);
       const pair = PAIR_TIMES[parseInt(sel.value) - 1];
       if (pair) {
-        document.getElementById('scheduleTimeStart').value = pair.start;
-        document.getElementById('scheduleTimeEnd').value = pair.end;
+        document.getElementById(`${prefix}TimeStart`).value = pair.start;
+        document.getElementById(`${prefix}TimeEnd`).value = pair.end;
+      }
+    }
+
+    function updatePairTimes() { updateSchedulePairTimes('schedule'); }
+
+    function syncManualScheduleTime(prefix) {
+      document.getElementById(`${prefix}TimeStart`).value = document.getElementById(`${prefix}ManualStart`).value;
+      document.getElementById(`${prefix}TimeEnd`).value = document.getElementById(`${prefix}ManualEnd`).value;
+    }
+
+    function setScheduleTimeMode(prefix, mode) {
+      const card = document.getElementById(`${prefix}TimeCard`);
+      if (mode === 'manual' && card.dataset.mode === 'manual') mode = 'pair';
+      card.dataset.mode = mode;
+      card.querySelectorAll('[data-time-mode]').forEach(button => {
+        button.classList.toggle('is-active', button.dataset.timeMode === mode);
+        button.setAttribute('aria-pressed', String(button.dataset.timeMode === mode));
+      });
+      document.getElementById(`${prefix}PairGroup`).style.display = mode === 'pair' ? '' : 'none';
+      document.getElementById(`${prefix}ManualTime`).style.display = mode === 'manual' ? '' : 'none';
+      if (mode === 'pair') updateSchedulePairTimes(prefix);
+      else {
+        document.getElementById(`${prefix}ManualStart`).value = document.getElementById(`${prefix}TimeStart`).value;
+        document.getElementById(`${prefix}ManualEnd`).value = document.getElementById(`${prefix}TimeEnd`).value;
       }
     }
 
@@ -3287,7 +3301,13 @@
       document.getElementById('scheduleRepeat').value = 'once';
       document.getElementById('scheduleRepeatEnd').value = '';
       updateScheduleRepeat('schedule');
-      updatePairTimes();
+      const usesStandardPair = !entry || PAIR_TIMES.some(pair => pair.start === entry.time_start && pair.end === entry.time_end);
+      if (entry) {
+        document.getElementById('scheduleTimeStart').value = entry.time_start;
+        document.getElementById('scheduleTimeEnd').value = entry.time_end;
+      }
+      document.getElementById('scheduleTimeCard').dataset.mode = '';
+      setScheduleTimeMode('schedule', usesStandardPair ? 'pair' : 'manual');
 
       setupScheduleDateListener();
 
@@ -3321,11 +3341,13 @@
       const room = document.getElementById('scheduleRoomField').value.trim() || null;
       const date = document.getElementById('scheduleDateField').value;
       const day_of_week = parseInt(document.getElementById('scheduleDaySelect').value);
-      const time_start = document.getElementById('scheduleTimeStart').value;
-      const time_end = document.getElementById('scheduleTimeEnd').value;
+      const manualTime = document.getElementById('scheduleTimeCard').dataset.mode === 'manual';
+      const time_start = document.getElementById(manualTime ? 'scheduleManualStart' : 'scheduleTimeStart').value;
+      const time_end = document.getElementById(manualTime ? 'scheduleManualEnd' : 'scheduleTimeEnd').value;
       if (!teacher_id) { alert('Выберите преподавателя'); return; }
       if (!date) { alert('Укажите дату'); return; }
-      if (!time_start || !time_end) { alert('Укажите пару'); return; }
+      if (!time_start || !time_end) { alert('Укажите время занятия'); return; }
+      if (time_start >= time_end) { alert('Время окончания должно быть позже времени начала'); return; }
 
       const recurrence = document.getElementById('scheduleRepeat').value;
       const recurrence_end = document.getElementById('scheduleRepeatEnd').value || null;
@@ -3443,14 +3465,7 @@
       loadPersonalSchedule();
     }
 
-    function updatePersonalPairTimes() {
-      const sel = document.getElementById('personalSchedulePairSelect');
-      const pair = PAIR_TIMES[parseInt(sel.value) - 1];
-      if (pair) {
-        document.getElementById('personalScheduleTimeStart').value = pair.start;
-        document.getElementById('personalScheduleTimeEnd').value = pair.end;
-      }
-    }
+    function updatePersonalPairTimes() { updateSchedulePairTimes('personalSchedule'); }
 
     function setupPersonalDateListener() {
       const dateInput = document.getElementById('personalScheduleDateField');
@@ -3581,7 +3596,13 @@
       document.getElementById('personalScheduleRepeat').value = 'once';
       document.getElementById('personalScheduleRepeatEnd').value = '';
       updateScheduleRepeat('personalSchedule');
-      updatePersonalPairTimes();
+      const usesStandardPair = !entry || PAIR_TIMES.some(pair => pair.start === entry.time_start && pair.end === entry.time_end);
+      if (entry) {
+        document.getElementById('personalScheduleTimeStart').value = entry.time_start;
+        document.getElementById('personalScheduleTimeEnd').value = entry.time_end;
+      }
+      document.getElementById('personalScheduleTimeCard').dataset.mode = '';
+      setScheduleTimeMode('personalSchedule', usesStandardPair ? 'pair' : 'manual');
       setupPersonalDateListener();
       document.getElementById('personalScheduleModal').classList.add('open');
     }
@@ -3594,10 +3615,12 @@
       const room = document.getElementById('personalScheduleRoomField').value.trim() || null;
       const date = document.getElementById('personalScheduleDateField').value;
       const day_of_week = parseInt(document.getElementById('personalScheduleDaySelect').value);
-      const time_start = document.getElementById('personalScheduleTimeStart').value;
-      const time_end = document.getElementById('personalScheduleTimeEnd').value;
+      const manualTime = document.getElementById('personalScheduleTimeCard').dataset.mode === 'manual';
+      const time_start = document.getElementById(manualTime ? 'personalScheduleManualStart' : 'personalScheduleTimeStart').value;
+      const time_end = document.getElementById(manualTime ? 'personalScheduleManualEnd' : 'personalScheduleTimeEnd').value;
       if (!date) { alert('Укажите дату'); return; }
-      if (!time_start || !time_end) { alert('Укажите пару'); return; }
+      if (!time_start || !time_end) { alert('Укажите время занятия'); return; }
+      if (time_start >= time_end) { alert('Время окончания должно быть позже времени начала'); return; }
 
       const recurrence = document.getElementById('personalScheduleRepeat').value;
       const recurrence_end = document.getElementById('personalScheduleRepeatEnd').value || null;

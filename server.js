@@ -535,6 +535,13 @@ async function start() {
     return bookingOccurrenceDates({ event_date: entryDate, recurrence, recurrence_end: recurrenceEnd });
   }
 
+  function validScheduleTimeRange(timeStart, timeEnd) {
+    if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(timeStart)) || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(timeEnd))) return false;
+    const start = bookingTimeToMinutes(timeStart);
+    const end = bookingTimeToMinutes(timeEnd);
+    return Number.isFinite(start) && Number.isFinite(end) && start >= 0 && end <= 24 * 60 && end > start;
+  }
+
   app.get('/api/booking/public-data', async (req, res) => {
     const rooms = (await db.all(`SELECT DISTINCT room FROM schedule_entries WHERE room IS NOT NULL AND room != '' ORDER BY room`)).map(row => row.room);
     const bookingEvents = await db.all(`SELECT id, room, title, description, event_date, time_start, time_end, recurrence, recurrence_end, event_url, status FROM booking_requests WHERE status IN ('requested', 'approved') ORDER BY event_date, time_start`);
@@ -814,7 +821,7 @@ async function start() {
   app.post('/api/teacher/schedule', requireRole('teacher', 'supervisor'), async (req, res) => {
     const { program_name, group_name, room, day_of_week, time_start, time_end, date, lesson_type, recurrence = 'once', recurrence_end } = req.body;
     const teacher_id = req.session.user.id;
-    if (day_of_week === undefined || !time_start || !time_end) {
+    if (day_of_week === undefined || !validScheduleTimeRange(time_start, time_end)) {
       return res.status(400).json({ success: false, message: 'Заполните обязательные поля' });
     }
     const dates = scheduleOccurrenceDates(date || null, recurrence, recurrence_end);
@@ -834,6 +841,7 @@ async function start() {
     const { program_name, group_name, room, day_of_week, time_start, time_end, date, lesson_type } = req.body;
     const entry = await db.one(`SELECT id FROM schedule_entries WHERE id = ? AND teacher_id = ?`, [req.params.id, req.session.user.id]);
     if (!entry) return res.status(404).json({ success: false, message: 'Занятие не найдено' });
+    if (!validScheduleTimeRange(time_start, time_end)) return res.status(400).json({ success: false, message: 'Проверьте время занятия' });
     const entryDate = date || null;
     const scheduleDay = entryDate ? dayOfWeekFromDateOnly(entryDate) : Number(day_of_week);
     if (scheduleDay === null) return res.status(400).json({ success: false, message: 'Некорректная дата' });
@@ -2148,7 +2156,7 @@ async function start() {
 
   app.post('/api/schedule', requireRole('worker', 'supervisor'), async (req, res) => {
     const { program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date, recurrence = 'once', recurrence_end } = req.body;
-    if (!teacher_id || day_of_week === undefined || !time_start || !time_end) {
+    if (!teacher_id || day_of_week === undefined || !validScheduleTimeRange(time_start, time_end)) {
       return res.status(400).json({ success: false, message: 'Заполните обязательные поля' });
     }
     const dates = scheduleOccurrenceDates(date || null, recurrence, recurrence_end);
@@ -2169,6 +2177,7 @@ async function start() {
     const { program_id, teacher_id, group_name, room, day_of_week, time_start, time_end, date } = req.body;
     // Get old values to recalc previous pair
     const old = await db.one(`SELECT program_id, teacher_id, lesson_type, date, group_name FROM schedule_entries WHERE id = ?`, [req.params.id]);
+    if (!teacher_id || !validScheduleTimeRange(time_start, time_end)) return res.status(400).json({ success: false, message: 'Проверьте время занятия' });
     const entryDate = date || null;
     const scheduleDay = entryDate ? dayOfWeekFromDateOnly(entryDate) : Number(day_of_week);
     if (scheduleDay === null) return res.status(400).json({ success: false, message: 'Некорректная дата' });

@@ -2690,6 +2690,24 @@ tbody tr:hover { background: #f7faff; }
 .admin-suggestion-custom strong { color: #354b66; font-size: 12px; }
 .admin-suggestion-custom span { overflow-wrap: anywhere; font-size: 11px; line-height: 1.4; }
 @media (max-width: 560px) { .admin-suggestion-menu.is-wide { width: calc(100vw - 24px) !important; } }
+.schedule-time-card { margin: 4px 0 14px; padding: 14px; background: linear-gradient(145deg,#fffdf8,#f8f3e8); border: 1px solid #e8dcc1; border-radius: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,.9); }
+.schedule-time-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 11px; }
+.schedule-time-heading > span { position: relative; width: 32px; height: 32px; flex: 0 0 32px; background: #fff; border: 1px solid #e9dcc0; border-radius: 10px; box-shadow: 0 3px 9px rgba(105,75,20,.08); }
+.schedule-time-heading > span::before { content: ''; position: absolute; inset: 7px; border: 2px solid #a87825; border-radius: 50%; }
+.schedule-time-heading > span::after { content: ''; position: absolute; top: 9px; left: 15px; width: 5px; height: 7px; border-left: 2px solid #a87825; border-bottom: 2px solid #a87825; }
+.schedule-time-heading div { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
+.schedule-time-heading strong { color: #4b3a1f; font-size: 12px; font-weight: 800; }
+.schedule-time-heading small { color: #88775a; font-size: 10px; line-height: 1.35; }
+.schedule-time-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 11px; padding: 3px; background: rgba(151,118,59,.1); border: 1px solid rgba(151,118,59,.12); border-radius: 11px; }
+.schedule-time-switch button { min-height: 34px; padding: 7px 10px; color: #7a6a4f; background: transparent; border: 0; border-radius: 8px; font-family: inherit; font-size: 11px; font-weight: 750; cursor: pointer; transition: color var(--transition),background var(--transition),box-shadow var(--transition); }
+.schedule-time-switch button:hover { color: #594524; background: rgba(255,255,255,.55); }
+.schedule-time-switch button.is-active { color: #694913; background: #fff; box-shadow: 0 2px 8px rgba(97,69,21,.12); }
+.schedule-time-card .schedule-pair-field { margin: 0; }
+.schedule-time-card .select-ui-trigger,.schedule-time-card input[type="time"] { min-height: 42px !important; background-color: rgba(255,255,255,.96) !important; border-color: #e2d5ba !important; }
+.schedule-time-card .select-ui.is-open .select-ui-trigger,.schedule-time-card input[type="time"]:focus { border-color: #b98a38 !important; box-shadow: 0 0 0 3px rgba(169,120,36,.12) !important; }
+.schedule-manual-time { display: grid; grid-template-columns: minmax(0,1fr) 20px minmax(0,1fr); align-items: end; gap: 8px; animation: repeatFieldIn 170ms ease-out both; }
+.schedule-manual-time .form-group { margin: 0; }
+.schedule-manual-time > span { display: grid; place-items: center; min-height: 42px; color: #9a8155; font-size: 15px; font-weight: 700; }
 .schedule-repeat-card { margin: 4px 0 16px; padding: 14px; background: linear-gradient(145deg,#f7faff,#eef5fc); border: 1px solid #d8e5f2; border-radius: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
 .schedule-repeat-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .schedule-repeat-heading > span { position: relative; width: 32px; height: 32px; flex: 0 0 32px; background: #fff; border: 1px solid #d8e5f2; border-radius: 10px; box-shadow: 0 3px 9px rgba(25,71,125,.08); }
@@ -2703,7 +2721,7 @@ tbody tr:hover { background: #f7faff; }
 .schedule-repeat-fields .select-ui-trigger,.schedule-repeat-fields input { min-height: 41px !important; background-color: rgba(255,255,255,.95) !important; border-color: #cfdeed !important; }
 .schedule-repeat-end { animation: repeatFieldIn 170ms ease-out both; }
 @keyframes repeatFieldIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-@media (max-width: 560px) { .schedule-repeat-fields { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .schedule-repeat-fields { grid-template-columns: 1fr; } .schedule-time-switch { grid-template-columns: 1fr; } }
 #dpkEvaluatorTeacherList {
   display: grid;
   gap: 5px;
