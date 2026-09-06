@@ -424,7 +424,7 @@
             <label for="username">Логин</label>
             <span class="login-input-shell login-input-shell--user">
               <i aria-hidden="true"></i>
-              <input type="text" id="username" placeholder="Введите логин" required autocomplete="username">
+              <input type="text" id="username" placeholder="Введите логин" required autocomplete="username" autocapitalize="none" spellcheck="false">
             </span>
           </div>
           <div class="form-group">
@@ -472,7 +472,7 @@
       <form class="recovery-form" id="recoveryForm">
         <div class="form-group"><label for="recoveryRoleTrigger">Роль</label><div class="recovery-role-picker" id="recoveryRolePicker"><select id="recoveryRole" tabindex="-1" aria-hidden="true"><option value="">Выберите роль</option><option value="student">Студент</option><option value="teacher">Преподаватель</option><option value="worker">Сотрудник</option></select><button class="recovery-role-trigger" id="recoveryRoleTrigger" type="button" aria-haspopup="listbox" aria-expanded="false"><span>Выберите роль</span><i aria-hidden="true"></i></button><div class="recovery-role-menu" id="recoveryRoleMenu" role="listbox" hidden><button class="recovery-role-option" type="button" data-value="student" role="option"><span>Студент</span><i aria-hidden="true">✓</i></button><button class="recovery-role-option" type="button" data-value="teacher" role="option"><span>Преподаватель</span><i aria-hidden="true">✓</i></button><button class="recovery-role-option" type="button" data-value="worker" role="option"><span>Сотрудник</span><i aria-hidden="true">✓</i></button></div></div></div>
         <div class="form-group"><label for="recoveryName">ФИО</label><input id="recoveryName" type="text" maxlength="160" autocomplete="name" placeholder="Иванов Иван Иванович" required></div>
-        <div class="form-group"><label for="recoveryLogin">Логин</label><input id="recoveryLogin" type="text" maxlength="100" autocomplete="username" placeholder="Введите логин" required></div>
+        <div class="form-group"><label for="recoveryLogin">Логин</label><input id="recoveryLogin" type="text" maxlength="100" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Введите логин" required></div>
         <div class="form-group"><label for="recoveryEmail">Email</label><input id="recoveryEmail" type="email" maxlength="254" autocomplete="email" placeholder="name@example.ru" required></div>
         <p class="recovery-note">Новый пароль будет подготовлен администратором и отправлен на указанный email.</p>
         <div class="recovery-feedback" id="recoveryFeedback" role="status"></div>

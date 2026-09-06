@@ -192,7 +192,8 @@ async function start() {
       return res.json({ success: false, message: 'Заполните все поля' });
     }
 
-    const attemptKey = `${req.ip}:${String(login).toLowerCase()}`;
+    const normalizedLogin = String(login).trim();
+    const attemptKey = `${req.ip}:${normalizedLogin.toLowerCase()}`;
     const now = Date.now();
     const attempt = loginAttempts.get(attemptKey);
     if (attempt && attempt.resetAt > now && attempt.count >= LOGIN_MAX_ATTEMPTS) {
@@ -205,7 +206,7 @@ async function start() {
       loginAttempts.set(attemptKey, current && current.resetAt > now ? { ...current, count: current.count + 1 } : { count: 1, resetAt: now + LOGIN_WINDOW_MS });
     };
 
-    const admin = await db.one('SELECT * FROM admin_accounts WHERE login = ?', [login]);
+    const admin = await db.one('SELECT * FROM admin_accounts WHERE LOWER(login) = LOWER(?)', [normalizedLogin]);
     if (admin && verifyPassword(password, admin.password)) {
       if (admin.account_enabled !== 1) return res.json({ success: false, message: 'Для этого логина нет доступа' });
       loginAttempts.delete(attemptKey);
@@ -218,7 +219,7 @@ async function start() {
       return res.json({ success: false, message: 'Система временно отключена администратором' });
     }
 
-    const user = await db.one('SELECT * FROM users WHERE login = ?', [login]);
+    const user = await db.one('SELECT * FROM users WHERE LOWER(login) = LOWER(?)', [normalizedLogin]);
 
     if (!user || !verifyPassword(password, user.password)) {
       recordFailure();
