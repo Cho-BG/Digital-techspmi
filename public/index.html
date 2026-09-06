@@ -621,6 +621,8 @@
     });
 
     async function doLogin(login, password) {
+      login = String(login || '').trim().toLowerCase();
+      document.getElementById('username').value = login;
       btn.classList.add('loading');
       errorMsg.classList.remove('visible');
 
