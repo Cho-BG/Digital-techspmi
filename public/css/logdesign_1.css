@@ -46,4 +46,5 @@
 @keyframes orbitSpin { to { transform: rotate(360deg); } }
 @keyframes introLoad { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @media (max-width: 600px) { .intro-stage { width: min(86vw, 330px); } .intro-logo-wrap { width: 69%; } .intro-copy { margin-top: 14px; } .intro-copy p { max-width: 340px; } }
+@media (orientation: landscape) and (max-height: 600px) { .booking-intro { grid-template-columns: minmax(180px,42vw) minmax(0,1fr); gap: 18px; padding: 18px 54px 18px 18px; overflow-y: auto; } .intro-stage { width: min(72dvh,300px); } .intro-copy { align-items: flex-start; margin: 0; text-align: left; } .intro-copy p { margin-left: 0; } .intro-loading { margin-top: 15px; } .intro-skip { right: 12px; bottom: 12px; } }
 @media (prefers-reduced-motion: reduce) { .intro-logo, .intro-orbit, .intro-pulse { animation: none; } .intro-logo-wrap, .intro-copy { animation-duration: .15s; } .intro-loading i { animation-duration: .5s; } }

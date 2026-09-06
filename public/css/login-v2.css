@@ -4,9 +4,9 @@ body.login-v2 {
   --login-blue: #275f9c;
   --login-gold: #e7bd5a;
   --login-ink: #172a42;
-  height: 100dvh;
-  min-height: 0;
-  overflow: hidden;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
   color: var(--login-ink);
   background: #f0f4f8;
   font-family: 'Manrope', sans-serif;
@@ -266,6 +266,15 @@ body.login-v2 .footer { z-index: 3; flex: 0 0 auto; min-height: 48px; padding: 1
   body.login-v2 .form-options { margin-bottom: 17px; }
   .login-support { margin-top: 14px; }
   body.login-v2 .footer { min-height: 38px; padding-top: 9px; padding-bottom: 9px; }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  body.login-v2 .login-header { min-height: 54px; }
+  body.login-v2 .main { align-items: flex-start; padding-top: 8px; }
+  body.login-v2 .login-card { max-width: 430px; padding: 22px; }
+  .login-card-heading { margin-bottom: 14px; }
+  body.login-v2 .form-group { margin-bottom: 9px; }
+  body.login-v2 .form-group input { min-height: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

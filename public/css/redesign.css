@@ -1849,7 +1849,7 @@ tbody tr:hover { background: #f7faff; }
 .staff-action-button--edit { color: var(--primary); background: #eaf2fc; }
 .staff-action-button--delete { color: var(--danger); background: #fff0f1; }
 
-@media (max-width: 1180px) {
+@media (max-width: 1300px) {
   .staff-table-wrap { overflow: visible; background: transparent; border: 0; }
   .staff-table, .staff-table tbody { display: block; width: 100%; }
   .staff-table thead { display: none; }
@@ -3194,4 +3194,73 @@ body > .bg-canvas {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* Responsive application shell and PWA controls */
+html, body { max-width: 100%; overflow-x: hidden; overflow-x: clip; }
+img, svg, video, canvas { max-width: 100%; }
+.main-content, .content-area, .card, .tab-content { min-width: 0; }
+.modal-actions { flex-wrap: wrap; }
+.schedule-more-popup, .date-ui-menu, .att-assignment-menu { max-width: calc(100vw - 20px); }
+.evaluation-program-grid, .attendance-program-grid, .student-program-grid, .dpk-list, .dpk-group-teachers, .dpk-teacher-grid { grid-template-columns: repeat(auto-fit,minmax(min(100%,230px),1fr)); }
+.sidebar-backdrop { position: fixed; z-index: 90; inset: 0; display: none; padding: 0; background: rgba(7,24,48,.46); border: 0; backdrop-filter: blur(3px); }
+.pwa-install-button { display: flex; align-items: center; gap: 9px; width: 100%; min-height: 42px; margin-bottom: 7px; padding: 9px 12px; color: #f5d98f; background: rgba(255,255,255,.075); border: 1px solid rgba(255,255,255,.1); border-radius: 11px; font-family: inherit; cursor: pointer; }
+.pwa-install-button[hidden] { display: none; }
+.pwa-install-button > span { position: relative; width: 19px; height: 19px; flex: 0 0 19px; border: 1.5px solid currentColor; border-radius: 5px; }
+.pwa-install-button > span::before { content: ''; position: absolute; left: 50%; top: 3px; width: 6px; height: 8px; border-left: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateX(-50%) rotate(-45deg); }
+.pwa-install-button b { font-size: 11px; font-weight: 750; }
+.pwa-install-button:hover { color: #fff; background: rgba(255,255,255,.13); }
+body.login-v2 > .pwa-install-button { position: fixed; z-index: 20; right: 18px; bottom: 18px; width: auto; margin: 0; color: #fff; background: #174b87; border-color: rgba(255,255,255,.3); box-shadow: 0 12px 30px rgba(15,45,90,.25); }
+.pwa-install-help { position: fixed; z-index: 20000; inset: 0; display: grid; place-items: center; padding: 18px; background: rgba(7,24,48,.58); backdrop-filter: blur(6px); }
+.pwa-install-help > div { position: relative; width: min(100%,390px); padding: 30px 25px 24px; text-align: center; background: #fff; border: 1px solid rgba(255,255,255,.9); border-radius: 22px; box-shadow: 0 25px 70px rgba(7,31,65,.28); }
+.pwa-install-close { position: absolute; top: 10px; right: 11px; width: 34px; height: 34px; color: #6f7e91; background: #f2f5f9; border: 0; border-radius: 10px; font-size: 22px; cursor: pointer; }
+.pwa-install-logo { display: block; width: 58px; height: 58px; margin: 0 auto 15px; background: url('/images/system-logo.png') center/contain no-repeat; }
+.pwa-install-help h2 { margin: 0; color: #183653; font-size: 20px; }
+.pwa-install-help p { margin: 10px 0 20px; color: #66768a; font-size: 13px; line-height: 1.6; }
+
+@media (max-width: 1100px) {
+  .teacher-hours-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+
+@media (max-width: 900px) {
+  :root { --header-height: 64px; }
+  .sidebar { width: min(86vw,300px); height: 100dvh; margin: 0; border-radius: 0 20px 20px 0; transform: translateX(calc(-100% - 12px)); }
+  .sidebar.open { transform: translateX(0); }
+  body:has(.sidebar.open) .sidebar-backdrop { display: block; }
+  .main-content { width: 100%; margin-left: 0; }
+  .menu-toggle { display: grid; width: 42px; height: 42px; place-items: center; color: #fff; background: var(--primary); border-radius: 11px; }
+  .topbar, .topbar--menu-only { position: sticky; top: 0; height: var(--header-height); min-height: var(--header-height); padding: 0 16px; background: rgba(243,246,251,.92); backdrop-filter: blur(18px); }
+  .content-area { padding: 14px 16px 32px; }
+  .booking-overview-stats, .dpk-detail-metrics, .attendance-legend { width: 100%; margin-left: 0; }
+  .card-title { flex-wrap: wrap; }
+  .card-title > .admin-account-actions { width: 100%; flex: 1 1 100%; }
+}
+
+@media (max-width: 768px) {
+  .schedule-calendar-wrap { overflow-x: hidden; }
+  .schedule-calendar { min-width: 0; grid-template-columns: 40px repeat(7,minmax(0,1fr)); }
+  .schedule-calendar.schedule-calendar--periods { min-width: 0; grid-template-columns: 70px repeat(7,minmax(0,1fr)); }
+  .schedule-calendar-wrap:not(:has(.schedule-calendar--periods)) .schedule-entries-overlay { right: 0; left: 40px; width: auto; }
+  .schedule-calendar-wrap:has(.schedule-calendar--periods) .schedule-entries-overlay { right: 0; left: 70px; width: auto; }
+  .modal-actions .btn { flex: 1 1 min(100%,140px); justify-content: center; }
+  .teacher-hours-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .schedule-calendar { grid-template-columns: 30px repeat(7,minmax(0,1fr)); }
+  .schedule-calendar.schedule-calendar--periods { grid-template-columns: 52px repeat(7,minmax(0,1fr)); }
+  .schedule-calendar-wrap:not(:has(.schedule-calendar--periods)) .schedule-entries-overlay { left: 30px; }
+  .schedule-calendar-wrap:has(.schedule-calendar--periods) .schedule-entries-overlay { right: 0; left: 52px; width: auto; }
+  .schedule-period-label span, .schedule-entry .entry-detail { display: none; }
+  .content-area { padding-inline: 8px; }
+  .card { border-radius: 14px; }
+  body.login-v2 > .pwa-install-button { right: 12px; bottom: 12px; max-width: calc(100vw - 24px); }
+}
+
+@media (orientation: landscape) and (max-height: 600px) and (max-width: 1000px) {
+  .sidebar-header { padding-block: 12px 10px; }
+  .sidebar-brand-logo { max-height: 54px; object-fit: contain; }
+  .sidebar-nav { padding-block: 9px; }
+  .nav-item { min-height: 42px; }
+  .modal { max-height: calc(100dvh - 12px); }
 }
