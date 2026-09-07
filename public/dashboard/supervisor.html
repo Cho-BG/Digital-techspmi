@@ -254,7 +254,7 @@
             <select id="evalCourse"><option value="">Все курсы</option></select>
             <select id="evalSpecialty"><option value="">Все специальности</option></select>
             <select id="evalGroup"><option value="">Все группы</option></select>
-            <input type="text" id="evalSearch" placeholder="Поиск по ФИО..." class="filter-input" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--bg);color:var(--text);min-width:180px">
+            <input type="search" id="evalSearch" placeholder="Поиск по ФИО..." class="filter-input">
           </div>
           <div id="evalGroupsContainer"></div>
         </div>
@@ -306,7 +306,7 @@
             <select id="attCourse"><option value="">Все курсы</option></select>
             <select id="attSpecialty"><option value="">Все специальности</option></select>
             <select id="attGroup"><option value="">Все группы</option></select>
-            <input type="text" id="attSearch" placeholder="Поиск по ФИО..." class="filter-input" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--bg);color:var(--text);min-width:180px">
+            <input type="search" id="attSearch" placeholder="Поиск по ФИО..." class="filter-input">
           </div>
           <div id="attGroupsContainer"></div>
         </div>
@@ -2023,7 +2023,7 @@
       const params = getAttFilterParams();
       const resp = await api(`/api/attendance/program/${programId}?${params}`);
       const data = resp.students || resp;
-      if (!data.length) {
+      if (!Array.isArray(data) || !data.length) {
         container.innerHTML = '<div class="empty-state">Нет студентов</div>';
         return;
       }

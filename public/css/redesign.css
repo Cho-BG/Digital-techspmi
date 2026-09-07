@@ -1063,7 +1063,7 @@ button, [onclick], select { cursor: pointer; }
   .select-ui-menu--sSpecialty .select-ui-option span { white-space: normal; }
 }
 .eval-filters {
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   width: 100%;
   overflow: visible;
 }
@@ -1087,10 +1087,13 @@ button, [onclick], select { cursor: pointer; }
 .eval-filters #evalGroup { flex-basis: 165px; }
 .eval-filters #evalSearch {
   flex: 1 1 260px;
-  min-width: 150px !important;
+  width: auto;
+  min-width: 0 !important;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .att-filters {
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   width: 100%;
   overflow: visible;
 }
@@ -1114,7 +1117,10 @@ button, [onclick], select { cursor: pointer; }
 .att-filters #attGroup { flex-basis: 165px; }
 .att-filters #attSearch {
   flex: 1 1 260px;
-  min-width: 150px !important;
+  width: auto;
+  min-width: 0 !important;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .admin-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 18px; }
 .system-control-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 18px; margin-bottom: 18px; padding: 20px 22px; color: #fff; border-radius: 16px; box-shadow: var(--shadow-md); transition: background 240ms ease, box-shadow 240ms ease; }

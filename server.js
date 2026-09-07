@@ -1681,7 +1681,13 @@ async function start() {
       lessonDatesSql += ` AND group_name IN (SELECT group_name FROM dpk_program_teachers WHERE program_id = ? AND teacher_id = ?)`;
       lessonDatesParams.push(programId, req.session.user.id);
     }
-    const lessonDateRows = await db.all(lessonDatesSql, lessonDatesParams);
+    let lessonDateRows = [];
+    try {
+      lessonDateRows = await db.all(lessonDatesSql, lessonDatesParams);
+    } catch (error) {
+      // Keep the attendance register available while a deployment is waiting for migration 002.
+      if (error.code !== '42P01') throw error;
+    }
     const lessonDates = {};
     lessonDateRows.forEach(row => {
       if (!lessonDates[row.group_name]) lessonDates[row.group_name] = {};
@@ -1718,11 +1724,16 @@ async function start() {
     if (req.session.user.role === 'teacher' && !await teacherHasProgramGroup(req.session.user.id, programId, groupName)) {
       return res.status(403).json({ success: false, message: 'Нет доступа к этой группе' });
     }
-    if (!lessonDate) {
-      await db.run(`DELETE FROM attendance_lesson_dates WHERE program_id = ? AND group_name = ? AND class_type = ? AND class_number = ?`, [programId, groupName, classType, classNumber]);
-    } else {
-      await db.run(`INSERT INTO attendance_lesson_dates (program_id, group_name, class_type, class_number, lesson_date) VALUES (?, ?, ?, ?, ?)
-        ON CONFLICT (program_id, group_name, class_type, class_number) DO UPDATE SET lesson_date = EXCLUDED.lesson_date`, [programId, groupName, classType, classNumber, lessonDate]);
+    try {
+      if (!lessonDate) {
+        await db.run(`DELETE FROM attendance_lesson_dates WHERE program_id = ? AND group_name = ? AND class_type = ? AND class_number = ?`, [programId, groupName, classType, classNumber]);
+      } else {
+        await db.run(`INSERT INTO attendance_lesson_dates (program_id, group_name, class_type, class_number, lesson_date) VALUES (?, ?, ?, ?, ?)
+          ON CONFLICT (program_id, group_name, class_type, class_number) DO UPDATE SET lesson_date = EXCLUDED.lesson_date`, [programId, groupName, classType, classNumber, lessonDate]);
+      }
+    } catch (error) {
+      if (error.code === '42P01') return res.status(503).json({ success: false, message: 'Не применено обновление базы данных для дат занятий' });
+      throw error;
     }
     res.json({ success: true, lesson_date: lessonDate || null });
   });
