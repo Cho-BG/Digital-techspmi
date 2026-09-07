@@ -1603,7 +1603,7 @@ async function start() {
   });
 
   // --- Attendance Records ---
-  app.get('/api/attendance/program/:id', requireRole('supervisor', 'teacher'), async (req, res) => {
+  app.get('/api/attendance/program/:id', requireRole('supervisor', 'teacher', 'worker'), async (req, res) => {
     const programId = req.params.id;
     const { course, specialty, group_name, search } = req.query;
     if (req.session.user.role === 'teacher') {
@@ -1633,13 +1633,14 @@ async function start() {
     }
 
     let sql = `
-      SELECT u.id as student_id, u.full_name, u.group_name,
+      SELECT u.id as student_id, u.full_name, u.group_name, u.subgroup, er.subgroup AS eval_subgroup,
         ar.id, ar.class_type, ar.class_number, ar.status
       FROM users u
       JOIN dpk_program_groups pg ON pg.program_id = ? AND pg.group_name = u.group_name
+      LEFT JOIN evaluation_results er ON er.student_id = u.id AND er.program_id = ?
       LEFT JOIN attendance_records ar ON ar.student_id = u.id AND ar.program_id = ?
       WHERE u.role = 'student'`;
-    const params = [programId, programId];
+    const params = [programId, programId, programId];
     if (req.session.user.role === 'teacher') {
       sql += ` AND EXISTS (SELECT 1 FROM dpk_program_teachers dpt WHERE dpt.program_id = ? AND dpt.teacher_id = ? AND dpt.group_name = u.group_name)`;
       params.push(programId, req.session.user.id);
@@ -1654,7 +1655,7 @@ async function start() {
     rows.forEach(r => {
       const key = r.student_id;
       if (!map[key]) {
-        map[key] = { student_id: r.student_id, full_name: r.full_name, group_name: r.group_name, records: {}, assignments: {} };
+        map[key] = { student_id: r.student_id, full_name: r.full_name, group_name: r.group_name, subgroup: r.subgroup, eval_subgroup: r.eval_subgroup, records: {}, assignments: {} };
       }
       if (r.class_type) {
         map[key].records[`${r.class_type}_${r.class_number}`] = r.status;
@@ -1674,10 +1675,59 @@ async function start() {
         if (map[record.student_id]) map[record.student_id].assignments[record.assignment_id] = record.status;
       }
     }
-    res.json({ students: Object.values(map), hours: defaultHours, groupHours, assignments });
+    let lessonDatesSql = `SELECT group_name, class_type, class_number, lesson_date FROM attendance_lesson_dates WHERE program_id = ?`;
+    const lessonDatesParams = [programId];
+    if (req.session.user.role === 'teacher') {
+      lessonDatesSql += ` AND group_name IN (SELECT group_name FROM dpk_program_teachers WHERE program_id = ? AND teacher_id = ?)`;
+      lessonDatesParams.push(programId, req.session.user.id);
+    }
+    const lessonDateRows = await db.all(lessonDatesSql, lessonDatesParams);
+    const lessonDates = {};
+    lessonDateRows.forEach(row => {
+      if (!lessonDates[row.group_name]) lessonDates[row.group_name] = {};
+      lessonDates[row.group_name][`${row.class_type}_${row.class_number}`] = row.lesson_date;
+    });
+    res.json({ students: Object.values(map), hours: defaultHours, groupHours, assignments, lessonDates });
   });
 
-  app.post('/api/attendance/program/:id/assignments', requireRole('supervisor', 'teacher'), async (req, res) => {
+  app.put('/api/attendance/program/:id/student/:studentId/subgroup', requireRole('supervisor', 'teacher', 'worker'), async (req, res) => {
+    const programId = Number(req.params.id);
+    const studentId = Number(req.params.studentId);
+    const subgroup = String(req.body.subgroup || '').trim().slice(0, 100);
+    const student = await db.one(`SELECT u.group_name FROM users u JOIN dpk_program_groups pg ON pg.program_id = ? AND pg.group_name = u.group_name WHERE u.id = ? AND u.role = 'student'`, [programId, studentId]);
+    if (!student) return res.status(404).json({ success: false, message: 'Студент не найден в программе' });
+    if (req.session.user.role === 'teacher' && !await teacherHasProgramGroup(req.session.user.id, programId, student.group_name)) {
+      return res.status(403).json({ success: false, message: 'Нет доступа к этой группе' });
+    }
+    await db.run(`INSERT INTO evaluation_results (program_id, student_id, subgroup) VALUES (?, ?, ?)
+      ON CONFLICT (program_id, student_id) DO UPDATE SET subgroup = EXCLUDED.subgroup`, [programId, studentId, subgroup]);
+    res.json({ success: true, subgroup });
+  });
+
+  app.put('/api/attendance/program/:id/lesson-date', requireRole('supervisor', 'teacher', 'worker'), async (req, res) => {
+    const programId = Number(req.params.id);
+    const groupName = String(req.body.group_name || '').trim();
+    const classType = String(req.body.class_type || '');
+    const classNumber = Number(req.body.class_number);
+    const lessonDate = String(req.body.lesson_date || '').trim();
+    if (!groupName || !['lecture', 'practice', 'lab'].includes(classType) || !Number.isInteger(classNumber) || classNumber < 1 || classNumber > 100 || (lessonDate && !parseBookingDate(lessonDate))) {
+      return res.status(400).json({ success: false, message: 'Некорректные данные занятия' });
+    }
+    const groupExists = await db.exists(`SELECT 1 FROM dpk_program_groups WHERE program_id = ? AND group_name = ?`, [programId, groupName]);
+    if (!groupExists) return res.status(404).json({ success: false, message: 'Группа не найдена в программе' });
+    if (req.session.user.role === 'teacher' && !await teacherHasProgramGroup(req.session.user.id, programId, groupName)) {
+      return res.status(403).json({ success: false, message: 'Нет доступа к этой группе' });
+    }
+    if (!lessonDate) {
+      await db.run(`DELETE FROM attendance_lesson_dates WHERE program_id = ? AND group_name = ? AND class_type = ? AND class_number = ?`, [programId, groupName, classType, classNumber]);
+    } else {
+      await db.run(`INSERT INTO attendance_lesson_dates (program_id, group_name, class_type, class_number, lesson_date) VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT (program_id, group_name, class_type, class_number) DO UPDATE SET lesson_date = EXCLUDED.lesson_date`, [programId, groupName, classType, classNumber, lessonDate]);
+    }
+    res.json({ success: true, lesson_date: lessonDate || null });
+  });
+
+  app.post('/api/attendance/program/:id/assignments', requireRole('supervisor', 'teacher', 'worker'), async (req, res) => {
     const programId = Number(req.params.id);
     const groupName = String(req.body.group_name || '').trim();
     const count = Number(req.body.count);
@@ -1698,7 +1748,7 @@ async function start() {
     res.json({ success: true, count, first_assignment_number: firstAssignmentNumber });
   });
 
-  app.post('/api/attendance/assignment/save', requireRole('supervisor', 'teacher'), async (req, res) => {
+  app.post('/api/attendance/assignment/save', requireRole('supervisor', 'teacher', 'worker'), async (req, res) => {
     const assignmentId = Number(req.body.assignment_id);
     const studentId = Number(req.body.student_id);
     const status = req.body.status || '';
@@ -1725,7 +1775,7 @@ async function start() {
     res.json({ success: true });
   });
 
-  app.delete('/api/attendance/assignment/:id', requireRole('supervisor', 'teacher'), async (req, res) => {
+  app.delete('/api/attendance/assignment/:id', requireRole('supervisor', 'teacher', 'worker'), async (req, res) => {
     const assignmentId = Number(req.params.id);
     if (!Number.isInteger(assignmentId)) return res.status(400).json({ success: false, message: 'Некорректное задание' });
     const assignment = await db.one(`SELECT program_id, group_name FROM attendance_assignments WHERE id = ?`, [assignmentId]);
@@ -1737,7 +1787,7 @@ async function start() {
     res.json({ success: true });
   });
 
-  app.get('/api/attendance/program/:id/filters', requireRole('supervisor', 'teacher'), async (req, res) => {
+  app.get('/api/attendance/program/:id/filters', requireRole('supervisor', 'teacher', 'worker'), async (req, res) => {
     if (req.session.user.role === 'teacher') {
       const assigned = await db.exists(`SELECT 1 FROM dpk_program_teachers WHERE program_id = ? AND teacher_id = ? AND group_name != '' LIMIT 1`, [req.params.id, req.session.user.id]);
       if (!assigned) return res.status(403).json({ success: false, message: 'Нет доступа к посещаемости этой программы' });
@@ -1765,22 +1815,30 @@ async function start() {
     res.json({ courses: [...courses], specialties: [...specialties], groups: [...groups] });
   });
 
-  app.post('/api/attendance/save', requireRole('supervisor', 'teacher'), async (req, res) => {
-    const { program_id, student_id, class_type, class_number, status } = req.body;
+  app.post('/api/attendance/save', requireRole('supervisor', 'teacher', 'worker'), async (req, res) => {
+    const programId = Number(req.body.program_id);
+    const studentId = Number(req.body.student_id);
+    const classType = String(req.body.class_type || '');
+    const classNumber = Number(req.body.class_number);
+    const status = String(req.body.status || '');
+    if (!Number.isInteger(programId) || !Number.isInteger(studentId) || !['lecture', 'practice', 'lab'].includes(classType) || !Number.isInteger(classNumber) || classNumber < 1 || classNumber > 100 || !['', 'present', 'absent'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Некорректная отметка посещаемости' });
+    }
+    const student = await db.one(`SELECT u.group_name FROM users u JOIN dpk_program_groups pg ON pg.program_id = ? AND pg.group_name = u.group_name WHERE u.id = ? AND u.role = 'student'`, [programId, studentId]);
+    if (!student) return res.status(404).json({ success: false, message: 'Студент не найден в программе' });
     if (req.session.user.role === 'teacher') {
-      const student = await db.one(`SELECT group_name FROM users WHERE id = ? AND role = 'student'`, [student_id]);
-      if (!student || !await teacherHasProgramGroup(req.session.user.id, program_id, student.group_name)) {
+      if (!await teacherHasProgramGroup(req.session.user.id, programId, student.group_name)) {
         return res.status(403).json({ success: false, message: 'Нет доступа к посещаемости этой группы' });
       }
     }
     if (!status) {
       await db.run(`DELETE FROM attendance_records WHERE program_id = ? AND student_id = ? AND class_type = ? AND class_number = ?`,
-        [program_id, student_id, class_type, class_number]);
+        [programId, studentId, classType, classNumber]);
       return res.json({ success: true });
     }
     await db.run(`INSERT INTO attendance_records (program_id, student_id, class_type, class_number, status) VALUES (?, ?, ?, ?, ?)
       ON CONFLICT (program_id, student_id, class_type, class_number) DO UPDATE SET status = EXCLUDED.status`,
-      [program_id, student_id, class_type, class_number, status]);
+      [programId, studentId, classType, classNumber, status]);
     res.json({ success: true });
   });
 

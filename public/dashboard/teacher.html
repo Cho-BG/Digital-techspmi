@@ -453,6 +453,7 @@
       const groupHours = resp.groupHours || {};
       const defaultHours = resp.hours || {};
       const assignments = resp.assignments || [];
+      const lessonDates = resp.lessonDates || {};
       const getColCount = (groupName, t) => {
         const gh = groupHours[groupName] || defaultHours || {};
         return Math.floor((gh[t] || 0) / 2);
@@ -473,11 +474,11 @@
         ];
         const lessonCount = sections.reduce((sum, section) => sum + section.cols, 0);
         html += `<div class="att-group-section">
-          <div class="att-group-header"><span><i></i><strong>Группа ${groupName}</strong></span><span class="att-group-meta"><b>${groups[groupName].length} студентов</b><b>${lessonCount} занятий</b></span></div>
+          <div class="att-group-header"><span><i></i><strong>Группа ${escapeTeacherText(groupName)}</strong></span><span class="att-group-meta"><b>${groups[groupName].length} студентов</b><b>${lessonCount} занятий</b></span></div>
           <div class="att-table-wrap">
             <table class="att-table">
               <thead><tr>
-                <th>ФИО</th>`;
+                 <th>ФИО</th><th class="att-subgroup-heading">Подгруппа</th>`;
         sections.forEach(sec => {
           const totalCols = sec.cols;
           if (totalCols > 0) {
@@ -487,10 +488,12 @@
         if (groupAssignments.length) html += `<th class="att-type att-type--assignment" colspan="${groupAssignments.length}">Задания</th>`;
         html += `</tr>
               <tr>
-                <th></th>`;
+                 <th></th><th></th>`;
         sections.forEach(sec => {
           for (let i = 1; i <= sec.cols; i++) {
-            html += `<th>${i}</th>`;
+            const key = `${sec.key}_${i}`;
+            const date = lessonDates[groupName]?.[key] || '';
+            html += `<th${sec.key === 'practice' ? ' class="att-practice-heading"' : ''}><span>${i}</span>${sec.key === 'practice' ? `<input type="date" class="att-lesson-date" value="${date}" data-group-name="${escapeTeacherText(groupName)}" data-class-type="${sec.key}" data-class-number="${i}" aria-label="Дата практики ${i}" onchange="saveAttendanceLessonDate(this)">` : ''}</th>`;
           }
         });
         groupAssignments.forEach((assignment, index) => {
@@ -499,7 +502,8 @@
         html += `</tr></thead>
               <tbody>`;
         groups[groupName].forEach(s => {
-          html += `<tr><td class="att-name">${s.full_name}</td>`;
+          const subgroup = s.eval_subgroup ?? s.subgroup ?? '';
+          html += `<tr><td class="att-name">${escapeTeacherText(s.full_name)}</td><td class="att-subgroup-cell"><input class="att-subgroup-input" value="${escapeTeacherText(subgroup)}" maxlength="100" aria-label="Подгруппа: ${escapeTeacherText(s.full_name)}" onchange="saveAttendanceSubgroup(${s.student_id},this)"></td>`;
           sections.forEach(sec => {
             for (let i = 1; i <= sec.cols; i++) {
               const key = `${sec.key}_${i}`;
@@ -518,6 +522,31 @@
         html += `</tbody></table></div></div>`;
       });
       container.innerHTML = html;
+    }
+
+    async function saveAttendanceSubgroup(studentId, input) {
+      input.disabled = true;
+      const result = await api(`/api/attendance/program/${currentAttProgramId}/student/${studentId}/subgroup`, {
+        method: 'PUT',
+        body: JSON.stringify({ subgroup: input.value })
+      });
+      input.disabled = false;
+      if (!result.success) alert(result.message || 'Не удалось сохранить подгруппу');
+    }
+
+    async function saveAttendanceLessonDate(input) {
+      input.disabled = true;
+      const result = await api(`/api/attendance/program/${currentAttProgramId}/lesson-date`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          group_name: input.dataset.groupName,
+          class_type: input.dataset.classType,
+          class_number: Number(input.dataset.classNumber),
+          lesson_date: input.value
+        })
+      });
+      input.disabled = false;
+      if (!result.success) alert(result.message || 'Не удалось сохранить дату занятия');
     }
 
     async function openAddAttAssignmentModal() {
@@ -1050,7 +1079,7 @@
           <div class="eval-group-header"><span>Группа ${escapeTeacherText(groupName)}</span><small>${groups[groupName].length} студентов</small></div>
           <div class="evaluation-student-list">`;
         groups[groupName].forEach(s => {
-          const subgroup = s.eval_subgroup || s.subgroup || '';
+          const subgroup = s.eval_subgroup ?? s.subgroup ?? '';
           const ml = s.missed_lectures || 0;
           const mp = s.missed_practicals || 0;
           const admission = ml >= 2 ? 'НЕДОПУСК' : ml >= 1 ? 'ДОП. ВОПРОС' : 'ДОПУСК';

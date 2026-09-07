@@ -33,6 +33,9 @@
         <button class="nav-item" data-tab="dpk">
           <span class="icon">📋</span> Программа
         </button>
+        <button class="nav-item" data-tab="attendance">
+          <span class="icon">📋</span> Посещаемость
+        </button>
         <button class="nav-item" data-tab="schedule">
           <span class="icon">📅</span> Расписания
         </button>
@@ -205,6 +208,31 @@
 <div class="empty-state">Нет занятий. Укажите часы выше</div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div id="tab-attendance" class="tab-content" style="display:none">
+        <div class="attendance-overview">
+          <div class="attendance-overview-copy"><span class="attendance-eyebrow">Учебный контроль</span><h2>Посещаемость</h2><p>Отмечайте присутствие студентов и контролируйте посещение занятий по каждой программе.</p></div>
+          <div class="attendance-overview-stats" aria-label="Количество программ"><div class="attendance-overview-stat"><span class="attendance-overview-stat-icon" aria-hidden="true"></span><span><strong id="attProgramCount">0</strong><small>Программ в журнале</small></span></div></div>
+        </div>
+        <div class="card attendance-programs-card" id="attProgramsView">
+          <div class="card-title attendance-card-title"><span><strong>Учебные программы</strong><small>Выберите программу для открытия журнала</small></span></div>
+          <div id="attProgramsList"><div class="empty-state">Загрузка...</div></div>
+        </div>
+        <div class="card attendance-detail-card" id="attDetailView" style="display:none">
+          <div class="attendance-detail-header">
+            <button class="attendance-back-button" onclick="closeAttDetail()" aria-label="Назад к программам"><span></span></button>
+            <div class="attendance-detail-heading"><small>Журнал посещаемости</small><strong id="attDetailTitle"></strong></div>
+            <div class="attendance-legend"><span><i class="is-present"></i>Присутствовал</span><span><i class="is-absent"></i>Отсутствовал</span><span><i></i>Не отмечено</span></div>
+          </div>
+          <div class="filter-bar att-filters">
+            <select id="attCourse"><option value="">Все курсы</option></select>
+            <select id="attSpecialty"><option value="">Все специальности</option></select>
+            <select id="attGroup"><option value="">Все группы</option></select>
+            <input type="search" id="attSearch" placeholder="Поиск по ФИО..." class="filter-input">
+          </div>
+          <div id="attGroupsContainer"></div>
         </div>
       </div>
 
@@ -1236,6 +1264,144 @@
       loadBookingRequests();
     }
 
+    // --- Attendance ---
+    let attProgramsData = [];
+    let currentAttProgramId = null;
+
+    async function loadAttPrograms() {
+      closeAttDetail();
+      attProgramsData = await api('/api/dpk/programs');
+      const list = document.getElementById('attProgramsList');
+      document.getElementById('attProgramCount').textContent = attProgramsData.length;
+      if (!attProgramsData.length) { list.innerHTML = '<div class="empty-state">Нет программ</div>'; return; }
+      list.innerHTML = `<div class="attendance-program-grid">${attProgramsData.map(program => `<button class="attendance-program-card" onclick="openAttDetail(${program.id})">
+        <span class="attendance-program-icon"></span>
+        <span class="attendance-program-copy"><small>${escapeStaffText(program.program_type || 'ДПК')}</small><strong>${escapeStaffText(program.name)}</strong></span>
+        <span class="attendance-program-meta"><b>${program.groups_count || 0}</b><small>групп</small></span>
+        <span class="attendance-program-arrow">→</span>
+      </button>`).join('')}</div>`;
+    }
+
+    async function openAttDetail(programId) {
+      const program = attProgramsData.find(item => item.id == programId);
+      if (!program) return;
+      currentAttProgramId = programId;
+      document.getElementById('attProgramsView').style.display = 'none';
+      document.getElementById('attDetailView').style.display = 'block';
+      document.getElementById('attDetailTitle').textContent = program.name;
+      await loadAttFilters();
+      loadAttTable(programId);
+    }
+
+    function closeAttDetail() {
+      currentAttProgramId = null;
+      document.getElementById('attDetailView').style.display = 'none';
+      document.getElementById('attProgramsView').style.display = 'block';
+    }
+
+    function getAttFilterParams() {
+      const params = new URLSearchParams();
+      const fields = [['attCourse', 'course'], ['attSpecialty', 'specialty'], ['attGroup', 'group_name'], ['attSearch', 'search']];
+      fields.forEach(([id, key]) => { if (document.getElementById(id).value) params.set(key, document.getElementById(id).value); });
+      return params.toString();
+    }
+
+    async function loadAttFilters() {
+      if (!currentAttProgramId) return;
+      const courseSelect = document.getElementById('attCourse');
+      const specialtySelect = document.getElementById('attSpecialty');
+      const groupSelect = document.getElementById('attGroup');
+      const currentCourse = courseSelect.value;
+      const currentSpecialty = specialtySelect.value;
+      const currentGroup = groupSelect.value;
+      const params = new URLSearchParams();
+      if (currentCourse) params.set('course', currentCourse);
+      if (currentSpecialty) params.set('specialty', currentSpecialty);
+      const [filters, allFilters] = await Promise.all([
+        api(`/api/attendance/program/${currentAttProgramId}/filters?${params}`),
+        api(`/api/attendance/program/${currentAttProgramId}/filters`)
+      ]);
+      courseSelect.innerHTML = '<option value="">Все курсы</option>' + allFilters.courses.map(value => `<option value="${escapeStaffText(value)}"${value === currentCourse ? ' selected' : ''}>${escapeStaffText(value)}</option>`).join('');
+      specialtySelect.innerHTML = '<option value="">Все специальности</option>' + filters.specialties.map(value => `<option value="${escapeStaffText(value)}"${value === currentSpecialty ? ' selected' : ''}>${escapeStaffText(value)}</option>`).join('');
+      groupSelect.innerHTML = '<option value="">Все группы</option>' + filters.groups.map(value => `<option value="${escapeStaffText(value)}"${value === currentGroup ? ' selected' : ''}>${escapeStaffText(value)}</option>`).join('');
+    }
+
+    async function loadAttTable(programId) {
+      const container = document.getElementById('attGroupsContainer');
+      const response = await api(`/api/attendance/program/${programId}?${getAttFilterParams()}`);
+      const students = response.students || [];
+      if (!students.length) { container.innerHTML = '<div class="empty-state">Нет студентов</div>'; return; }
+      const groupHours = response.groupHours || {};
+      const defaultHours = response.hours || {};
+      const lessonDates = response.lessonDates || {};
+      const groups = {};
+      students.forEach(student => {
+        const group = student.group_name || 'Без группы';
+        if (!groups[group]) groups[group] = [];
+        groups[group].push(student);
+      });
+      container.innerHTML = Object.keys(groups).sort().map(groupName => {
+        const hours = groupHours[groupName] || defaultHours;
+        const sections = [
+          { key: 'lecture', label: 'Лекция', cols: Math.floor((hours.lecture || 0) / 2) },
+          { key: 'practice', label: 'Практика', cols: Math.floor((hours.practice || 0) / 2) },
+          { key: 'lab', label: 'Лабораторная', cols: Math.floor((hours.lab || 0) / 2) }
+        ];
+        const lessonCount = sections.reduce((sum, section) => sum + section.cols, 0);
+        let html = `<div class="att-group-section"><div class="att-group-header"><span><i></i><strong>Группа ${escapeStaffText(groupName)}</strong></span><span class="att-group-meta"><b>${groups[groupName].length} студентов</b><b>${lessonCount} занятий</b></span></div><div class="att-table-wrap"><table class="att-table"><thead><tr><th>ФИО</th><th class="att-subgroup-heading">Подгруппа</th>`;
+        sections.forEach(section => { if (section.cols) html += `<th class="att-type att-type--${section.key}" colspan="${section.cols}">${section.label}</th>`; });
+        html += '</tr><tr><th></th><th></th>';
+        sections.forEach(section => {
+          for (let number = 1; number <= section.cols; number++) {
+            const key = `${section.key}_${number}`;
+            const date = lessonDates[groupName]?.[key] || '';
+            html += `<th${section.key === 'practice' ? ' class="att-practice-heading"' : ''}><span>${number}</span>${section.key === 'practice' ? `<input type="date" class="att-lesson-date" value="${date}" data-group-name="${escapeStaffText(groupName)}" data-class-type="${section.key}" data-class-number="${number}" aria-label="Дата практики ${number}" onchange="saveAttendanceLessonDate(this)">` : ''}</th>`;
+          }
+        });
+        html += '</tr></thead><tbody>';
+        groups[groupName].forEach(student => {
+          const subgroup = student.eval_subgroup ?? student.subgroup ?? '';
+          html += `<tr><td class="att-name">${escapeStaffText(student.full_name)}</td><td class="att-subgroup-cell"><input class="att-subgroup-input" value="${escapeStaffText(subgroup)}" maxlength="100" aria-label="Подгруппа: ${escapeStaffText(student.full_name)}" onchange="saveAttendanceSubgroup(${student.student_id},this)"></td>`;
+          sections.forEach(section => {
+            for (let number = 1; number <= section.cols; number++) {
+              const status = student.records[`${section.key}_${number}`] || '';
+              html += `<td class="att-cell${status === 'present' ? ' att-present' : status === 'absent' ? ' att-absent' : ''}" onclick="toggleAtt(${programId},${student.student_id},'${section.key}',${number},this)">${status === 'present' ? '✓' : status === 'absent' ? '✗' : ''}</td>`;
+            }
+          });
+          html += '</tr>';
+        });
+        return html + '</tbody></table></div></div>';
+      }).join('');
+    }
+
+    async function toggleAtt(programId, studentId, classType, classNumber, cell) {
+      const status = !cell.textContent.trim() ? 'present' : cell.textContent.trim() === '✓' ? 'absent' : '';
+      const result = await api('/api/attendance/save', { method: 'POST', body: JSON.stringify({ program_id: programId, student_id: studentId, class_type: classType, class_number: classNumber, status }) });
+      if (!result.success) return alert(result.message || 'Не удалось сохранить отметку');
+      cell.textContent = status === 'present' ? '✓' : status === 'absent' ? '✗' : '';
+      cell.classList.toggle('att-present', status === 'present');
+      cell.classList.toggle('att-absent', status === 'absent');
+    }
+
+    async function saveAttendanceSubgroup(studentId, input) {
+      input.disabled = true;
+      const result = await api(`/api/attendance/program/${currentAttProgramId}/student/${studentId}/subgroup`, { method: 'PUT', body: JSON.stringify({ subgroup: input.value }) });
+      input.disabled = false;
+      if (!result.success) alert(result.message || 'Не удалось сохранить подгруппу');
+    }
+
+    async function saveAttendanceLessonDate(input) {
+      input.disabled = true;
+      const result = await api(`/api/attendance/program/${currentAttProgramId}/lesson-date`, { method: 'PUT', body: JSON.stringify({ group_name: input.dataset.groupName, class_type: input.dataset.classType, class_number: Number(input.dataset.classNumber), lesson_date: input.value }) });
+      input.disabled = false;
+      if (!result.success) alert(result.message || 'Не удалось сохранить дату занятия');
+    }
+
+    document.getElementById('attCourse').addEventListener('change', async () => { document.getElementById('attSpecialty').value = ''; document.getElementById('attGroup').value = ''; await loadAttFilters(); loadAttTable(currentAttProgramId); });
+    document.getElementById('attSpecialty').addEventListener('change', async () => { document.getElementById('attGroup').value = ''; await loadAttFilters(); loadAttTable(currentAttProgramId); });
+    document.getElementById('attGroup').addEventListener('change', () => loadAttTable(currentAttProgramId));
+    document.getElementById('attSearch').addEventListener('input', () => loadAttTable(currentAttProgramId));
+
     // --- Navigation ---
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', () => {
@@ -1247,6 +1413,7 @@
         if (tab === 'teachers') { showTeacherActions = false; teacherShort = true; document.getElementById('toggleTeacherActionsBtn').textContent = '✎ Редактировать'; document.getElementById('toggleTeacherActionsBtn').className = 'btn btn--outline btn--sm'; document.getElementById('shortenBtn').textContent = 'Показать полностью'; loadTeachers(); }
         if (tab === 'students') { showActions = false; showFullStudentDetails = false; document.getElementById('toggleActionsBtn').textContent = '✎ Редактировать'; document.getElementById('toggleActionsBtn').className = 'btn btn--outline btn--sm'; document.getElementById('toggleStudentDetailsBtn').textContent = 'Показать полностью'; loadCoursesSelect('sCourse'); loadSpecialties('sSpecialty', 'sCourse'); loadGroups('sGroup', 'sFlow', 'sCourse', 'sSpecialty'); loadStudents(); }
         if (tab === 'dpk') loadDpkPrograms();
+        if (tab === 'attendance') loadAttPrograms();
         if (tab === 'schedule') { initScheduleTab(); }
         if (tab === 'bookings') loadBookingRequests();
       });

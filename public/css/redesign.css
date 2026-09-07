@@ -1426,6 +1426,15 @@ tbody tr:hover { background: #f7faff; }
 .att-table thead .att-type--practice { color: #776021 !important; background: #fff8e5 !important; }
 .att-table thead .att-type--lab { color: #6b4a91 !important; background: #f6f0fc !important; }
 .att-table thead .att-type--assignment { color: #a45723 !important; background: #fff2e8 !important; }
+.att-subgroup-heading { min-width: 118px; }
+.att-subgroup-cell { min-width: 118px; background: #fff; }
+.att-subgroup-input { width: 100%; min-width: 96px; padding: 7px 8px; color: #334a52; background: #f8fbfb; border: 1px solid #d8e5e3; border-radius: 8px; font: 600 10px/1.2 inherit; text-align: center; }
+.att-subgroup-input:focus { background: #fff; border-color: #3d8a78; outline: 0; box-shadow: 0 0 0 3px rgba(38,126,105,.1); }
+.att-subgroup-input:disabled, .att-lesson-date:disabled { opacity: .6; cursor: wait; }
+.att-practice-heading { min-width: 116px; padding: 5px 7px !important; }
+.att-practice-heading > span { display: block; margin-bottom: 4px; }
+.att-lesson-date { width: 101px; min-height: 27px; padding: 3px 4px; color: #6d5922; background: rgba(255,255,255,.8); border: 1px solid #e8d9aa; border-radius: 7px; font: 700 8px/1 inherit; cursor: pointer; }
+.att-lesson-date:focus { border-color: #b89a46; outline: 0; box-shadow: 0 0 0 3px rgba(184,154,70,.13); }
 .att-assignment-heading { min-width: 118px; }
 .att-assignment-heading > span { display: inline-grid; min-width: 22px; height: 22px; place-items: center; color: #9a572b; background: #fff1e6; border: 1px solid #f0d2bd; border-radius: 7px; }
 .att-assignment-heading > button { position: relative; width: 22px; height: 22px; margin-left: 6px; vertical-align: middle; background: #fff; border: 1px solid #ead8d0; border-radius: 7px; cursor: pointer; transition: background var(--transition), border-color var(--transition), transform var(--transition); }
